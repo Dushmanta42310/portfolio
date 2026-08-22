@@ -35,16 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
     realisticBulb.addEventListener('click', toggleThemeWithBulbEffect);
   }
 
-  // 1.1 Typewriter Texting Animation for Hero Title
+  // 1.1 Typewriter Texting Animation for Hero Role
   const typewriterOutput = document.getElementById('typewriter-output');
   if (typewriterOutput) {
     const textPhrases = [
-      "Hi, I'm <span class='gradient-text'>Dushmanta Das</span>",
-      "I'm a <span class='gradient-text'>Database Administrator (DBA)</span>",
-      "I'm a <span class='gradient-text'>Full Stack & Web Developer</span>",
-      "I specialize in <span class='gradient-text'>Data Analytics & BI</span>",
-      "I build <span class='gradient-text'>AI & ML Solutions</span>",
-      "I engineer on <span class='gradient-text'>Cloud Systems</span>"
+      "Flask Developer",
+      "Web Developer",
+      "Database Administrator (DBA)",
+      "AI / ML & RAG Model Specialist",
+      "Data Analyst"
     ];
 
     let phraseIndex = 0;
