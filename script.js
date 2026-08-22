@@ -40,9 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typewriterOutput) {
     const textPhrases = [
       "Hi, I'm <span class='gradient-text'>Dushmanta Das</span>",
-      "I'm a <span class='gradient-text'>Data Engineer</span>",
-      "I craft <span class='gradient-text'>Frontend Web Apps</span>",
-      "I specialize in <span class='gradient-text'>SQL & Power BI</span>"
+      "I'm a <span class='gradient-text'>Database Administrator (DBA)</span>",
+      "I'm a <span class='gradient-text'>Full Stack & Web Developer</span>",
+      "I specialize in <span class='gradient-text'>Data Analytics & BI</span>",
+      "I build <span class='gradient-text'>AI & ML Solutions</span>",
+      "I engineer on <span class='gradient-text'>Cloud Systems</span>"
     ];
 
     let phraseIndex = 0;
