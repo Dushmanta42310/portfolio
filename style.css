@@ -173,23 +173,32 @@ body {
   opacity: 1;
 }
 
-/* Hanging Realistic Bulb Assembly */
+/* Hanging Realistic Bulb Assembly (Centered at top) */
 .realistic-bulb-wrapper {
   position: fixed;
   top: 0;
-  right: 140px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 101;
   display: flex;
   flex-direction: column;
   align-items: center;
   cursor: pointer;
   transform-origin: top center;
-  transition: transform 0.3s ease;
   user-select: none;
 }
 
 .realistic-bulb-wrapper.swinging {
-  animation: bulbSwing 1.8s ease-in-out;
+  animation: bulbSwingCenter 1.8s ease-in-out;
+}
+
+@keyframes bulbSwingCenter {
+  0% { transform: translateX(-50%) rotate(0deg); }
+  20% { transform: translateX(-50%) rotate(12deg); }
+  40% { transform: translateX(-50%) rotate(-9deg); }
+  60% { transform: translateX(-50%) rotate(6deg); }
+  80% { transform: translateX(-50%) rotate(-3deg); }
+  100% { transform: translateX(-50%) rotate(0deg); }
 }
 
 .bulb-wire {
@@ -674,6 +683,20 @@ nav {
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.03em;
+  min-height: 1.2em;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  font-weight: 300;
+  color: var(--accent-cyan);
+  animation: blinkCursor 0.9s infinite;
+  margin-left: 4px;
+}
+
+@keyframes blinkCursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
 .hero-subtitle {

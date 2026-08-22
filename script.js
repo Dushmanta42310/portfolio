@@ -35,6 +35,91 @@ document.addEventListener('DOMContentLoaded', () => {
     realisticBulb.addEventListener('click', toggleThemeWithBulbEffect);
   }
 
+  // 1.1 Typewriter Texting Animation for Hero Title
+  const typewriterOutput = document.getElementById('typewriter-output');
+  if (typewriterOutput) {
+    const textPhrases = [
+      "Hi, I'm <span class='gradient-text'>Dushmanta Das</span>",
+      "I'm a <span class='gradient-text'>Data Engineer</span>",
+      "I craft <span class='gradient-text'>Frontend Web Apps</span>",
+      "I specialize in <span class='gradient-text'>SQL & Power BI</span>"
+    ];
+
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let typingSpeed = 80;
+
+    function typeWriter() {
+      const currentPhrase = textPhrases[phraseIndex];
+
+      if (isDeleting) {
+        // Strip HTML tags for clean backspacing calculation
+        charIndex--;
+        typewriterOutput.innerHTML = getRenderedText(currentPhrase, charIndex);
+        typingSpeed = 40;
+      } else {
+        charIndex++;
+        typewriterOutput.innerHTML = getRenderedText(currentPhrase, charIndex);
+        typingSpeed = 85;
+      }
+
+      const plainTextLength = getPlainText(currentPhrase).length;
+
+      if (!isDeleting && charIndex >= plainTextLength) {
+        // Pause at complete phrase
+        typingSpeed = 2200;
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % textPhrases.length;
+        typingSpeed = 450;
+      }
+
+      setTimeout(typeWriter, typingSpeed);
+    }
+
+    // Helper to accurately extract text without breaking HTML tags during typing
+    function getPlainText(html) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      return tempDiv.textContent || tempDiv.innerText || '';
+    }
+
+    function getRenderedText(html, length) {
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      let count = 0;
+
+      function traverse(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const remaining = length - count;
+          if (node.textContent.length > remaining) {
+            node.textContent = node.textContent.substring(0, Math.max(0, remaining));
+            count = length;
+          } else {
+            count += node.textContent.length;
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          for (let i = 0; i < node.childNodes.length; i++) {
+            if (count < length) {
+              traverse(node.childNodes[i]);
+            } else {
+              node.removeChild(node.childNodes[i]);
+              i--;
+            }
+          }
+        }
+      }
+
+      traverse(tempDiv);
+      return tempDiv.innerHTML;
+    }
+
+    // Start typing after initial delay
+    setTimeout(typeWriter, 500);
+  }
+
   // 2. Mobile Navigation Menu Toggle
   const mobileToggle = document.getElementById('mobile-menu-toggle');
   const navMenu = document.getElementById('nav-menu');
