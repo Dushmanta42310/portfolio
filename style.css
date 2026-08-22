@@ -173,13 +173,34 @@ body {
   opacity: 1;
 }
 
-/* Hanging Realistic Bulb Assembly (Centered at top) */
+/* ==========================================================================
+   HYPER-REALISTIC LIGHT BULB & VOLUMETRIC LIGHT CONE
+   ========================================================================== */
+.bulb-light-cone {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1400px;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse 55% 75% at 50% 0%, rgba(255, 230, 110, 0.32) 0%, rgba(255, 240, 160, 0.14) 40%, transparent 75%);
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] .bulb-light-cone {
+  opacity: 1;
+}
+
+/* Hanging Realistic Bulb Assembly (Centered, Short Wire at Navbar) */
 .realistic-bulb-wrapper {
   position: fixed;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 101;
+  z-index: 110;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -194,116 +215,138 @@ body {
 
 @keyframes bulbSwingCenter {
   0% { transform: translateX(-50%) rotate(0deg); }
-  20% { transform: translateX(-50%) rotate(12deg); }
-  40% { transform: translateX(-50%) rotate(-9deg); }
-  60% { transform: translateX(-50%) rotate(6deg); }
-  80% { transform: translateX(-50%) rotate(-3deg); }
+  20% { transform: translateX(-50%) rotate(10deg); }
+  40% { transform: translateX(-50%) rotate(-8deg); }
+  60% { transform: translateX(-50%) rotate(5deg); }
+  80% { transform: translateX(-50%) rotate(-2deg); }
   100% { transform: translateX(-50%) rotate(0deg); }
 }
 
+/* Short wire that hangs neatly from window top to top of navbar */
 .bulb-wire {
-  width: 2.5px;
-  height: 65px;
-  background: linear-gradient(180deg, #111 0%, #333 70%, #555 100%);
-  box-shadow: 0 0 4px rgba(0,0,0,0.5);
-  position: relative;
+  width: 2px;
+  height: 10px;
+  background: linear-gradient(180deg, #09090b 0%, #27272a 60%, #52525b 100%);
+  box-shadow: 0 0 2px rgba(0,0,0,0.8);
 }
 
+/* Realistic Brushed Metallic Screw Fixture */
 .bulb-fixture {
-  width: 18px;
-  height: 14px;
-  background: linear-gradient(90deg, #64748b 0%, #94a3b8 50%, #475569 100%);
-  border-radius: 4px 4px 1px 1px;
-  position: relative;
-  box-shadow: inset 0 2px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.4);
+  width: 16px;
+  height: 12px;
+  background: linear-gradient(90deg, #78716c 0%, #d6d3d1 50%, #57534e 100%);
+  border-radius: 2px 2px 1px 1px;
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5px;
 }
 
-.bulb-fixture::before {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 2px;
+.fixture-ring {
   width: 14px;
-  height: 4px;
-  background: #cbd5e1;
+  height: 2px;
+  background: linear-gradient(90deg, #57534e 0%, #a8a29e 50%, #44403c 100%);
   border-radius: 1px;
 }
 
-/* Bulb Glass Globe */
+/* Hyper-Realistic Glass Globe */
 .bulb-glass {
   position: relative;
-  width: 44px;
-  height: 54px;
-  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.4) 100%);
-  border-radius: 50% 50% 45% 45% / 40% 40% 60% 60%;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: inset 0 0 10px rgba(255,255,255,0.1), 0 8px 16px rgba(0,0,0,0.4);
-  backdrop-filter: blur(2px);
+  width: 36px;
+  height: 44px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 45%, rgba(0,0,0,0.45) 95%);
+  border-radius: 50% 50% 46% 46% / 40% 40% 60% 60%;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 0 8px rgba(255,255,255,0.08), 0 6px 14px rgba(0,0,0,0.5);
+  backdrop-filter: blur(1.5px);
+  -webkit-backdrop-filter: blur(1.5px);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.4s ease;
-  margin-top: 3px;
+  transition: all 0.35s ease;
+  margin-top: 1px;
+  overflow: hidden;
 }
 
-/* Glowing Filament */
-.bulb-filament {
-  width: 14px;
-  height: 18px;
-  border: 2px solid #52525b;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
+/* Glass Specular Glare Highlights */
+.bulb-highlight-glare {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 7px;
+  height: 15px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 80%, transparent 100%);
+  transform: rotate(-30deg);
+  pointer-events: none;
+}
+
+.bulb-rim-reflection {
+  position: absolute;
+  bottom: 3px;
+  width: 18px;
+  height: 5px;
+  border-radius: 50%;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+
+/* Realistic Tungsten Filament Structure */
+.bulb-filament-assembly {
   position: relative;
+  width: 16px;
+  height: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-top: 2px;
   transition: all 0.35s ease;
 }
 
-.bulb-filament::after {
-  content: '';
-  position: absolute;
-  top: 4px;
-  left: 3px;
-  width: 4px;
-  height: 4px;
+.filament-stem {
+  width: 1.5px;
+  height: 15px;
   background: #52525b;
-  border-radius: 50%;
+  border-radius: 1px;
   transition: all 0.35s ease;
 }
 
-/* Bulb Light Glow (When ON) */
-[data-theme="light"] .bulb-glass {
-  background: radial-gradient(circle at 45% 45%, #ffffff 0%, #fff7b2 40%, #ffc038 80%, #f59e0b 100%);
-  border-color: #ffedd5;
-  box-shadow: 0 0 35px #fbbf24, 0 0 65px rgba(245, 158, 11, 0.8), inset 0 0 14px #ffffff;
-}
-
-[data-theme="light"] .bulb-filament {
-  border-color: #ffffff;
-  box-shadow: 0 0 12px #ffffff, 0 0 20px #fbbf24;
-}
-
-[data-theme="light"] .bulb-filament::after {
-  background: #ffffff;
-  box-shadow: 0 0 10px #ffffff;
-}
-
-/* Glass Reflection Highlight */
-.bulb-glass::before {
-  content: '';
+.filament-loop {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 10px;
-  height: 16px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  transform: rotate(-35deg);
+  top: 2px;
+  left: 1px;
+  width: 14px;
+  height: 9px;
+  border: 1.5px solid #71717a;
+  border-bottom: none;
+  border-radius: 7px 7px 0 0;
+  transition: all 0.35s ease;
+}
+
+/* When Light is ON (Warm Incandescent Glow) */
+[data-theme="light"] .bulb-glass {
+  background: radial-gradient(circle at 45% 45%, #ffffff 0%, #fff7a0 35%, #f59e0b 80%, #d97706 100%);
+  border-color: #fef08a;
+  box-shadow: 0 0 28px #f59e0b, 0 0 60px rgba(245, 158, 11, 0.85), inset 0 0 14px #ffffff;
+}
+
+[data-theme="light"] .filament-stem {
+  background: #ffffff;
+  box-shadow: 0 0 6px #ffffff, 0 0 12px #fbbf24;
+}
+
+[data-theme="light"] .filament-loop {
+  border-color: #ffffff;
+  box-shadow: 0 0 8px #ffffff, 0 0 18px #f59e0b;
 }
 
 /* Pull Cord Handle */
 .bulb-pull-cord {
   width: 1.5px;
-  height: 40px;
-  background: #94a3b8;
+  height: 14px;
+  background: #71717a;
   position: relative;
   display: flex;
   justify-content: center;
@@ -311,17 +354,17 @@ body {
 
 .bulb-pull-handle {
   position: absolute;
-  bottom: -10px;
-  width: 8px;
-  height: 12px;
-  background: linear-gradient(180deg, #cbd5e1 0%, #64748b 100%);
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  bottom: -6px;
+  width: 6px;
+  height: 8px;
+  background: linear-gradient(180deg, #e2e8f0 0%, #64748b 100%);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
   transition: transform 0.15s ease;
 }
 
 .realistic-bulb-wrapper:hover .bulb-pull-handle {
-  transform: translateY(3px);
+  transform: translateY(2px);
 }
 
 /* Realistic Bulb Physics Swing Animation */
@@ -453,10 +496,17 @@ nav {
   box-shadow: var(--glow-cyan);
 }
 
+.nav-right-group {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-left: auto;
+}
+
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 28px;
   list-style: none;
 }
 
@@ -1487,8 +1537,8 @@ footer {
   }
 
   .realistic-bulb-wrapper {
-    right: 70px;
-    transform: scale(0.85);
+    left: 50%;
+    transform: translateX(-50%) scale(0.85);
   }
 
   .bulb-light-cone {

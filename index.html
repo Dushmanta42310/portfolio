@@ -30,12 +30,21 @@
   <!-- Volumetric Bulb Light Cone -->
   <div class="bulb-light-cone" id="bulb-light-cone"></div>
 
-  <!-- Hanging Realistic Interactive Light Bulb -->
-  <div class="realistic-bulb-wrapper" id="realistic-bulb" title="Click or Pull to Turn On/Off the Light!">
+  <!-- Hanging Realistic Interactive Light Bulb (Short wire, sits right at navbar) -->
+  <div class="realistic-bulb-wrapper" id="realistic-bulb" title="Click to Turn On/Off the Light">
     <div class="bulb-wire"></div>
-    <div class="bulb-fixture"></div>
+    <div class="bulb-fixture">
+      <div class="fixture-ring"></div>
+      <div class="fixture-ring"></div>
+    </div>
     <div class="bulb-glass">
-      <div class="bulb-filament"></div>
+      <div class="bulb-highlight-glare"></div>
+      <div class="bulb-rim-reflection"></div>
+      <div class="bulb-filament-assembly">
+        <div class="filament-stem left-stem"></div>
+        <div class="filament-stem right-stem"></div>
+        <div class="filament-loop"></div>
+      </div>
     </div>
     <div class="bulb-pull-cord">
       <div class="bulb-pull-handle"></div>
@@ -51,25 +60,28 @@
           <span>Dushmanta<span class="gradient-text">.dev</span></span>
         </a>
 
-        <ul class="nav-menu" id="nav-menu">
-          <li><a href="#about">About</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#resume-certificates">Resume & Certs</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
+        <!-- Right Aligned Nav Group (Keeps center space clear for bulb) -->
+        <div class="nav-right-group">
+          <ul class="nav-menu" id="nav-menu">
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#resume-certificates">Resume & Certs</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
 
-        <div class="nav-actions">
-          <!-- Theme Toggle Switch (Pure Black <-> Pure White) -->
-          <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
-            <i class="fa-solid fa-moon moon-icon"></i>
-            <i class="fa-solid fa-sun sun-icon"></i>
-          </button>
+          <div class="nav-actions">
+            <!-- Theme Toggle Switch (Pure Black <-> Pure White) -->
+            <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+              <i class="fa-solid fa-moon moon-icon"></i>
+              <i class="fa-solid fa-sun sun-icon"></i>
+            </button>
 
-          <!-- Mobile Nav Toggle -->
-          <button class="mobile-toggle-btn" id="mobile-menu-toggle" aria-label="Open Navigation Menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
+            <!-- Mobile Nav Toggle -->
+            <button class="mobile-toggle-btn" id="mobile-menu-toggle" aria-label="Open Navigation Menu">
+              <i class="fa-solid fa-bars"></i>
+            </button>
+          </div>
         </div>
       </nav>
     </div>
