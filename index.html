@@ -1,371 +1,543 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dushmanta Portfolio</title>
+  <title>Dushmanta Das | Data Engineer & Frontend Developer</title>
+  <meta name="description" content="Portfolio of Dushmanta Das - Passionate Data Engineer skilled in SQL, PL/SQL, Python, Power BI, and modern frontend web development.">
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- AOS (Animate on Scroll) -->
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet" />
 </head>
 
 <body>
-  <!-- REMOVE empty div outside body -->
-  <!-- Navbar -->
+  <!-- Ambient Glow & Background Matrix -->
+  <div class="bg-ambient-layer">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-grid"></div>
+  </div>
+
+  <!-- Glassmorphic Sticky Header -->
   <header>
-    <nav>
-      <div class="left">Dushmanta's Portfolio</div>
-      <div class="right">
-        <ul>
-          <li><a href="#about">About Me</a></li>
-          <li><a href="#Skill">Skills</a></li>
+    <div class="container">
+      <nav>
+        <a href="#" class="nav-brand">
+          <div class="brand-badge">D</div>
+          <span>Dushmanta<span class="gradient-text">.dev</span></span>
+        </a>
+
+        <ul class="nav-menu" id="nav-menu">
+          <li><a href="#about">About</a></li>
+          <li><a href="#skills">Skills</a></li>
           <li><a href="#projects">Projects</a></li>
+          <li><a href="#resume-certificates">Resume & Certs</a></li>
           <li><a href="#contact">Contact</a></li>
-          <li><a href="#resume-certificates">Resume /certificate</a></li>
         </ul>
-      </div>            
-    </nav>
+
+        <div class="nav-actions">
+          <!-- Theme Toggle Switch (Pure Black <-> Pure White) -->
+          <button class="theme-toggle-btn" id="theme-toggle" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+            <i class="fa-solid fa-moon moon-icon"></i>
+            <i class="fa-solid fa-sun sun-icon"></i>
+          </button>
+
+          <!-- Mobile Nav Toggle -->
+          <button class="mobile-toggle-btn" id="mobile-menu-toggle" aria-label="Open Navigation Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+        </div>
+      </nav>
+    </div>
   </header>
 
   <!-- Hero Section -->
-  <div class="content">
-    <div class="left-section">
-      <img src="profile.jpg" alt="Dushmanta Das" />
-    </div>
-
-    <div class="right-section">
-      <div class="tile">
-        <h1>Dushmanta Das</h1>
-        <p>
-          Hey there! I'm a Passionate Data Engineer skilled in SQL, PL/SQL, Python, and Power BI, with a creative edge in HTML, CSS, and JavaScript. Focused on building seamless data solutions and intuitive user-friendly web interfaces.
-        </p>
-        <div class="My-logos">
-          <a href ="https://www.linkedin.com/in/dushmanta-das-3455a2327/" target="_blank" style="text-decoration: none; color: inherit;">
-           <img src="linkedin-logo-linkedin-icon-transparent-free-png.webp" alt="linkedin" />
-           </a>
-           <a href="https://github.com/Dushmanta42310" target="_blank" style="text-decoration: none; color: inherit;">
-            <img src="github.png" alt="github" />
-          </a>              
+  <section class="hero-section" id="hero">
+    <div class="container">
+      <div class="hero-grid">
+        
+        <!-- Left: Glowing Portrait Container -->
+        <div class="hero-avatar-wrapper" data-aos="fade-right">
+          <div class="avatar-glow-ring"></div>
+          <div class="avatar-card">
+            <img src="profile.jpg" alt="Dushmanta Das Portrait" class="avatar-img" />
+            <div class="avatar-floating-badge">
+              <span class="status-dot"></span>
+              <span>Available for opportunities</span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-  
-  
-  
-  <!-- About Section -->
-  <section id="about">
-    <div class="about-wrapper">
-      <!-- Left Tile -->
-      <div class="about-left tile" data-aos="fade-left" data-aos-anchor="#about" data-aos-offset="200" data-aos-duration="600">
-        <h2>About Me</h2>
-        <p>
-          I’m Passionate about data and frontend, skilled in <strong>SQL</strong>, <strong>PL/SQL</strong>, <strong>Python</strong>, <strong>Power BI</strong>, <strong>HTML</strong>, <strong>CSS</strong>, <strong>JavaScript</strong>, and <strong>React</strong> <br> I build clean, insightful, and user-friendly digital experiences.
-        </p>
 
-        <div class="about-section">
-           <!-- School Section -->
-           <a href="https://www.mountliteratangi.in/" target="_blank" style="text-decoration: none; color: inherit;">
-            <div class="school-tile" data-aos="zoom-in-up"data-aos-delay="0">
-              <img src="mount litera zee.jpg" alt="Mount Litera Zee School Logo" />
-              <div class="school-info">
-                <span class="school-name">Mount Litera Zee School, Tangi</span>
-                <span class="school-meta">10TH | CBSE | 2021</span>
-              </div>
-            </div>
-          </a>
-          
-          <a href="https://www.onenessinternationalschool.com/" target="_blank" style="text-decoration: none; color: inherit;">
-            <div class="school-tile" data-aos="zoom-in-up" data-aos-delay="0">
-              <img src="oneness.jpg" alt="Oneness International School Logo" />
-              <div class="school-info">
-                <span class="school-name">Oneness International School, Khurdha</span>
-                <span class="school-meta">12TH | CBSE | 2023</span>
-              </div>
-            </div>
-          </a>
-          
-          <a href="https://www.kmbb.in/" target="_blank" style="text-decoration: none; color: inherit;">
-            <div class="school-tile" data-aos="zoom-in-up" data-aos-delay="0">
-              <img src="kmbb.jpg" alt="KMBB College Logo" />
-              <div class="school-info">
-                <span class="school-name">KMBB College Of Engineering And Technology, Khurdha</span>
-                <span class="school-meta">B.TECH (CSE) | BPUT | 2023</span>
-              </div>
-            </div>
-          </a>
-          
+        <!-- Right: Bio & Call to Actions -->
+        <div class="hero-content" data-aos="fade-left" data-aos-delay="100">
+          <div class="hero-status-pill">
+            <i class="fa-solid fa-terminal" style="color: var(--accent-cyan);"></i>
+            <span>Data Engineer & Frontend Crafter</span>
+          </div>
+
+          <h1 class="hero-title">
+            Hi, I'm <span class="gradient-text">Dushmanta Das</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Transforming Complex Data into Seamless Digital Solutions.
+          </p>
+
+          <p class="hero-bio">
+            Passionate Data Engineer specialized in <strong>SQL</strong>, <strong>PL/SQL</strong>, <strong>Python</strong>, and <strong>Power BI</strong>, combined with modern frontend skills in <strong>HTML5</strong>, <strong>CSS3</strong>, and <strong>JavaScript</strong> to build intuitive, high-performance web experiences.
+          </p>
+
+          <div class="hero-cta-group">
+            <a href="#contact" class="btn btn-primary">
+              <span>Let's Talk</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <a href="DUSHMANTA_RESUME.pdf" download class="btn btn-secondary">
+              <i class="fa-solid fa-download"></i>
+              <span>Download CV</span>
+            </a>
+          </div>
+
+          <!-- Social Links -->
+          <div class="hero-socials">
+            <a href="https://github.com/Dushmanta42310" target="_blank" rel="noopener noreferrer" class="social-pill" title="GitHub">
+              <img src="github.png" alt="GitHub" />
+            </a>
+            <a href="https://www.linkedin.com/in/dushmanta-das-3455a2327/" target="_blank" rel="noopener noreferrer" class="social-pill" title="LinkedIn">
+              <img src="linkedin-logo-linkedin-icon-transparent-free-png.webp" alt="LinkedIn" />
+            </a>
+            <a href="https://wa.me/917008233179" target="_blank" rel="noopener noreferrer" class="social-pill" title="WhatsApp">
+              <img src="Whatsapp-logo-vetor.png" alt="WhatsApp" />
+            </a>
+          </div>
+
         </div>
-      </div>
 
-      <!-- Right Tile -->
-      <div class="about-right tile" data-aos="zoom-in-up" data-aos-delay="300">
-        <img src="profile.jpg" alt="Profile Picture" />
       </div>
     </div>
   </section>
-  
-  
-  <!-- Skill Section -->
-<section id="Skill" class="Skill-section">
-  <h2 class="section-title" data-aos="zoom-in">Skills</h2>
 
-  <div class="Skill-tiles">
+  <!-- About Section (Bento Grid) -->
+  <section id="about" class="about-section">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-tag"><i class="fa-solid fa-user"></i> About Me</span>
+        <h2 class="section-title">Background & Education</h2>
+        <p class="section-subtitle">A blend of analytical data engineering foundations and sleek frontend design craft.</p>
+      </div>
 
-    <!-- SQL -->
-    <div class="Skill-tile left-tile" data-aos="fade-left">
-      <img src="Oracle_SQL_Developer-Logo.wine.png" alt="SQL" class="Skill-logo">
-      <div class="Skill-details">
-        <h3>SQL</h3>
-        <p>Structured Query Language for managing databases.</p>
+      <div class="bento-grid">
+        
+        <!-- Left Bento Card: Bio & Highlights -->
+        <div class="bento-card" data-aos="fade-right">
+          <h3 class="bento-card-title">
+            <i class="fa-solid fa-sparkles"></i> Who I Am
+          </h3>
+          <p class="about-text">
+            I am driven by turning data into business intelligence and creating elegant digital interfaces. With strong expertise in relational database architecture, stored procedures, data extraction, and interactive dashboards, I deliver scalable end-to-end solutions.
+          </p>
+          <p class="about-text">
+            Constantly learning and exploring new technologies across AI, cloud analytics, and modern UI engineering.
+          </p>
+
+          <div class="about-stats">
+            <div class="stat-item">
+              <div class="stat-number">3+</div>
+              <div class="stat-label">Core Tech Stacks</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">4+</div>
+              <div class="stat-label">Featured Projects</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">100%</div>
+              <div class="stat-label">Dedication</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Bento Card: Education Timeline -->
+        <div class="bento-card" data-aos="fade-left" data-aos-delay="100">
+          <h3 class="bento-card-title">
+            <i class="fa-solid fa-graduation-cap"></i> Academic Journey
+          </h3>
+          
+          <div class="education-timeline">
+            
+            <!-- School 1 -->
+            <a href="https://www.kmbb.in/" target="_blank" rel="noopener noreferrer" class="edu-card">
+              <div class="edu-logo-wrapper">
+                <img src="kmbb.jpg" alt="KMBB College Logo" class="edu-logo" />
+              </div>
+              <div class="edu-info">
+                <span class="edu-name">KMBB College of Engineering & Technology</span>
+                <span class="edu-meta">B.Tech (CSE) · BPUT · 2023 - Present</span>
+              </div>
+            </a>
+
+            <!-- School 2 -->
+            <a href="https://www.onenessinternationalschool.com/" target="_blank" rel="noopener noreferrer" class="edu-card">
+              <div class="edu-logo-wrapper">
+                <img src="oneness.jpg" alt="Oneness International School" class="edu-logo" />
+              </div>
+              <div class="edu-info">
+                <span class="edu-name">Oneness International School, Khurdha</span>
+                <span class="edu-meta">12th Grade · CBSE · 2023</span>
+              </div>
+            </a>
+
+            <!-- School 3 -->
+            <a href="https://www.mountliteratangi.in/" target="_blank" rel="noopener noreferrer" class="edu-card">
+              <div class="edu-logo-wrapper">
+                <img src="mount litera zee.jpg" alt="Mount Litera Zee School" class="edu-logo" />
+              </div>
+              <div class="edu-info">
+                <span class="edu-name">Mount Litera Zee School, Tangi</span>
+                <span class="edu-meta">10th Grade · CBSE · 2021</span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+
       </div>
     </div>
+  </section>
 
-    <!-- PL/SQL -->
-    <div class="Skill-tile right-tile" data-aos="fade-right">
-      <img src="Plsql.png" alt="PL/SQL" class="Skill-logo">
-      <div class="Skill-details">
-        <h3>PL/SQL</h3>
-        <p>Procedural SQL extension used in Oracle databases.</p>
+  <!-- Skills Section -->
+  <section id="skills" class="skills-section">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-tag"><i class="fa-solid fa-layer-group"></i> Tech Stack</span>
+        <h2 class="section-title">Skills & Technologies</h2>
+        <p class="section-subtitle">Specialized tools and languages I utilize to craft robust data pipelines and web applications.</p>
+      </div>
+
+      <div class="skills-grid">
+        
+        <!-- SQL -->
+        <div class="skill-card" data-aos="zoom-in" data-aos-delay="50">
+          <div class="skill-icon-wrap">
+            <img src="Oracle_SQL_Developer-Logo.wine.png" alt="SQL" class="skill-icon" />
+          </div>
+          <div class="skill-info">
+            <h4 class="skill-title">SQL</h4>
+            <p class="skill-desc">Relational database design, complex queries, indexing & query tuning.</p>
+          </div>
+        </div>
+
+        <!-- PL/SQL -->
+        <div class="skill-card" data-aos="zoom-in" data-aos-delay="100">
+          <div class="skill-icon-wrap">
+            <img src="Plsql.png" alt="PL/SQL" class="skill-icon" />
+          </div>
+          <div class="skill-info">
+            <h4 class="skill-title">PL/SQL</h4>
+            <p class="skill-desc">Stored procedures, functions, packages, triggers & database cursors.</p>
+          </div>
+        </div>
+
+        <!-- Power BI -->
+        <div class="skill-card" data-aos="zoom-in" data-aos-delay="150">
+          <div class="skill-icon-wrap">
+            <img src="icons8-power-bi-2021-48.png" alt="Power BI" class="skill-icon" />
+          </div>
+          <div class="skill-info">
+            <h4 class="skill-title">Power BI</h4>
+            <p class="skill-desc">Interactive business intelligence dashboards, DAX queries, & data models.</p>
+          </div>
+        </div>
+
+        <!-- Python -->
+        <div class="skill-card" data-aos="zoom-in" data-aos-delay="200">
+          <div class="skill-icon-wrap">
+            <img src="png-image-of-python-logo-no-text-included-7.png" alt="Python" class="skill-icon" />
+          </div>
+          <div class="skill-info">
+            <h4 class="skill-title">Python</h4>
+            <p class="skill-desc">Data analysis, automated scripting, Pandas, NumPy & backend logic.</p>
+          </div>
+        </div>
+
+        <!-- HTML5 -->
+        <div class="skill-card" data-aos="zoom-in" data-aos-delay="250">
+          <div class="skill-icon-wrap">
+            <img src="html5-logo-circle.png" alt="HTML5" class="skill-icon" />
+          </div>
+          <div class="skill-info">
+            <h4 class="skill-title">HTML5</h4>
+            <p class="skill-desc">Semantic markup, responsive structuring, accessibility & SEO standards.</p>
+          </div>
+        </div>
+
+        <!-- CSS3 -->
+        <div class="skill-card" data-aos="zoom-in" data-aos-delay="300">
+          <div class="skill-icon-wrap">
+            <img src="image_processing20210621-18852-addno7.png" alt="CSS3" class="skill-icon" />
+          </div>
+          <div class="skill-info">
+            <h4 class="skill-title">CSS3</h4>
+            <p class="skill-desc">Glassmorphism, CSS Grid, Flexbox, keyframe animations & dark/light themes.</p>
+          </div>
+        </div>
+
+        <!-- JavaScript -->
+        <div class="skill-card" data-aos="zoom-in" data-aos-delay="350">
+          <div class="skill-icon-wrap">
+            <img src="11662226392uom4gsi9ddb1c81ipfx2u4imargvwq7uskhdui1pj4f6xufjz0jkfzqzduhjuifts0dzcnykgszw6isfutq2nlwb51ef4gm0dt8d.png" alt="JavaScript" class="skill-icon" />
+          </div>
+          <div class="skill-info">
+            <h4 class="skill-title">JavaScript</h4>
+            <p class="skill-desc">DOM manipulation, ES6+ features, asynchronous fetch APIs & interactivity.</p>
+          </div>
+        </div>
+
       </div>
     </div>
+  </section>
 
-    <!-- Power BI -->
-    <div class="Skill-tile left-tile" data-aos="fade-left">
-      <img src="icons8-power-bi-2021-48.png" alt="Power BI" class="Skill-logo">
-      <div class="Skill-details">
-        <h3>Power BI</h3>
-        <p>Data visualization and business intelligence tool.</p>
+  <!-- Projects Section -->
+  <section id="projects" class="projects-section">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-tag"><i class="fa-solid fa-code"></i> Portfolio</span>
+        <h2 class="section-title">Featured Projects</h2>
+        <p class="section-subtitle">Real-world applications spanning database management, data dashboards, and frontend craft.</p>
+      </div>
+
+      <div class="projects-grid">
+        
+        <!-- Project 1 -->
+        <div class="project-card" data-aos="fade-up" data-aos-delay="50">
+          <div class="project-thumb-wrap">
+            <img src="work-in-progress-clipart.png" alt="Library Management System" class="project-thumb" />
+            <span class="project-status-badge">Database System</span>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">Library Management System</h3>
+            <div class="project-tags">
+              <span class="tech-tag">SQL</span>
+              <span class="tech-tag">PL/SQL</span>
+              <span class="tech-tag">Oracle APEX</span>
+            </div>
+            <p class="skill-desc">
+              Comprehensive database solution featuring transactional triggers, automated issue tracking, and book inventory management.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card" data-aos="fade-up" data-aos-delay="100">
+          <div class="project-thumb-wrap">
+            <img src="work-in-progress-clipart.png" alt="Portfolio Website" class="project-thumb" />
+            <span class="project-status-badge">Web Application</span>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">Interactive Portfolio</h3>
+            <div class="project-tags">
+              <span class="tech-tag">HTML5</span>
+              <span class="tech-tag">CSS3</span>
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">AOS</span>
+            </div>
+            <p class="skill-desc">
+              Trendy high-performance personal portfolio with pure dark/light theme switching, glassmorphism, and responsive design.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card" data-aos="fade-up" data-aos-delay="150">
+          <div class="project-thumb-wrap">
+            <img src="work-in-progress-clipart.png" alt="Data Dashboard" class="project-thumb" />
+            <span class="project-status-badge">Analytics</span>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">Business Data Dashboard</h3>
+            <div class="project-tags">
+              <span class="tech-tag">Power BI</span>
+              <span class="tech-tag">DAX</span>
+              <span class="tech-tag">Business Analytics</span>
+            </div>
+            <p class="skill-desc">
+              Interactive visualization dashboards tracking KPIs, trend analytics, and actionable business insights with rich chart suites.
+            </p>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="project-card" data-aos="fade-up" data-aos-delay="200">
+          <div class="project-thumb-wrap">
+            <img src="work-in-progress-clipart.png" alt="IoT Cloud Monitor" class="project-thumb" />
+            <span class="project-status-badge">IoT & Cloud</span>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">IoT Cloud Monitor</h3>
+            <div class="project-tags">
+              <span class="tech-tag">ESP32</span>
+              <span class="tech-tag">Realtime DB</span>
+              <span class="tech-tag">Cloud</span>
+            </div>
+            <p class="skill-desc">
+              Real-time telemetry and device monitoring system with live sensor feed ingestion and cloud synchronization.
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
+  </section>
 
-    <!-- Python -->
-    <div class="Skill-tile right-tile" data-aos="fade-right">
-      <img src="png-image-of-python-logo-no-text-included-7.png" alt="Python" class="Skill-logo">
-      <div class="Skill-details">
-        <h3>Python</h3>
-        <p>Used for data analysis, visualization, and ML.</p>
+  <!-- Resume & Certificates Section -->
+  <section id="resume-certificates" class="resume-cert-section">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-tag"><i class="fa-solid fa-file-lines"></i> Credentials</span>
+        <h2 class="section-title">Resume & Certifications</h2>
+        <p class="section-subtitle">Verified professional qualifications and detailed curriculum vitae.</p>
+      </div>
+
+      <div class="resume-cert-grid">
+        
+        <!-- Resume Card -->
+        <div class="resume-box" data-aos="fade-right">
+          <div>
+            <span class="section-tag"><i class="fa-solid fa-user-tie"></i> Curriculum Vitae</span>
+            <h3 class="bento-card-title" style="margin-top: 14px;">Dushmanta Das - Resume</h3>
+            <p class="about-text">
+              Detailed document highlighting technical proficiencies, database engineering experience, academic record, and project implementations.
+            </p>
+          </div>
+
+          <a href="DUSHMANTA_RESUME.pdf" download class="btn btn-primary" style="width: fit-content;">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span>Download Official Resume</span>
+          </a>
+        </div>
+
+        <!-- Certificate Card -->
+        <a href="https://www.coursera.org/account/accomplishments/verify/BAZVV0F0QKUR?utm_source=ln&utm_medium=certificate&utm_content=cert_image&utm_campaign=sharing_cta&utm_product=course" target="_blank" rel="noopener noreferrer" class="cert-card" data-aos="fade-left">
+          <div class="cert-preview-wrap">
+            <img src="CERTIFICATE_LANDING_PAGE~BAZVV0F0QKUR.jpeg" alt="Coursera SQL Certificate" class="cert-preview" />
+          </div>
+          <div class="cert-info">
+            <div>
+              <h4 class="cert-title">SQL: A Practical Introduction for Querying Databases</h4>
+              <span class="edu-meta">Coursera Verified Credential</span>
+            </div>
+            <i class="fa-solid fa-arrow-up-right-from-square cert-link-icon"></i>
+          </div>
+        </a>
+
       </div>
     </div>
+  </section>
 
-    <!-- HTML -->
-    <div class="Skill-tile left-tile" data-aos="fade-left">
-      <img src="html5-logo-circle.png" alt="HTML" class="Skill-logo">
-      <div class="Skill-details">
-        <h3>HTML</h3>
-        <p>Markup language for web structure and content.</p>
+  <!-- Contact Section -->
+  <section id="contact" class="contact-section">
+    <div class="container">
+      <div class="section-header" data-aos="fade-up">
+        <span class="section-tag"><i class="fa-solid fa-paper-plane"></i> Get In Touch</span>
+        <h2 class="section-title">Let's Connect & Collaborate</h2>
+        <p class="section-subtitle">Have a project in mind, an opportunity, or want to say hello? Drop a message below!</p>
+      </div>
+
+      <div class="contact-grid">
+        
+        <!-- Left: Form -->
+        <div class="contact-form-card" data-aos="fade-right">
+          <form id="contact-form">
+            <div class="form-group">
+              <label for="name" class="form-label">Your Name</label>
+              <input type="text" id="name" name="name" class="form-input" placeholder="e.g. John Doe" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label">Your Email</label>
+              <input type="email" id="email" name="email" class="form-input" placeholder="e.g. john@example.com" required />
+            </div>
+
+            <div class="form-group">
+              <label for="message" class="form-label">Message</label>
+              <textarea id="message" name="message" class="form-textarea" placeholder="Tell me about your project or inquiry..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Send Message</span>
+            </button>
+          </form>
+
+          <div id="form-message" class="form-message"></div>
+        </div>
+
+        <!-- Right: Direct Quick Connect Tiles -->
+        <div class="direct-connect-cards" data-aos="fade-left">
+          
+          <!-- WhatsApp Card -->
+          <a href="https://wa.me/917008233179" target="_blank" rel="noopener noreferrer" class="direct-card whatsapp">
+            <div class="direct-icon-wrap">
+              <img src="Whatsapp-logo-vetor.png" alt="WhatsApp" class="direct-icon" />
+            </div>
+            <div class="direct-info">
+              <h4 class="direct-title">Direct WhatsApp</h4>
+              <span class="direct-sub">+91 7008233179 · Fast response</span>
+            </div>
+          </a>
+
+          <!-- LinkedIn Card -->
+          <a href="https://www.linkedin.com/in/dushmanta-das-3455a2327/" target="_blank" rel="noopener noreferrer" class="direct-card linkedin">
+            <div class="direct-icon-wrap">
+              <img src="linkedIn_PNG29.png" alt="LinkedIn" class="direct-icon" />
+            </div>
+            <div class="direct-info">
+              <h4 class="direct-title">LinkedIn Profile</h4>
+              <span class="direct-sub">Connect with Dushmanta Das</span>
+            </div>
+          </a>
+
+          <!-- GitHub Card -->
+          <a href="https://github.com/Dushmanta42310" target="_blank" rel="noopener noreferrer" class="direct-card">
+            <div class="direct-icon-wrap">
+              <img src="github.png" alt="GitHub" class="direct-icon" />
+            </div>
+            <div class="direct-info">
+              <h4 class="direct-title">GitHub Repositories</h4>
+              <span class="direct-sub">Explore source codes & projects</span>
+            </div>
+          </a>
+
+        </div>
+
       </div>
     </div>
+  </section>
 
-    <!-- CSS -->
-    <div class="Skill-tile right-tile" data-aos="fade-right">
-      <img src="image_processing20210621-18852-addno7.png" alt="CSS" class="Skill-logo">
-      <div class="Skill-details">
-        <h3>CSS</h3>
-        <p>Stylesheet language for designing HTML content.</p>
-      </div>
-    </div>
-
-    <!-- JavaScript -->
-    <div class="Skill-tile left-tile" data-aos="fade-left">
-      <img src="11662226392uom4gsi9ddb1c81ipfx2u4imargvwq7uskhdui1pj4f6xufjz0jkfzqzduhjuifts0dzcnykgszw6isfutq2nlwb51ef4gm0dt8d.png" alt="JavaScript" class="Skill-logo">
-      <div class="Skill-details">
-        <h3>JavaScript</h3>
-        <p>Makes web pages interactive and dynamic.</p>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- Project Section -->
-<section id="projects" class="project-section">
-  <h2 class="section-title" data-aos="fade-up">Projects</h2>
-
-  <div class="project-grid">
-
-    <!-- Project 1 -->
-    <div class="project-tile" data-aos="zoom-in" data-aos-delay="1">
-      <div class="image-container">
-        <img src="work-in-progress-clipart.png" alt="Under Process" class="project-image" />
-      </div>
-      <div class="project-info">
-        <h3>Library Management System</h3>
-        <p>SQL · PL/SQL · Oracle APEX</p>
-      </div>
-    </div>
-
-    <!-- Project 2 -->
-    <div class="project-tile" data-aos="zoom-in" data-aos-delay="2">
-      <div class="image-container">
-        <img src="work-in-progress-clipart.png" alt="Under Process" class="project-image" />
-      </div>
-      <div class="project-info">
-        <h3>Portfolio Website</h3>
-        <p>HTML · CSS · JavaScript · AOS</p>
-      </div>
-    </div>
-
-    <!-- Project 3 -->
-    <div class="project-tile" data-aos="zoom-in" data-aos-delay="3">
-      <div class="image-container">
-        <img src="work-in-progress-clipart.png" alt="Under Process" class="project-image" />
-      </div>
-      <div class="project-info">
-        <h3>Data Dashboard</h3>
-        <p>Power BI · Business Analytics</p>
-      </div>
-    </div>
-
-    <!-- Project 4 -->
-    <div class="project-tile" data-aos="zoom-in" data-aos-delay="4">
-      <div class="image-container">
-        <img src="work-in-progress-clipart.png" alt="Under Process" class="project-image" />
-      </div>
-      <div class="project-info">
-        <h3>IoT Cloud Monitor</h3>
-        <p>ESP32 · Cloud · Realtime DB</p>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-
-
-<!-- Contact Section -->
-<section id="contact" class="contact-section">
-  
-  <!-- Title -->
-  <h2 class="section-title" data-aos="fade-up">Contact</h2>
-
-  <!-- Content (Form + Tiles) -->
-  <div class="contact-content">
-
-    <!-- Left Section: Contact Form -->
-    <div class="contact-form-section" data-aos="fade-right">
-      <form id="contact-form" method="POST" enctype="multipart/form-data" class="contact-form">
-        <label for="name">Your Name</label>
-        <input type="text" id="name" name="name" required>
-
-        <label for="email">Your Email</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="message">Message</label>
-        <textarea id="message" name="message" required></textarea>
-
-        <button type="submit">Send Message</button>
-      </form>
-
-      <div id="form-message" class="form-message"></div>
-    </div>
-
-    <!-- Right Section: Contact Tiles -->
-    <div class="contact-options-section" data-aos="fade-left">
-      <a href="https://wa.me/917008233179" class="contact-tile" target="_blank">
-        <img src="Whatsapp-logo-vetor.png" alt="WhatsApp" class="contact-icon">
-        <span>WhatsApp</span>
-      </a>
-
-      <a href="https://www.linkedin.com/in/dushmanta-das-3455a2327/" class="contact-tile" target="_blank">
-        <img src="linkedIn_PNG29.png" alt="LinkedIn" class="contact-icon">
-        <span>LinkedIn</span>
-      </a>
-    </div>
-
-  </div>
-
-</section>
-
-<section id="resume-certificates" class="resume-certificates-section">
-  <div class="resume-section" data-aos="fade-right">
-    <h2 class="section-title">Resume</h2>
-    <div class="resume-content">
-      <a href="DUSHMANTA_RESUME.pdf" download class="resume-button">
-        Download Resume
-      </a>
-    </div>
-  </div>
-
-  <div class="certificates-section" data-aos="fade-left">
-    <h2 class="section-title">Certificates</h2>
-    <div class="certificates-gallery">
-      <div class="certificate-item" data-aos="zoom-in" data-aos-delay="100">
-        <a href="https://www.coursera.org/account/accomplishments/verify/BAZVV0F0QKUR?utm_source=ln&utm_medium=certificate&utm_content=cert_image&utm_campaign=sharing_cta&utm_product=course" target="_blank">
-          <img src="CERTIFICATE_LANDING_PAGE~BAZVV0F0QKUR.jpeg" alt="Certificate 1">
-          <span>SQL: A Practical Introduction for Querying Databases</span>
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; <span id="current-year">2026</span> Dushmanta Das. Crafted with pure passion & precision.</p>
+        <a href="#" class="back-to-top">
+          <span>Back to Top</span>
+          <i class="fa-solid fa-arrow-up"></i>
         </a>
       </div>
     </div>
-  </div>
-</section>
-  
+  </footer>
 
-  
-    <!-- Footer -->
-    <footer>
-      <p>&copy; 2023 Dushmanta Das. All rights reserved.</p>
-    </footer>
-  
-    <!-- JavaScript -->
-    <script src="script.js"></script>
-    <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
-
-<!-- EmailJS -->
-<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-
-<script>
-  // Initialize EmailJS
-  (function() {
-    emailjs.init('9jlifRD_jpAIhUX87'); // Your Public Key
-  })();
-
-  // Handle form submission
-  document.getElementById('contact-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    emailjs.sendForm('service_e7k1egn', 'template_3mx4ug8', this)
-      .then(function() {
-        showMessage('✅ Message sent successfully To Dushmanta Das 😊', true);
-        document.getElementById('contact-form').reset(); // Reset form after success
-      }, function(error) {
-        showMessage('❌ Failed to send the message. Please try again.', false);
-        console.error('FAILED...', error);
-      });
-  });
-
-  // Show success or error messages
-  function showMessage(message, isSuccess) {
-    const msgElement = document.getElementById('form-message');
-    msgElement.textContent = message;
-    msgElement.className = 'form-message ' + (isSuccess ? 'success' : 'error');
-    msgElement.style.display = 'block';
-  }
-
-  // Initialize AOS
-  AOS.init({
-    duration: 14, // Optional: Adjust animation duration
-    once: false,
-    disable: false,   
-  });
-</script>
-
-<script>
-  document.querySelectorAll('.navbar .right ul li a').forEach(link => {
-    link.addEventListener('touchstart', () => {
-      link.classList.add('hovered');
-      setTimeout(() => {
-        link.classList.remove('hovered');
-      }, 1000);
-    });
-  });
-</script>
-
-
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
