@@ -99,13 +99,19 @@ body {
   transition: background-color var(--transition-smooth), color var(--transition-smooth);
 }
 
-/* Ambient Background Light & Glow Grid */
+/* Studio Vignette & Ambient Background Layer matching profile image */
 .bg-ambient-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
+  background: radial-gradient(ellipse 75% 55% at 50% 28%, #1c1e24 0%, #0c0d10 50%, #000000 100%);
+  transition: background var(--transition-smooth);
+}
+
+[data-theme="light"] .bg-ambient-layer {
+  background: radial-gradient(ellipse 85% 65% at 50% 15%, #fffdf0 0%, #f4f6fb 50%, #ffffff 100%);
 }
 
 .ambient-orb {
@@ -144,6 +150,179 @@ body {
   background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
   background-size: 36px 36px;
   opacity: 0.45;
+}
+
+/* ==========================================================================
+   REALISTIC LIGHT BULB & VOLUMETRIC LIGHT EFFECT
+   ========================================================================== */
+.bulb-light-cone {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1400px;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(ellipse 55% 75% at 50% 0%, rgba(255, 230, 110, 0.32) 0%, rgba(255, 240, 160, 0.14) 40%, transparent 75%);
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] .bulb-light-cone {
+  opacity: 1;
+}
+
+/* Hanging Realistic Bulb Assembly */
+.realistic-bulb-wrapper {
+  position: fixed;
+  top: 0;
+  right: 140px;
+  z-index: 101;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transform-origin: top center;
+  transition: transform 0.3s ease;
+  user-select: none;
+}
+
+.realistic-bulb-wrapper.swinging {
+  animation: bulbSwing 1.8s ease-in-out;
+}
+
+.bulb-wire {
+  width: 2.5px;
+  height: 65px;
+  background: linear-gradient(180deg, #111 0%, #333 70%, #555 100%);
+  box-shadow: 0 0 4px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+.bulb-fixture {
+  width: 18px;
+  height: 14px;
+  background: linear-gradient(90deg, #64748b 0%, #94a3b8 50%, #475569 100%);
+  border-radius: 4px 4px 1px 1px;
+  position: relative;
+  box-shadow: inset 0 2px 2px rgba(255,255,255,0.4), 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.bulb-fixture::before {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 2px;
+  width: 14px;
+  height: 4px;
+  background: #cbd5e1;
+  border-radius: 1px;
+}
+
+/* Bulb Glass Globe */
+.bulb-glass {
+  position: relative;
+  width: 44px;
+  height: 54px;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, rgba(0,0,0,0.4) 100%);
+  border-radius: 50% 50% 45% 45% / 40% 40% 60% 60%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 0 10px rgba(255,255,255,0.1), 0 8px 16px rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+  margin-top: 3px;
+}
+
+/* Glowing Filament */
+.bulb-filament {
+  width: 14px;
+  height: 18px;
+  border: 2px solid #52525b;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  transition: all 0.35s ease;
+}
+
+.bulb-filament::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 3px;
+  width: 4px;
+  height: 4px;
+  background: #52525b;
+  border-radius: 50%;
+  transition: all 0.35s ease;
+}
+
+/* Bulb Light Glow (When ON) */
+[data-theme="light"] .bulb-glass {
+  background: radial-gradient(circle at 45% 45%, #ffffff 0%, #fff7b2 40%, #ffc038 80%, #f59e0b 100%);
+  border-color: #ffedd5;
+  box-shadow: 0 0 35px #fbbf24, 0 0 65px rgba(245, 158, 11, 0.8), inset 0 0 14px #ffffff;
+}
+
+[data-theme="light"] .bulb-filament {
+  border-color: #ffffff;
+  box-shadow: 0 0 12px #ffffff, 0 0 20px #fbbf24;
+}
+
+[data-theme="light"] .bulb-filament::after {
+  background: #ffffff;
+  box-shadow: 0 0 10px #ffffff;
+}
+
+/* Glass Reflection Highlight */
+.bulb-glass::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 10px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: rotate(-35deg);
+}
+
+/* Pull Cord Handle */
+.bulb-pull-cord {
+  width: 1.5px;
+  height: 40px;
+  background: #94a3b8;
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.bulb-pull-handle {
+  position: absolute;
+  bottom: -10px;
+  width: 8px;
+  height: 12px;
+  background: linear-gradient(180deg, #cbd5e1 0%, #64748b 100%);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: transform 0.15s ease;
+}
+
+.realistic-bulb-wrapper:hover .bulb-pull-handle {
+  transform: translateY(3px);
+}
+
+/* Realistic Bulb Physics Swing Animation */
+@keyframes bulbSwing {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(12deg); }
+  40% { transform: rotate(-9deg); }
+  60% { transform: rotate(6deg); }
+  80% { transform: rotate(-3deg); }
+  100% { transform: rotate(0deg); }
 }
 
 @keyframes floatOrb {
@@ -1282,5 +1461,14 @@ footer {
   .about-stats {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .realistic-bulb-wrapper {
+    right: 70px;
+    transform: scale(0.85);
+  }
+
+  .bulb-light-cone {
+    width: 100vw;
   }
 }

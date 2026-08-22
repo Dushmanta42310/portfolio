@@ -4,21 +4,35 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Theme Switcher (Pure Black <-> Pure White)
+  // 1. Theme Switcher (Pure Black <-> Pure White) with Realistic Bulb
   const themeToggleBtn = document.getElementById('theme-toggle');
+  const realisticBulb = document.getElementById('realistic-bulb');
   const htmlRoot = document.documentElement;
 
   // Retrieve saved theme or default to 'dark' (pure black)
   const savedTheme = localStorage.getItem('theme') || 'dark';
   htmlRoot.setAttribute('data-theme', savedTheme);
 
+  function toggleThemeWithBulbEffect() {
+    const currentTheme = htmlRoot.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    htmlRoot.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+
+    // Trigger realistic swing animation on bulb
+    if (realisticBulb) {
+      realisticBulb.classList.remove('swinging');
+      void realisticBulb.offsetWidth; // Trigger DOM reflow to restart animation
+      realisticBulb.classList.add('swinging');
+    }
+  }
+
   if (themeToggleBtn) {
-    themeToggleBtn.addEventListener('click', () => {
-      const currentTheme = htmlRoot.getAttribute('data-theme');
-      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-      htmlRoot.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-    });
+    themeToggleBtn.addEventListener('click', toggleThemeWithBulbEffect);
+  }
+
+  if (realisticBulb) {
+    realisticBulb.addEventListener('click', toggleThemeWithBulbEffect);
   }
 
   // 2. Mobile Navigation Menu Toggle
