@@ -621,16 +621,34 @@ nav {
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr 1.15fr;
+  grid-template-areas: "avatar content";
   gap: 60px;
   align-items: center;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Light Theme (White BG): Swaps to Text Left, Image Right */
+[data-theme="light"] .hero-grid {
+  grid-template-columns: 1.15fr 1fr;
+  grid-template-areas: "content avatar";
 }
 
 /* Left Hero Avatar Container */
 .hero-avatar-wrapper {
+  grid-area: avatar;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-content {
+  grid-area: content;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .avatar-glow-ring {
@@ -1516,14 +1534,14 @@ footer {
    RESPONSIVE DESIGN (TABLET & MOBILE)
    ========================================================================== */
 @media (max-width: 992px) {
-  .hero-grid {
+  .hero-grid,
+  [data-theme="light"] .hero-grid {
     grid-template-columns: 1fr;
+    grid-template-areas: 
+      "avatar"
+      "content";
     text-align: center;
     gap: 40px;
-  }
-
-  .hero-avatar-wrapper {
-    order: -1;
   }
 
   .hero-content {
