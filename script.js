@@ -39,12 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const typewriterOutput = document.getElementById('typewriter-output');
   if (typewriterOutput) {
     const textPhrases = [
-      "Hello World, this is <span class='gradient-text'>Dushmanta Das</span>",
-      "Aspiring <span class='gradient-text'>Database Administrator (DBA)</span>",
-      "Aspiring <span class='gradient-text'>Flask Developer</span>",
-      "Learning <span class='gradient-text'>Data Analytics</span>",
-      "Exploring & Building <span class='gradient-text'>AI/ML & RAG Models</span>",
-      "Passionate Tech <span class='gradient-text'>Aspirant & Continuous Learner</span>"
+      "<span class='gradient-text'>Database Administration (DBA)</span>",
+      "<span class='gradient-text'>Flask Web Development</span>",
+      "<span class='gradient-text'>Data Analytics & Power BI</span>",
+      "<span class='gradient-text'>AI/ML & RAG Model Engineering</span>",
+      "<span class='gradient-text'>SQL & PL/SQL Database Optimization</span>",
+      "<span class='gradient-text'>Python & Backend Systems</span>"
     ];
 
     let phraseIndex = 0;
