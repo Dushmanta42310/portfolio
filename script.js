@@ -9,15 +9,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const realisticBulb = document.getElementById('realistic-bulb');
   const htmlRoot = document.documentElement;
 
+  function updateThemeImages(theme) {
+    const heroImg = document.getElementById('hero-profile-img');
+    const navImg = document.getElementById('nav-profile-img');
+    const imageSrc = theme === 'light' ? 'profile-light.jpg' : 'profile-dark.jpg';
+    if (heroImg) heroImg.src = imageSrc;
+    if (navImg) navImg.src = imageSrc;
+  }
+
   // Retrieve saved theme or default to 'dark' (pure black)
   const savedTheme = localStorage.getItem('theme') || 'dark';
   htmlRoot.setAttribute('data-theme', savedTheme);
+  updateThemeImages(savedTheme);
 
   function toggleThemeWithBulbEffect() {
     const currentTheme = htmlRoot.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     htmlRoot.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
+    updateThemeImages(newTheme);
 
     // Trigger realistic swing animation on bulb
     if (realisticBulb) {
