@@ -635,12 +635,12 @@ nav {
 
 .avatar-glow-ring {
   position: absolute;
-  width: 380px;
-  height: 380px;
+  width: 330px;
+  height: 330px;
   border-radius: 50%;
   background: var(--accent-gradient);
-  filter: blur(40px);
-  opacity: 0.35;
+  filter: blur(28px);
+  opacity: 0.12;
   animation: pulseGlow 5s infinite alternate;
 }
 
@@ -649,13 +649,13 @@ nav {
   width: 320px;
   height: 380px;
   border-radius: 28px;
-  padding: 8px;
+  padding: 6px;
   background: var(--bg-card);
-  border: 1px solid var(--border-color-hover);
-  backdrop-filter: blur(16px);
-  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  transition: transform var(--transition-smooth), border-color var(--transition-smooth);
+  transition: transform var(--transition-smooth), border-color var(--transition-smooth), box-shadow var(--transition-smooth);
 }
 
 .avatar-card::after {
@@ -664,17 +664,29 @@ nav {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 42%;
-  background: linear-gradient(to bottom, transparent 0%, var(--bg-primary) 92%);
+  height: 20%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.25) 100%);
   pointer-events: none;
   z-index: 2;
   border-radius: 0 0 28px 28px;
 }
 
+[data-theme="light"] .avatar-card::after {
+  background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.35) 100%);
+}
+
 .avatar-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  border-color: var(--border-glow);
-  box-shadow: var(--glow-cyan);
+  transform: translateY(-4px);
+  border-color: var(--border-color-hover);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .avatar-card {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .avatar-card:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .avatar-img {
@@ -682,9 +694,9 @@ nav {
   height: 100%;
   object-fit: cover;
   object-position: top center;
-  border-radius: 20px;
-  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 58%, rgba(0, 0, 0, 0) 100%);
-  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 58%, rgba(0, 0, 0, 0) 100%);
+  border-radius: 22px;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0.5) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 85%, rgba(0, 0, 0, 0.5) 100%);
 }
 
 .avatar-floating-badge {
@@ -727,8 +739,8 @@ nav {
 }
 
 @keyframes pulseGlow {
-  0% { transform: scale(0.95); opacity: 0.25; }
-  100% { transform: scale(1.05); opacity: 0.45; }
+  0% { transform: scale(0.96); opacity: 0.08; }
+  100% { transform: scale(1.02); opacity: 0.16; }
 }
 
 /* Right Hero Content */
