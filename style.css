@@ -1144,25 +1144,27 @@ nav {
 /* Positions along the S-Curve */
 #checkpoint-1 {
   top: 15px;
-  left: 20px;
+  left: 14px;
+  flex-direction: row;
 }
 
 #checkpoint-2 {
-  top: 125px;
-  right: 15px;
+  top: 108px;
+  right: 14px;
   flex-direction: row-reverse;
 }
 
 #checkpoint-3 {
   bottom: 15px;
-  left: 30px;
+  right: 14px;
+  flex-direction: row-reverse;
 }
 
 /* Node Orb */
 .checkpoint-node {
   position: relative;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1171,8 +1173,8 @@ nav {
 }
 
 .node-core {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: var(--bg-card);
   border: 2px solid var(--border-color);
@@ -1180,7 +1182,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   z-index: 2;
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -1220,6 +1222,7 @@ nav {
   border-radius: 12px;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
+  max-width: 220px;
 }
 
 [data-theme="light"] .checkpoint-preview-pill {
@@ -1228,7 +1231,7 @@ nav {
 }
 
 .preview-tag {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--accent-cyan);
   text-transform: uppercase;
@@ -1243,10 +1246,68 @@ nav {
 }
 
 .preview-name {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile Responsiveness for S-Curve Roadmap */
+@media (max-width: 600px) {
+  .journey-roadmap-container {
+    min-height: 270px;
+    padding: 6px;
+  }
+
+  .journey-checkpoints-wrapper {
+    height: 270px;
+  }
+
+  .checkpoint-node {
+    width: 36px;
+    height: 36px;
+  }
+
+  .node-core {
+    width: 34px;
+    height: 34px;
+    font-size: 0.88rem;
+  }
+
+  .checkpoint-preview-pill {
+    padding: 4px 10px;
+    max-width: 160px;
+  }
+
+  .preview-name {
+    font-size: 0.75rem;
+  }
+
+  .preview-tag {
+    font-size: 0.65rem;
+  }
+
+  .checkpoint-year {
+    font-size: 0.65rem;
+    bottom: -15px;
+  }
+
+  #checkpoint-1 {
+    top: 10px;
+    left: 8px;
+  }
+
+  #checkpoint-2 {
+    top: 100px;
+    right: 8px;
+  }
+
+  #checkpoint-3 {
+    bottom: 10px;
+    right: 8px;
+  }
 }
 
 /* Active Glowing Node State */

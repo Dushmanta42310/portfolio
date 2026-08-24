@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
       desc: "Completed secondary education under CBSE board with strong fundamentals in Mathematics, Science, and Information Technology.",
       image: "mount litera zee.jpg",
       link: "https://www.mountliteratangi.in/",
-      dashoffset: 480 // Draws up to checkpoint 1
+      progressRatio: 0.03 // Only at start node
     },
     2: {
       step: 2,
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
       desc: "Completed Class 12th in Science stream focusing on Mathematics, Physics, Chemistry, and Computer Science principles.",
       image: "oneness.jpg",
       link: "https://www.onenessinternationalschool.com/",
-      dashoffset: 260 // Draws up to checkpoint 2
+      progressRatio: 0.50 // Travels from start to middle curve node
     },
     3: {
       step: 3,
@@ -282,15 +282,62 @@ document.addEventListener('DOMContentLoaded', () => {
       desc: "Pursuing Bachelor of Technology in Computer Science & Engineering with core specialization in Database Management, AI/ML, Data Engineering, and Backend Architecture.",
       image: "kmbb.jpg",
       link: "https://www.kmbb.in/",
-      dashoffset: 0 // Draws full S-curve path
+      progressRatio: 1.0 // Covers full S-curve directly to destination node
     }
   };
+
+  const laserLine = document.getElementById('journey-active-laser');
+  const baseTrack = document.getElementById('journey-base-track');
+  const photonOrb = document.getElementById('journey-photon-orb');
+  let photonAnimId = null;
+
+  // Initialize laser stroke dash array
+  if (laserLine && baseTrack) {
+    const totalLength = baseTrack.getTotalLength();
+    laserLine.style.strokeDasharray = totalLength;
+    laserLine.style.strokeDashoffset = 0;
+  }
+
+  function startPhotonTraveling(targetRatio) {
+    if (!baseTrack || !photonOrb) return;
+    if (photonAnimId) cancelAnimationFrame(photonAnimId);
+
+    const totalLen = baseTrack.getTotalLength();
+    const maxDistance = totalLen * targetRatio;
+    let currentDistance = 0;
+    let speed = 2.8;
+
+    function animate() {
+      if (maxDistance <= 10) {
+        // Hover at start point
+        const pt = baseTrack.getPointAtLength(0);
+        photonOrb.setAttribute('cx', pt.x);
+        photonOrb.setAttribute('cy', pt.y);
+        photonOrb.style.opacity = '1';
+        return;
+      }
+
+      currentDistance += speed;
+      if (currentDistance > maxDistance) {
+        currentDistance = 0;
+      }
+
+      const pt = baseTrack.getPointAtLength(currentDistance);
+      photonOrb.setAttribute('cx', pt.x);
+      photonOrb.setAttribute('cy', pt.y);
+      photonOrb.style.opacity = '1';
+
+      photonAnimId = requestAnimationFrame(animate);
+    }
+
+    animate();
+  }
 
   window.selectAcademicMilestone = function(stepIndex) {
     const data = academicData[stepIndex];
     if (!data) return;
 
-    // Update active checkpoint pill and nodes
+    // Update active checkpoint pills and nodes
     document.querySelectorAll('.journey-checkpoint').forEach(el => {
       const step = parseInt(el.getAttribute('data-step'), 10);
       if (step === stepIndex) {
@@ -300,16 +347,21 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Animate the Active Highlight Laser Blue Line
-    const laserLine = document.getElementById('journey-active-laser');
-    if (laserLine) {
-      laserLine.style.strokeDashoffset = data.dashoffset;
+    // Animate the Active Highlight Laser Blue Line to only cover up to this milestone
+    if (laserLine && baseTrack) {
+      const totalLen = baseTrack.getTotalLength();
+      laserLine.style.strokeDasharray = totalLen;
+      const targetOffset = totalLen * (1 - data.progressRatio);
+      laserLine.style.strokeDashoffset = targetOffset;
     }
+
+    // Move the traveling photon dot only along the highlighted active line
+    startPhotonTraveling(data.progressRatio);
 
     // Animate Spotlight HUD Card with smooth micro-transition
     const displayCard = document.getElementById('journey-spotlight-display');
     if (displayCard) {
-      displayCard.style.opacity = '0.4';
+      displayCard.style.opacity = '0.35';
       displayCard.style.transform = 'translateY(4px)';
 
       setTimeout(() => {
@@ -337,7 +389,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Set default selection to current milestone (KMBB College)
-  selectAcademicMilestone(3);
+  // Default selection to destination milestone (KMBB College)
+  setTimeout(() => {
+    selectAcademicMilestone(3);
+  }, 100);
 });
 
