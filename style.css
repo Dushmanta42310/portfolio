@@ -1234,9 +1234,10 @@ nav {
 
 .lbl-2 {
   top: 46%;
-  right: 14%;
-  align-items: flex-end;  /* text right-aligned */
-  text-align: right;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  text-align: center;
 }
 
 .lbl-3 {
