@@ -245,4 +245,99 @@ document.addEventListener('DOMContentLoaded', () => {
       formMessage.style.display = 'none';
     }, 6000);
   }
+
+  // 6. Interactive Anime S-Shape Academic Journey Logic
+  const academicData = {
+    1: {
+      step: 1,
+      badge: "Secondary School (10th)",
+      year: "2021",
+      name: "Mount Litera Zee School, Tangi",
+      board: "CBSE · Tangi, Khordha, Odisha",
+      score: "71% Aggregate",
+      desc: "Completed secondary education under CBSE board with strong fundamentals in Mathematics, Science, and Information Technology.",
+      image: "mount litera zee.jpg",
+      link: "https://www.mountliteratangi.in/",
+      dashoffset: 480 // Draws up to checkpoint 1
+    },
+    2: {
+      step: 2,
+      badge: "Senior Secondary (12th)",
+      year: "2023",
+      name: "Oneness International School",
+      board: "CBSE · Khordha, Odisha",
+      score: "61% Aggregate",
+      desc: "Completed Class 12th in Science stream focusing on Mathematics, Physics, Chemistry, and Computer Science principles.",
+      image: "oneness.jpg",
+      link: "https://www.onenessinternationalschool.com/",
+      dashoffset: 260 // Draws up to checkpoint 2
+    },
+    3: {
+      step: 3,
+      badge: "Current Degree",
+      year: "2023 -- 2027",
+      name: "KMBB College of Engineering & Technology",
+      board: "BPUT · Khordha, Odisha",
+      score: "7.9 CGPA",
+      desc: "Pursuing Bachelor of Technology in Computer Science & Engineering with core specialization in Database Management, AI/ML, Data Engineering, and Backend Architecture.",
+      image: "kmbb.jpg",
+      link: "https://www.kmbb.in/",
+      dashoffset: 0 // Draws full S-curve path
+    }
+  };
+
+  window.selectAcademicMilestone = function(stepIndex) {
+    const data = academicData[stepIndex];
+    if (!data) return;
+
+    // Update active checkpoint pill and nodes
+    document.querySelectorAll('.journey-checkpoint').forEach(el => {
+      const step = parseInt(el.getAttribute('data-step'), 10);
+      if (step === stepIndex) {
+        el.classList.add('active');
+      } else {
+        el.classList.remove('active');
+      }
+    });
+
+    // Animate the Active Highlight Laser Blue Line
+    const laserLine = document.getElementById('journey-active-laser');
+    if (laserLine) {
+      laserLine.style.strokeDashoffset = data.dashoffset;
+    }
+
+    // Animate Spotlight HUD Card with smooth micro-transition
+    const displayCard = document.getElementById('journey-spotlight-display');
+    if (displayCard) {
+      displayCard.style.opacity = '0.4';
+      displayCard.style.transform = 'translateY(4px)';
+
+      setTimeout(() => {
+        const img = document.getElementById('spotlight-img');
+        const badge = document.getElementById('spotlight-badge');
+        const year = document.getElementById('spotlight-year');
+        const name = document.getElementById('spotlight-name');
+        const board = document.getElementById('spotlight-board');
+        const score = document.getElementById('spotlight-score');
+        const desc = document.getElementById('spotlight-desc');
+        const link = document.getElementById('spotlight-link');
+
+        if (img) img.src = data.image;
+        if (badge) badge.textContent = data.badge;
+        if (year) year.innerHTML = `<i class="fa-regular fa-calendar"></i> ${data.year}`;
+        if (name) name.textContent = data.name;
+        if (board) board.textContent = data.board;
+        if (score) score.textContent = data.score;
+        if (desc) desc.textContent = data.desc;
+        if (link) link.href = data.link;
+
+        displayCard.style.opacity = '1';
+        displayCard.style.transform = 'translateY(0)';
+      }, 150);
+    }
+  };
+
+  // Set default selection to current milestone (KMBB College)
+  selectAcademicMilestone(3);
 });
+

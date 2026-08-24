@@ -173,10 +173,10 @@
             <i class="fa-solid fa-sparkles"></i> Who I Am
           </h3>
           <p class="about-text">
-            I am driven by turning data into business intelligence and creating elegant digital interfaces. With strong expertise in relational database architecture, stored procedures, data extraction, and interactive dashboards, I deliver scalable end-to-end solutions.
+            Transforming complex data into seamless intelligent solutions. Passionate tech developer with hands-on expertise in <strong>Database Administration (DBA)</strong>, <strong>Flask Web Development</strong>, <strong>AI/ML Models & RAG Systems</strong>, and <strong>Data Analytics</strong> with <strong>SQL</strong>, <strong>PL/SQL</strong>, and <strong>Power BI</strong>.
           </p>
           <p class="about-text">
-            Constantly learning and exploring new technologies across AI, cloud analytics, and modern UI engineering.
+            Experienced with <strong>Git & GitHub</strong> workflows, end-to-end database modeling, stored procedures, and deploying intelligent AI copilots like <strong>GaganSaathi AI</strong>.
           </p>
 
           <div class="about-stats">
@@ -195,48 +195,148 @@
           </div>
         </div>
 
-        <!-- Right Bento Card: Education Timeline -->
-        <div class="bento-card" data-aos="fade-left" data-aos-delay="100">
-          <h3 class="bento-card-title">
-            <i class="fa-solid fa-graduation-cap"></i> Academic Journey
-          </h3>
-          
-          <div class="education-timeline">
+        <!-- Right Bento Card: Anime S-Shape Academic Journey -->
+        <div class="bento-card academic-bento-card" data-aos="fade-left" data-aos-delay="100">
+          <div class="bento-card-header">
+            <h3 class="bento-card-title">
+              <i class="fa-solid fa-graduation-cap"></i> Academic Journey
+            </h3>
+            <span class="journey-hint-badge"><i class="fa-solid fa-bolt"></i> Click Milestone to Explore</span>
+          </div>
+
+          <!-- S-Shape Interactive Journey Roadmap -->
+          <div class="journey-roadmap-container" id="academic-journey-roadmap">
             
-            <!-- School 1 -->
-            <a href="https://www.kmbb.in/" target="_blank" rel="noopener noreferrer" class="edu-card">
-              <div class="edu-logo-wrapper">
-                <img src="kmbb.jpg" alt="KMBB College Logo" class="edu-logo" />
-              </div>
-              <div class="edu-info">
-                <span class="edu-name">KMBB College of Engineering & Technology</span>
-                <span class="edu-meta">B.Tech (CSE) · BPUT · 2023 - Present</span>
-              </div>
-            </a>
+            <!-- SVG S-Curve Animated Laser Highway -->
+            <svg class="journey-svg-canvas" viewBox="0 0 420 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <!-- Neon Blue Glow Filter -->
+                <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="4" result="blur1" />
+                  <feGaussianBlur stdDeviation="8" result="blur2" />
+                  <feMerge>
+                    <feMergeNode in="blur2" />
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                
+                <!-- Electric Gradient for Active Line -->
+                <linearGradient id="laserGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="50%" stop-color="#00f0ff" />
+                  <stop offset="100%" stop-color="#818cf8" />
+                </linearGradient>
+              </defs>
 
-            <!-- School 2 -->
-            <a href="https://www.onenessinternationalschool.com/" target="_blank" rel="noopener noreferrer" class="edu-card">
-              <div class="edu-logo-wrapper">
-                <img src="oneness.jpg" alt="Oneness International School" class="edu-logo" />
-              </div>
-              <div class="edu-info">
-                <span class="edu-name">Oneness International School, Khurdha</span>
-                <span class="edu-meta">12th Grade · CBSE · 2023</span>
-              </div>
-            </a>
+              <!-- Base Inactive S-Curve Track -->
+              <path class="journey-track-base" 
+                d="M 50 45 C 380 45, 380 170, 210 170 C 40 170, 40 295, 370 295" />
 
-            <!-- School 3 -->
-            <a href="https://www.mountliteratangi.in/" target="_blank" rel="noopener noreferrer" class="edu-card">
-              <div class="edu-logo-wrapper">
-                <img src="mount litera zee.jpg" alt="Mount Litera Zee School" class="edu-logo" />
+              <!-- Active Highlight Laser Blue Line (Animated on click/progress) -->
+              <path class="journey-track-active" id="journey-active-laser"
+                d="M 50 45 C 380 45, 380 170, 210 170 C 40 170, 40 295, 370 295"
+                filter="url(#laserGlow)" />
+
+              <!-- Traveling Energy Pulse Dot -->
+              <circle class="journey-traveling-orb" r="5" fill="#ffffff" filter="url(#laserGlow)">
+                <animateMotion 
+                  id="laserOrbMotion"
+                  dur="4s" 
+                  repeatCount="indefinite" 
+                  path="M 50 45 C 380 45, 380 170, 210 170 C 40 170, 40 295, 370 295" />
+              </circle>
+            </svg>
+
+            <!-- Interactive Milestone Checkpoints Positioned Along S-Curve -->
+            <div class="journey-checkpoints-wrapper">
+              
+              <!-- Milestone 1: 10th Grade -->
+              <div class="journey-checkpoint" id="checkpoint-1" data-step="1" data-progress="0"
+                onclick="selectAcademicMilestone(1)">
+                <div class="checkpoint-node">
+                  <div class="node-ripple"></div>
+                  <div class="node-core">
+                    <i class="fa-solid fa-school"></i>
+                  </div>
+                  <span class="checkpoint-year">2021</span>
+                </div>
+                <div class="checkpoint-preview-pill">
+                  <span class="preview-tag">10th CBSE</span>
+                  <span class="preview-name">Mount Litera Zee School</span>
+                </div>
               </div>
-              <div class="edu-info">
-                <span class="edu-name">Mount Litera Zee School, Tangi</span>
-                <span class="edu-meta">10th Grade · CBSE · 2021</span>
+
+              <!-- Milestone 2: 12th Grade -->
+              <div class="journey-checkpoint" id="checkpoint-2" data-step="2" data-progress="50"
+                onclick="selectAcademicMilestone(2)">
+                <div class="checkpoint-node">
+                  <div class="node-ripple"></div>
+                  <div class="node-core">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                  </div>
+                  <span class="checkpoint-year">2023</span>
+                </div>
+                <div class="checkpoint-preview-pill">
+                  <span class="preview-tag">12th CBSE</span>
+                  <span class="preview-name">Oneness Int. School</span>
+                </div>
               </div>
-            </a>
+
+              <!-- Milestone 3: B.Tech College -->
+              <div class="journey-checkpoint active" id="checkpoint-3" data-step="3" data-progress="100"
+                onclick="selectAcademicMilestone(3)">
+                <div class="checkpoint-node">
+                  <div class="node-ripple"></div>
+                  <div class="node-core">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                  </div>
+                  <span class="checkpoint-year">2023 - 2027</span>
+                </div>
+                <div class="checkpoint-preview-pill">
+                  <span class="preview-tag current">B.Tech CSE</span>
+                  <span class="preview-name">KMBB College</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Dynamic Spotlight HUD Card: Details of Clicked Institution -->
+          <div class="journey-spotlight-card" id="journey-spotlight-display">
+            
+            <div class="spotlight-header">
+              <div class="spotlight-logo-wrap">
+                <img src="kmbb.jpg" alt="Institution Logo" class="spotlight-logo" id="spotlight-img" />
+              </div>
+              <div class="spotlight-titles">
+                <div class="spotlight-meta-row">
+                  <span class="spotlight-badge" id="spotlight-badge">Current Degree</span>
+                  <span class="spotlight-year" id="spotlight-year"><i class="fa-regular fa-calendar"></i> 2023 -- 2027</span>
+                </div>
+                <h4 class="spotlight-inst-name" id="spotlight-name">KMBB College of Engineering & Technology</h4>
+                <p class="spotlight-board" id="spotlight-board">BPUT · Khordha, Odisha</p>
+              </div>
+            </div>
+
+            <div class="spotlight-body">
+              <div class="spotlight-score-pill">
+                <span class="score-label">Score / CGPA:</span>
+                <span class="score-value" id="spotlight-score">7.9 CGPA</span>
+              </div>
+              <p class="spotlight-desc" id="spotlight-desc">
+                Pursuing Bachelor of Technology in Computer Science & Engineering with core specialization in Database Management, AI/ML, Data Engineering, and Backend Architecture.
+              </p>
+              <div class="spotlight-action-row">
+                <a href="https://www.kmbb.in/" target="_blank" rel="noopener noreferrer" class="spotlight-link-btn" id="spotlight-link">
+                  <span>Visit Institution</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+              </div>
+            </div>
 
           </div>
+
         </div>
 
       </div>

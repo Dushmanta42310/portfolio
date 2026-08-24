@@ -1014,69 +1014,434 @@ nav {
   font-weight: 500;
 }
 
-/* Education List Cards */
-.education-timeline {
+/* ==========================================================================
+   ANIME S-SHAPE ACADEMIC JOURNEY ROADMAP
+   ========================================================================== */
+.academic-bento-card {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 22px;
+  position: relative;
+  overflow: hidden;
 }
 
-.edu-card {
+.bento-card-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.journey-hint-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 4px 12px;
+  border-radius: 100px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  animation: pulseHint 3s infinite alternate;
+}
+
+@keyframes pulseHint {
+  0% { box-shadow: 0 0 0 rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); }
+}
+
+/* Roadmap Track Container */
+.journey-roadmap-container {
+  position: relative;
+  width: 100%;
+  min-height: 290px;
+  background: radial-gradient(circle at center, rgba(56, 189, 248, 0.05) 0%, transparent 70%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+[data-theme="light"] .journey-roadmap-container {
+  background: radial-gradient(circle at center, rgba(2, 132, 199, 0.06) 0%, transparent 70%);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.journey-svg-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Base Track */
+.journey-track-base {
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+[data-theme="light"] .journey-track-base {
+  stroke: rgba(0, 0, 0, 0.12);
+}
+
+/* Active Highlight Laser Blue Line */
+.journey-track-active {
+  stroke: url(#laserGradient);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 650;
+  stroke-dashoffset: 0; /* Fully highlighted by default, adjusted dynamically in JS */
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.journey-traveling-orb {
+  animation: pulseLaserOrb 1.5s infinite alternate;
+}
+
+@keyframes pulseLaserOrb {
+  0% { filter: drop-shadow(0 0 4px #00f0ff); opacity: 0.8; }
+  100% { filter: drop-shadow(0 0 16px #38bdf8) drop-shadow(0 0 24px #3b82f6); opacity: 1; }
+}
+
+/* Checkpoints Wrapper */
+.journey-checkpoints-wrapper {
+  position: relative;
+  width: 100%;
+  height: 290px;
+  z-index: 3;
+}
+
+/* Individual Checkpoints */
+.journey-checkpoint {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 6px;
   border-radius: 16px;
-  background: var(--badge-bg);
-  border: 1px solid var(--border-color);
-  text-decoration: none;
-  color: inherit;
-  transition: all var(--transition-fast);
 }
 
-.edu-card:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-color-hover);
-  transform: translateX(6px);
+.journey-checkpoint:hover {
+  transform: scale(1.05);
 }
 
-.edu-logo-wrapper {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 4px;
+/* Positions along the S-Curve */
+#checkpoint-1 {
+  top: 15px;
+  left: 20px;
+}
+
+#checkpoint-2 {
+  top: 125px;
+  right: 15px;
+  flex-direction: row-reverse;
+}
+
+#checkpoint-3 {
+  bottom: 15px;
+  left: 30px;
+}
+
+/* Node Orb */
+.checkpoint-node {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  overflow: hidden;
+}
+
+.node-core {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  z-index: 2;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.node-ripple {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  pointer-events: none;
+  transition: all 0.35s ease;
+}
+
+.checkpoint-year {
+  position: absolute;
+  bottom: -18px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  transition: color 0.3s ease;
+}
+
+/* Checkpoint Preview Pill */
+.checkpoint-preview-pill {
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 18, 22, 0.85);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  padding: 6px 14px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
 }
 
-.edu-logo {
+[data-theme="light"] .checkpoint-preview-pill {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.preview-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.preview-tag.current {
+  color: #00f0ff;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.preview-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+/* Active Glowing Node State */
+.journey-checkpoint.active .node-core,
+.journey-checkpoint:hover .node-core {
+  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+  border-color: #ffffff;
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.8), 0 0 35px rgba(0, 240, 255, 0.5);
+}
+
+.journey-checkpoint.active .node-ripple {
+  border-color: rgba(56, 189, 248, 0.6);
+  animation: animeShockwave 2s infinite ease-out;
+}
+
+.journey-checkpoint.active .checkpoint-year {
+  color: var(--accent-cyan);
+}
+
+.journey-checkpoint.active .checkpoint-preview-pill {
+  border-color: var(--accent-cyan);
+  background: rgba(14, 165, 233, 0.15);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.3);
+}
+
+@keyframes animeShockwave {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Dynamic Spotlight HUD Display */
+.journey-spotlight-card {
+  background: linear-gradient(145deg, rgba(20, 20, 26, 0.95), rgba(10, 10, 14, 0.98));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(56, 189, 248, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="light"] .journey-spotlight-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(240, 249, 255, 0.95));
+  border-color: rgba(2, 132, 199, 0.35);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.12);
+}
+
+.journey-spotlight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.spotlight-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.spotlight-logo-wrap {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: #ffffff;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  border: 2px solid var(--accent-cyan);
+}
+
+.spotlight-logo {
   width: 100%;
   height: 100%;
   object-fit: contain;
   border-radius: 8px;
 }
 
-.edu-info {
+.spotlight-titles {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
-.edu-name {
-  font-size: 0.95rem;
+.spotlight-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spotlight-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.spotlight-year {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.spotlight-inst-name {
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-primary);
+  line-height: 1.3;
 }
 
-.edu-meta {
-  font-size: 0.8rem;
+.spotlight-board {
+  font-size: 0.82rem;
   color: var(--accent-cyan);
   font-weight: 600;
+}
+
+.spotlight-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.spotlight-score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.score-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.score-value {
+  font-weight: 800;
+  color: #00f0ff;
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+[data-theme="light"] .score-value {
+  color: #0284c7;
+}
+
+.spotlight-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.spotlight-action-row {
+  margin-top: 4px;
+}
+
+.spotlight-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--accent-gradient);
+  padding: 7px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.spotlight-link-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
 }
 
 /* ==========================================================================
