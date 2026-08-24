@@ -203,14 +203,11 @@
             </h3>
             <span class="journey-hint-badge"><i class="fa-solid fa-bolt"></i> Click Milestone to Explore</span>
           </div>
-
-          <!-- S-Shape Interactive Journey Roadmap -->
           <div class="journey-roadmap-container" id="academic-journey-roadmap">
             
-            <!-- SVG S-Curve Animated Laser Highway -->
+            <!-- SVG S-Curve with dots ON the path -->
             <svg class="journey-svg-canvas" viewBox="0 0 420 290" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <!-- Neon Blue Glow Filter -->
                 <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
                   <feGaussianBlur stdDeviation="3" result="blur1" />
                   <feGaussianBlur stdDeviation="7" result="blur2" />
@@ -220,8 +217,13 @@
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
-                
-                <!-- Electric Gradient for Active Line -->
+                <filter id="nodeGlow" x="-60%" y="-60%" width="220%" height="220%">
+                  <feGaussianBlur stdDeviation="5" result="b" />
+                  <feMerge>
+                    <feMergeNode in="b" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
                 <linearGradient id="laserGradient" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#38bdf8" />
                   <stop offset="50%" stop-color="#00f0ff" />
@@ -229,68 +231,66 @@
                 </linearGradient>
               </defs>
 
-              <!-- Base Inactive S-Curve Track -->
+              <!--
+                S-Curve path:
+                  Start   = (42, 30)   → Dot 1 = Mount Litera (top-left)
+                  Mid     = (378, 148) → Dot 2 = Oneness (right side, at the curve)
+                  End     = (42, 262)  → Dot 3 = KMBB (bottom-left destination)
+              -->
               <path class="journey-track-base" id="journey-base-track"
-                d="M 42 45 C 378 45, 378 145, 210 145 C 42 145, 42 245, 378 245" />
+                d="M 42 30 C 380 30, 380 148, 210 148 C 40 148, 40 262, 378 262" />
 
-              <!-- Active Highlight Laser Blue Line (Animated on click/progress) -->
+              <!-- Active laser highlight (draws from start up to selected dot) -->
               <path class="journey-track-active" id="journey-active-laser"
-                d="M 42 45 C 378 45, 378 145, 210 145 C 42 145, 42 245, 378 245"
+                d="M 42 30 C 380 30, 380 148, 210 148 C 40 148, 40 262, 378 262"
                 filter="url(#laserGlow)" />
 
-              <!-- Dynamic Traveling Photon Pulse (Moves only along the active highlighted portion) -->
-              <circle class="journey-traveling-orb" id="journey-photon-orb" r="5" fill="#ffffff" filter="url(#laserGlow)" />
+              <!-- Traveling photon (bounces only along highlighted segment) -->
+              <circle id="journey-photon-orb" r="4" fill="#00f0ff"
+                filter="url(#laserGlow)" opacity="0" />
+
+              <!-- DOT 1: Mount Litera (start = 42, 30) -->
+              <circle class="svg-milestone-dot" id="dot-1" data-step="1"
+                cx="42" cy="30" r="12"
+                onclick="selectAcademicMilestone(1)" />
+              <text class="dot-fa-icon" x="42" y="35" text-anchor="middle"
+                pointer-events="none">&#xf549;</text><!-- school icon -->
+
+              <!-- DOT 2: Oneness (right inflection = 378, 148) -->
+              <circle class="svg-milestone-dot" id="dot-2" data-step="2"
+                cx="378" cy="148" r="12"
+                onclick="selectAcademicMilestone(2)" />
+              <text class="dot-fa-icon" x="378" y="153" text-anchor="middle"
+                pointer-events="none">&#xf518;</text><!-- book icon -->
+
+              <!-- DOT 3: KMBB destination (end = 378, 262) — bigger star node -->
+              <circle class="svg-milestone-dot dest-dot" id="dot-3" data-step="3"
+                cx="378" cy="262" r="15"
+                onclick="selectAcademicMilestone(3)" />
+              <text class="dot-fa-icon" x="378" y="268" text-anchor="middle"
+                font-size="13" pointer-events="none">&#xf19d;</text><!-- graduation cap -->
+
             </svg>
 
-            <!-- Interactive Milestone Checkpoints Positioned Exactly Along S-Curve -->
-            <div class="journey-checkpoints-wrapper">
-              
-              <!-- Milestone 1: 10th Grade (Start of Line) -->
-              <div class="journey-checkpoint" id="checkpoint-1" data-step="1"
-                onclick="selectAcademicMilestone(1)">
-                <div class="checkpoint-node">
-                  <div class="node-ripple"></div>
-                  <div class="node-core">
-                    <i class="fa-solid fa-school"></i>
-                  </div>
-                  <span class="checkpoint-year">2021</span>
-                </div>
-                <div class="checkpoint-preview-pill">
-                  <span class="preview-tag">10th CBSE</span>
-                  <span class="preview-name">Mount Litera Zee School</span>
-                </div>
+            <!-- Floating Label Pills aligned to SVG dot positions -->
+            <div class="journey-labels-wrapper">
+
+              <!-- Label 1: Mount Litera top-left (near dot-1: cx=42, cy=30 → ~10%, ~10%) -->
+              <div class="journey-label lbl-1" id="label-1" onclick="selectAcademicMilestone(1)">
+                <span class="lbl-tag">10th CBSE · 2021</span>
+                <span class="lbl-name">Mount Litera Zee School</span>
               </div>
 
-              <!-- Milestone 2: 12th Grade (Middle Right Curve) -->
-              <div class="journey-checkpoint" id="checkpoint-2" data-step="2"
-                onclick="selectAcademicMilestone(2)">
-                <div class="checkpoint-node">
-                  <div class="node-ripple"></div>
-                  <div class="node-core">
-                    <i class="fa-solid fa-book-open-reader"></i>
-                  </div>
-                  <span class="checkpoint-year">2023</span>
-                </div>
-                <div class="checkpoint-preview-pill">
-                  <span class="preview-tag">12th CBSE</span>
-                  <span class="preview-name">Oneness Int. School</span>
-                </div>
+              <!-- Label 2: Oneness right-middle (near dot-2: cx=378, cy=148 → ~90%, ~51%) -->
+              <div class="journey-label lbl-2" id="label-2" onclick="selectAcademicMilestone(2)">
+                <span class="lbl-tag">12th CBSE · 2023</span>
+                <span class="lbl-name">Oneness Int. School</span>
               </div>
 
-              <!-- Milestone 3: B.Tech College (Final Destination End of Line) -->
-              <div class="journey-checkpoint active" id="checkpoint-3" data-step="3"
-                onclick="selectAcademicMilestone(3)">
-                <div class="checkpoint-node">
-                  <div class="node-ripple"></div>
-                  <div class="node-core">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                  </div>
-                  <span class="checkpoint-year">2023 - 2027</span>
-                </div>
-                <div class="checkpoint-preview-pill">
-                  <span class="preview-tag current">B.Tech CSE</span>
-                  <span class="preview-name">KMBB College (Destination)</span>
-                </div>
+              <!-- Label 3: KMBB bottom-right destination (near dot-3: cx=378, cy=262 → ~90%, ~90%) -->
+              <div class="journey-label lbl-3" id="label-3" onclick="selectAcademicMilestone(3)">
+                <span class="lbl-tag">B.Tech CSE · 2023–2027</span>
+                <span class="lbl-name">KMBB College <span class="dest-badge">🎯</span></span>
               </div>
 
             </div>

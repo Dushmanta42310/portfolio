@@ -1102,242 +1102,171 @@ nav {
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: none;
-  stroke-dasharray: 650;
-  stroke-dashoffset: 0; /* Fully highlighted by default, adjusted dynamically in JS */
-  transition: stroke-dashoffset 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  stroke-dasharray: 1;      /* JS sets real total length */
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.75s cubic-bezier(0.34, 1.2, 0.64, 1);
 }
 
-.journey-traveling-orb {
-  animation: pulseLaserOrb 1.5s infinite alternate;
-}
-
-@keyframes pulseLaserOrb {
-  0% { filter: drop-shadow(0 0 4px #00f0ff); opacity: 0.8; }
-  100% { filter: drop-shadow(0 0 16px #38bdf8) drop-shadow(0 0 24px #3b82f6); opacity: 1; }
-}
-
-/* Checkpoints Wrapper */
-.journey-checkpoints-wrapper {
-  position: relative;
-  width: 100%;
-  height: 290px;
-  z-index: 3;
-}
-
-/* Individual Checkpoints */
-.journey-checkpoint {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+/* ── SVG Milestone Dots (ON the path) ── */
+.svg-milestone-dot {
+  fill: rgba(15, 23, 40, 0.9);
+  stroke: rgba(56, 189, 248, 0.45);
+  stroke-width: 2.5;
   cursor: pointer;
-  user-select: none;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 6px;
-  border-radius: 16px;
+  transition: fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
 }
 
-.journey-checkpoint:hover {
-  transform: scale(1.05);
+.svg-milestone-dot:hover {
+  fill: rgba(14, 84, 132, 0.85);
+  stroke: #38bdf8;
+  stroke-width: 3;
 }
 
-/* Positions along the S-Curve */
-#checkpoint-1 {
-  top: 15px;
-  left: 14px;
-  flex-direction: row;
+/* Active / Selected dot state */
+.svg-milestone-dot.active-dot {
+  fill: #0284c7;
+  stroke: #ffffff;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 10px #00f0ff) drop-shadow(0 0 20px #38bdf8);
+  animation: dotPulse 1.8s infinite alternate;
 }
 
-#checkpoint-2 {
-  top: 108px;
-  right: 14px;
-  flex-direction: row-reverse;
+/* Destination dot (KMBB) is bigger and has a star ring */
+.dest-dot {
+  stroke: rgba(129, 140, 248, 0.7);
+  stroke-width: 3;
+}
+.dest-dot.active-dot {
+  stroke: #a78bfa;
+  filter: drop-shadow(0 0 12px #818cf8) drop-shadow(0 0 24px #a78bfa);
 }
 
-#checkpoint-3 {
-  bottom: 15px;
-  right: 14px;
-  flex-direction: row-reverse;
+@keyframes dotPulse {
+  0%  { stroke-width: 3; }
+  100%{ stroke-width: 5; }
 }
 
-/* Node Orb */
-.checkpoint-node {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+/* Font-awesome glyphs inside SVG dots */
+.dot-fa-icon {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  font-size: 12px;
+  fill: rgba(161, 161, 170, 0.85);
+  transition: fill 0.3s ease;
 }
 
-.node-core {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 2px solid var(--border-color);
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
-  z-index: 2;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.node-ripple {
+/* ── Floating Label Pills ── */
+.journey-labels-wrapper {
   position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
-  border-radius: 50%;
-  border: 2px solid transparent;
+  inset: 0;
   pointer-events: none;
-  transition: all 0.35s ease;
+  z-index: 4;
 }
 
-.checkpoint-year {
+.journey-label {
   position: absolute;
-  bottom: -18px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  white-space: nowrap;
-  letter-spacing: 0.03em;
-  transition: color 0.3s ease;
-}
-
-/* Checkpoint Preview Pill */
-.checkpoint-preview-pill {
   display: flex;
   flex-direction: column;
-  background: rgba(18, 18, 22, 0.85);
-  border: 1px solid var(--border-color);
-  backdrop-filter: blur(12px);
-  padding: 6px 14px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
-  max-width: 220px;
+  background: rgba(15, 23, 40, 0.88);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  backdrop-filter: blur(10px);
+  padding: 5px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  pointer-events: all;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
 }
 
-[data-theme="light"] .checkpoint-preview-pill {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(0, 0, 0, 0.1);
+[data-theme="light"] .journey-label {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(2, 132, 199, 0.25);
 }
 
-.preview-tag {
-  font-size: 0.7rem;
+.journey-label:hover {
+  border-color: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+}
+
+.journey-label.active-label {
+  border-color: var(--accent-cyan);
+  background: rgba(14, 84, 132, 0.25);
+  box-shadow: 0 0 18px rgba(56, 189, 248, 0.45);
+}
+
+[data-theme="light"] .journey-label.active-label {
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.lbl-tag {
+  font-size: 0.68rem;
   font-weight: 700;
   color: var(--accent-cyan);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.preview-tag.current {
-  color: #00f0ff;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.preview-name {
+.lbl-name {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* Mobile Responsiveness for S-Curve Roadmap */
+.dest-badge {
+  font-size: 0.78rem;
+}
+
+/*
+  Label positions (as % of container) to sit beside each SVG dot:
+  dot-1: cx=42/420 ≈ 10%,  cy=30/290 ≈ 10%   → label to its RIGHT
+  dot-2: cx=378/420 ≈ 90%, cy=148/290 ≈ 51%  → label to its LEFT
+  dot-3: cx=378/420 ≈ 90%, cy=262/290 ≈ 90%  → label to its LEFT+above
+*/
+.lbl-1 {
+  top: 4%;
+  left: 14%;     /* to the right of dot-1 */
+}
+
+.lbl-2 {
+  top: 46%;
+  right: 14%;
+  align-items: flex-end;  /* text right-aligned */
+  text-align: right;
+}
+
+.lbl-3 {
+  bottom: 5%;
+  right: 14%;
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Mobile responsive labels */
 @media (max-width: 600px) {
   .journey-roadmap-container {
-    min-height: 270px;
-    padding: 6px;
+    min-height: 260px;
   }
 
-  .journey-checkpoints-wrapper {
-    height: 270px;
+  .svg-milestone-dot {
+    r: 9;
   }
 
-  .checkpoint-node {
-    width: 36px;
-    height: 36px;
-  }
+  .lbl-1 { font-size: 0.78rem; top: 2%; left: 16%; }
+  .lbl-2 { font-size: 0.78rem; top: 44%; right: 16%; }
+  .lbl-3 { font-size: 0.78rem; bottom: 3%; right: 16%; }
 
-  .node-core {
-    width: 34px;
-    height: 34px;
-    font-size: 0.88rem;
-  }
-
-  .checkpoint-preview-pill {
-    padding: 4px 10px;
-    max-width: 160px;
-  }
-
-  .preview-name {
-    font-size: 0.75rem;
-  }
-
-  .preview-tag {
-    font-size: 0.65rem;
-  }
-
-  .checkpoint-year {
-    font-size: 0.65rem;
-    bottom: -15px;
-  }
-
-  #checkpoint-1 {
-    top: 10px;
-    left: 8px;
-  }
-
-  #checkpoint-2 {
-    top: 100px;
-    right: 8px;
-  }
-
-  #checkpoint-3 {
-    bottom: 10px;
-    right: 8px;
-  }
-}
-
-/* Active Glowing Node State */
-.journey-checkpoint.active .node-core,
-.journey-checkpoint:hover .node-core {
-  background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
-  border-color: #ffffff;
-  color: #ffffff;
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.8), 0 0 35px rgba(0, 240, 255, 0.5);
-}
-
-.journey-checkpoint.active .node-ripple {
-  border-color: rgba(56, 189, 248, 0.6);
-  animation: animeShockwave 2s infinite ease-out;
-}
-
-.journey-checkpoint.active .checkpoint-year {
-  color: var(--accent-cyan);
-}
-
-.journey-checkpoint.active .checkpoint-preview-pill {
-  border-color: var(--accent-cyan);
-  background: rgba(14, 165, 233, 0.15);
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.3);
+  .lbl-tag  { font-size: 0.6rem; }
+  .lbl-name { font-size: 0.75rem; }
 }
 
 @keyframes animeShockwave {
   0% { transform: scale(0.9); opacity: 0.9; }
-  100% { transform: scale(1.6); opacity: 0; }
+  100%{ transform: scale(1.6); opacity: 0; }
 }
 
 /* Dynamic Spotlight HUD Display */

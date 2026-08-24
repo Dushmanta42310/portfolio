@@ -249,149 +249,118 @@ document.addEventListener('DOMContentLoaded', () => {
   // 6. Interactive Anime S-Shape Academic Journey Logic
   const academicData = {
     1: {
-      step: 1,
-      badge: "Secondary School (10th)",
-      year: "2021",
+      badge: "Secondary School (10th)", year: "2021",
       name: "Mount Litera Zee School, Tangi",
       board: "CBSE · Tangi, Khordha, Odisha",
       score: "71% Aggregate",
       desc: "Completed secondary education under CBSE board with strong fundamentals in Mathematics, Science, and Information Technology.",
       image: "mount litera zee.jpg",
       link: "https://www.mountliteratangi.in/",
-      progressRatio: 0.03 // Only at start node
+      ratio: 0.02   // highlight only to first dot
     },
     2: {
-      step: 2,
-      badge: "Senior Secondary (12th)",
-      year: "2023",
+      badge: "Senior Secondary (12th)", year: "2023",
       name: "Oneness International School",
       board: "CBSE · Khordha, Odisha",
       score: "61% Aggregate",
       desc: "Completed Class 12th in Science stream focusing on Mathematics, Physics, Chemistry, and Computer Science principles.",
       image: "oneness.jpg",
       link: "https://www.onenessinternationalschool.com/",
-      progressRatio: 0.50 // Travels from start to middle curve node
+      ratio: 0.50   // highlight to midpoint (right curve)
     },
     3: {
-      step: 3,
-      badge: "Current Degree",
-      year: "2023 -- 2027",
+      badge: "Current Degree", year: "2023 – 2027",
       name: "KMBB College of Engineering & Technology",
       board: "BPUT · Khordha, Odisha",
       score: "7.9 CGPA",
-      desc: "Pursuing Bachelor of Technology in Computer Science & Engineering with core specialization in Database Management, AI/ML, Data Engineering, and Backend Architecture.",
+      desc: "Pursuing B.Tech in Computer Science & Engineering with core specialization in Database Management, AI/ML, Data Engineering, and Backend Architecture.",
       image: "kmbb.jpg",
       link: "https://www.kmbb.in/",
-      progressRatio: 1.0 // Covers full S-curve directly to destination node
+      ratio: 1.0    // highlight full path to destination
     }
   };
 
-  const laserLine = document.getElementById('journey-active-laser');
-  const baseTrack = document.getElementById('journey-base-track');
-  const photonOrb = document.getElementById('journey-photon-orb');
-  let photonAnimId = null;
+  const basePath   = document.getElementById('journey-base-track');
+  const laserPath  = document.getElementById('journey-active-laser');
+  const photonOrb  = document.getElementById('journey-photon-orb');
+  let photonRaf    = null;
 
-  // Initialize laser stroke dash array
-  if (laserLine && baseTrack) {
-    const totalLength = baseTrack.getTotalLength();
-    laserLine.style.strokeDasharray = totalLength;
-    laserLine.style.strokeDashoffset = 0;
+  // Set real path length once paths are rendered
+  function initLaser() {
+    if (!basePath || !laserPath) return;
+    const totalLen = basePath.getTotalLength();
+    laserPath.style.strokeDasharray  = totalLen;
+    laserPath.style.strokeDashoffset = totalLen; // hidden initially
   }
+  setTimeout(initLaser, 80);
 
-  function startPhotonTraveling(targetRatio) {
-    if (!baseTrack || !photonOrb) return;
-    if (photonAnimId) cancelAnimationFrame(photonAnimId);
+  // Photon travels only along the highlighted portion (0 → maxRatio of path)
+  function runPhoton(maxRatio) {
+    if (!basePath || !photonOrb) return;
+    if (photonRaf) cancelAnimationFrame(photonRaf);
+    const totalLen  = basePath.getTotalLength();
+    const maxDist   = totalLen * maxRatio;
+    if (maxDist < 5) { photonOrb.style.opacity = '0'; return; }
 
-    const totalLen = baseTrack.getTotalLength();
-    const maxDistance = totalLen * targetRatio;
-    let currentDistance = 0;
-    let speed = 2.8;
+    let dist = 0;
+    const speed = 2.4;
+    photonOrb.style.opacity = '1';
 
-    function animate() {
-      if (maxDistance <= 10) {
-        // Hover at start point
-        const pt = baseTrack.getPointAtLength(0);
-        photonOrb.setAttribute('cx', pt.x);
-        photonOrb.setAttribute('cy', pt.y);
-        photonOrb.style.opacity = '1';
-        return;
-      }
-
-      currentDistance += speed;
-      if (currentDistance > maxDistance) {
-        currentDistance = 0;
-      }
-
-      const pt = baseTrack.getPointAtLength(currentDistance);
+    function tick() {
+      dist += speed;
+      if (dist > maxDist) dist = 0;
+      const pt = basePath.getPointAtLength(dist);
       photonOrb.setAttribute('cx', pt.x);
       photonOrb.setAttribute('cy', pt.y);
-      photonOrb.style.opacity = '1';
-
-      photonAnimId = requestAnimationFrame(animate);
+      photonRaf = requestAnimationFrame(tick);
     }
-
-    animate();
+    tick();
   }
 
-  window.selectAcademicMilestone = function(stepIndex) {
-    const data = academicData[stepIndex];
-    if (!data) return;
+  window.selectAcademicMilestone = function(step) {
+    const d = academicData[step];
+    if (!d) return;
 
-    // Update active checkpoint pills and nodes
-    document.querySelectorAll('.journey-checkpoint').forEach(el => {
-      const step = parseInt(el.getAttribute('data-step'), 10);
-      if (step === stepIndex) {
-        el.classList.add('active');
-      } else {
-        el.classList.remove('active');
-      }
-    });
-
-    // Animate the Active Highlight Laser Blue Line to only cover up to this milestone
-    if (laserLine && baseTrack) {
-      const totalLen = baseTrack.getTotalLength();
-      laserLine.style.strokeDasharray = totalLen;
-      const targetOffset = totalLen * (1 - data.progressRatio);
-      laserLine.style.strokeDashoffset = targetOffset;
+    // 1) Highlight laser line up to the selected dot
+    if (basePath && laserPath) {
+      const totalLen = basePath.getTotalLength();
+      laserPath.style.strokeDasharray  = totalLen;
+      laserPath.style.strokeDashoffset = totalLen * (1 - d.ratio);
     }
 
-    // Move the traveling photon dot only along the highlighted active line
-    startPhotonTraveling(data.progressRatio);
+    // 2) Run photon only along highlighted portion
+    runPhoton(d.ratio);
 
-    // Animate Spotlight HUD Card with smooth micro-transition
-    const displayCard = document.getElementById('journey-spotlight-display');
-    if (displayCard) {
-      displayCard.style.opacity = '0.35';
-      displayCard.style.transform = 'translateY(4px)';
+    // 3) Activate/deactivate SVG dots
+    [1, 2, 3].forEach(i => {
+      const dot   = document.getElementById('dot-' + i);
+      const label = document.getElementById('label-' + i);
+      if (dot)   dot.classList.toggle('active-dot',   i === step);
+      if (label) label.classList.toggle('active-label', i === step);
+    });
 
+    // 4) Fade-swap the spotlight HUD card
+    const card = document.getElementById('journey-spotlight-display');
+    if (card) {
+      card.style.opacity   = '0.3';
+      card.style.transform = 'translateY(5px)';
       setTimeout(() => {
-        const img = document.getElementById('spotlight-img');
-        const badge = document.getElementById('spotlight-badge');
-        const year = document.getElementById('spotlight-year');
-        const name = document.getElementById('spotlight-name');
-        const board = document.getElementById('spotlight-board');
-        const score = document.getElementById('spotlight-score');
-        const desc = document.getElementById('spotlight-desc');
-        const link = document.getElementById('spotlight-link');
-
-        if (img) img.src = data.image;
-        if (badge) badge.textContent = data.badge;
-        if (year) year.innerHTML = `<i class="fa-regular fa-calendar"></i> ${data.year}`;
-        if (name) name.textContent = data.name;
-        if (board) board.textContent = data.board;
-        if (score) score.textContent = data.score;
-        if (desc) desc.textContent = data.desc;
-        if (link) link.href = data.link;
-
-        displayCard.style.opacity = '1';
-        displayCard.style.transform = 'translateY(0)';
+        const el = (id) => document.getElementById(id);
+        if (el('spotlight-img'))   el('spotlight-img').src          = d.image;
+        if (el('spotlight-badge')) el('spotlight-badge').textContent = d.badge;
+        if (el('spotlight-year'))  el('spotlight-year').innerHTML    = `<i class="fa-regular fa-calendar"></i> ${d.year}`;
+        if (el('spotlight-name'))  el('spotlight-name').textContent  = d.name;
+        if (el('spotlight-board')) el('spotlight-board').textContent = d.board;
+        if (el('spotlight-score')) el('spotlight-score').textContent = d.score;
+        if (el('spotlight-desc'))  el('spotlight-desc').textContent  = d.desc;
+        if (el('spotlight-link'))  el('spotlight-link').href         = d.link;
+        card.style.opacity   = '1';
+        card.style.transform = 'translateY(0)';
       }, 150);
     }
   };
 
-  // Default selection to destination milestone (KMBB College)
-  setTimeout(() => {
-    selectAcademicMilestone(3);
-  }, 100);
+  // Boot with KMBB (destination) selected
+  setTimeout(() => selectAcademicMilestone(3), 150);
 });
 
