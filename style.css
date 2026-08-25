@@ -1444,8 +1444,44 @@ nav {
 
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 22px;
+  gap: 34px;
+}
+
+.skill-category {
+  display: grid;
+  gap: 16px;
+}
+
+.skill-category-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+
+.skill-category-heading i {
+  color: var(--accent-cyan);
+}
+
+.skill-category-heading h3 {
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+}
+
+.skill-category-heading span {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.skill-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 18px;
 }
 
 .skill-card {
@@ -1458,85 +1494,153 @@ nav {
   display: flex;
   align-items: flex-start;
   gap: 18px;
-  transition: all var(--transition-smooth);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth), background var(--transition-smooth);
   position: relative;
   overflow: hidden;
+  cursor: default;
+  isolation: isolate;
+  will-change: transform;
 }
 
-.skill-card::after {
-  content: '';
-  position: absolute;
-  top: -80%;
-  left: -55%;
-  width: 34%;
-  height: 260%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transform: rotate(24deg) translateX(-260%);
-  pointer-events: none;
-  transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.skill-card:hover::after,
-.skill-card:focus-within::after {
-  transform: rotate(24deg) translateX(560%);
-}
-
+/* Glassy top inner highlight (bevel light edge) */
 .skill-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: var(--accent-gradient);
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.14) 0%, transparent 40%);
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity var(--transition-smooth);
+  z-index: 0;
+}
+
+/* Soft gradient glow border that brightens on hover */
+.skill-card-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--border-color-hover), transparent 40%, transparent 60%, var(--border-color-hover));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
   opacity: 0;
-  transition: opacity var(--transition-fast);
+  transition: opacity var(--transition-smooth);
+  pointer-events: none;
+}
+
+/* Floating "node" accent dot used by featured skills */
+.skill-card::marker { content: none; }
+
+/* Glossy reflection sweep only on the hovered / activated card */
+.skill-card::after {
+  content: '';
+  position: absolute;
+  top: -85%;
+  left: -55%;
+  width: 36%;
+  height: 280%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 28%,
+    rgba(255, 255, 255, 0.28) 46%,
+    rgba(255, 255, 255, 0.06) 58%,
+    transparent 72%
+  );
+  transform: rotate(24deg) translateX(-330%);
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Reflection plays once on THIS card only (hover, focus or clicked) — never auto-sweeps all cards */
+.skill-card:hover::after,
+.skill-card:focus-within::after,
+.skill-card.is-active::after {
+  opacity: 1;
+  animation: glassReflection 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes glassReflection {
+  from { transform: rotate(24deg) translateX(-330%); opacity: 0; }
+  25%  { opacity: 1; }
+  85%  { transform: rotate(24deg) translateX(400%); opacity: 1; }
+  to   { transform: rotate(24deg) translateX(430%); opacity: 0; }
 }
 
 .skill-card:hover {
   border-color: var(--border-color-hover);
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-8px) scale(1.015);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(56, 189, 248, 0.12), 0 0 26px var(--glow-cyan);
+  background: var(--bg-card-hover);
 }
 
 .skill-card:hover::before {
+  opacity: 0.85;
+}
+
+.skill-card:hover .skill-card-glow {
   opacity: 1;
 }
 
+/* Tap-drag interactive tilt feel (also gives visual feedback on hover) */
+.skill-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+}
+@media (hover: hover) {
+  .skill-card.skill-tilt {
+    transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(-8px) scale(1.015);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(56, 189, 248, 0.15), 0 0 30px var(--glow-cyan);
+    border-color: var(--border-color-hover);
+  }
+}
+
 .skill-icon-wrap {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
   background: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 8px;
   flex-shrink: 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+  position: relative;
+  z-index: 1;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
 }
 
+/* Tiny glass highlight on the icon tile itself */
 [data-theme="light"] .skill-icon-wrap {
   background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.09);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
 }
 
 .skill-card:hover .skill-icon-wrap {
-  transform: scale(1.08) rotate(3deg);
-  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.25);
+  transform: translateY(-3px) scale(1.1) rotate(3deg);
+  box-shadow: 0 8px 22px rgba(56, 189, 248, 0.35), 0 0 0 1px rgba(56, 189, 248, 0.25);
+  border-color: rgba(56, 189, 248, 0.5);
 }
 
 .skill-icon {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  transition: transform var(--transition-smooth);
 }
 
 .skill-icon-wrap i {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
+  transition: transform var(--transition-smooth);
+}
+
+.skill-card:hover .skill-icon-wrap i {
+  transform: scale(1.12);
 }
 
 .skill-icon-git {
@@ -1559,25 +1663,104 @@ nav {
   background: rgba(245, 158, 11, 0.1);
 }
 
+.skill-icon-api { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+.skill-icon-huggingface { color: #fbbf24; background: rgba(251, 191, 36, 0.12); }
+.skill-icon-chroma { color: #ec4899; background: rgba(236, 72, 153, 0.1); }
+
+.skill-account-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: var(--accent-cyan);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skill-account-link:hover { color: var(--text-primary); }
+
+/* Featured (core) skills get an accent ring + glow dot */
 .skill-card-featured {
-  border-color: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.22);
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.05), var(--bg-card) 55%);
+}
+
+.skill-card-featured::before {
+  background: linear-gradient(160deg, rgba(56, 189, 248, 0.22) 0%, transparent 45%);
+}
+
+/* Animated status "node" that pulses in the top-right of featured cards */
+.skill-status-node {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6);
+  animation: nodePulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: 1;
+}
+
+@keyframes nodePulse {
+  0%   { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
 }
 
 .skill-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
 }
 
 .skill-title {
-  font-size: 1.1rem;
+  font-size: 1.12rem;
   font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+}
+
+/* Small gradient underline that grows on hover */
+.skill-title::after {
+  content: '';
+  width: 22px;
+  height: 3px;
+  border-radius: 100px;
+  background: var(--accent-gradient);
+  opacity: 0.55;
+  transform: scaleX(0.4);
+  transform-origin: left;
+  transition: transform var(--transition-smooth), opacity var(--transition-smooth);
+}
+
+.skill-card:hover .skill-title::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .skill-desc {
-  font-size: 0.85rem;
+  font-size: 0.86rem;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
+}
+
+/* Glass reflection looks best subtle on the light theme */
+[data-theme="light"] .skill-card::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.9) 46%,
+    rgba(255, 255, 255, 0.5) 60%,
+    transparent 74%
+  );
 }
 
 /* ==========================================================================
