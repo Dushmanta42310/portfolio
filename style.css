@@ -1537,19 +1537,21 @@ nav {
 .skill-card::after {
   content: '';
   position: absolute;
-  top: -85%;
-  left: -55%;
-  width: 36%;
-  height: 280%;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
-    100deg,
+    105deg,
     transparent 0%,
-    rgba(255, 255, 255, 0) 28%,
-    rgba(255, 255, 255, 0.28) 46%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.06) 42%,
+    rgba(255, 255, 255, 0.45) 50%,
     rgba(255, 255, 255, 0.06) 58%,
-    transparent 72%
+    transparent 62%,
+    transparent 100%
   );
-  transform: rotate(24deg) translateX(-330%);
+  transform: skewX(-15deg);
   pointer-events: none;
   opacity: 0;
 }
@@ -1558,15 +1560,12 @@ nav {
 .skill-card:hover::after,
 .skill-card:focus-within::after,
 .skill-card.is-active::after {
-  opacity: 1;
-  animation: glassReflection 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: glassReflection 0.9s linear forwards;
 }
 
 @keyframes glassReflection {
-  from { transform: rotate(24deg) translateX(-330%); opacity: 0; }
-  25%  { opacity: 1; }
-  85%  { transform: rotate(24deg) translateX(400%); opacity: 1; }
-  to   { transform: rotate(24deg) translateX(430%); opacity: 0; }
+  0%   { left: -100%; opacity: 1; }
+  100% { left: 100%;  opacity: 1; }
 }
 
 .skill-card:hover {
@@ -1671,6 +1670,7 @@ nav {
 .skill-icon-mongodb { color: #47a248; background: rgba(71, 162, 72, 0.1); }
 .skill-icon-firebase { color: #ffca28; background: rgba(255, 202, 40, 0.12); }
 .skill-icon-netlify { color: #00c7b7; background: rgba(0, 199, 183, 0.1); }
+.skill-icon-render { color: #46e3b7; background: rgba(70, 227, 183, 0.1); }
 
 .skill-account-link {
   display: inline-flex;
@@ -1759,12 +1759,14 @@ nav {
 /* Glass reflection looks best subtle on the light theme */
 [data-theme="light"] .skill-card::after {
   background: linear-gradient(
-    100deg,
+    105deg,
     transparent 0%,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.9) 46%,
-    rgba(255, 255, 255, 0.5) 60%,
-    transparent 74%
+    transparent 38%,
+    rgba(255, 255, 255, 0.15) 42%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.15) 58%,
+    transparent 62%,
+    transparent 100%
   );
 }
 
@@ -2239,5 +2241,66 @@ footer {
 
   .bulb-light-cone {
     width: 100vw;
+  }
+
+  .skills-section {
+    padding: 60px 0;
+  }
+
+  .skills-grid {
+    gap: 24px;
+  }
+
+  .skill-category-heading h3 {
+    font-size: 1.15rem;
+  }
+
+  .skill-category-heading span {
+    font-size: 0.7rem;
+  }
+
+  .skill-category-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .skill-card {
+    padding: 18px;
+    gap: 14px;
+  }
+
+  .skill-icon-wrap {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    padding: 6px;
+  }
+
+  .skill-icon-wrap i {
+    font-size: 1.1rem;
+  }
+
+  .skill-title {
+    font-size: 0.9rem;
+  }
+
+  .skill-desc {
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+
+  .skill-account-link {
+    font-size: 0.72rem;
+  }
+
+  .skill-card:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+
+  @media (hover: hover) {
+    .skill-card.skill-tilt {
+      transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(-4px) scale(1.01);
+    }
   }
 }

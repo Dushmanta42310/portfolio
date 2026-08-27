@@ -362,5 +362,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Boot with KMBB (destination) selected
   setTimeout(() => selectAcademicMilestone(3), 150);
+
+  // Skill card tap-to-reflect (mobile)
+  document.querySelectorAll('.skill-card').forEach(card => {
+    card.addEventListener('click', () => {
+      card.classList.remove('is-active');
+      void card.offsetWidth;
+      card.classList.add('is-active');
+    });
+  });
+  document.addEventListener('animationend', e => {
+    if (e.animationName === 'glassReflection') {
+      e.target.classList.remove('is-active');
+    }
+  });
 });
 
