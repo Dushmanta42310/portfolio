@@ -1414,6 +1414,9 @@ nav {
 
 .spotlight-action-row {
   margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .spotlight-link-btn {
@@ -1428,6 +1431,27 @@ nav {
   border-radius: 10px;
   text-decoration: none;
   transition: all var(--transition-fast);
+}
+
+.spotlight-result-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.12);
+  border: 1px solid rgba(255, 107, 107, 0.45);
+  padding: 7px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.spotlight-result-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 14px rgba(255, 107, 107, 0.4);
+  background: rgba(255, 107, 107, 0.2);
 }
 
 .spotlight-link-btn:hover {

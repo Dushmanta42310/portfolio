@@ -256,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
       desc: "Completed secondary education under CBSE board with strong fundamentals in Mathematics, Science, and Information Technology.",
       image: "mount litera zee.jpg",
       link: "https://www.mountliteratangi.in/",
+      result: "10TH RES.pdf",
       ratio: 0.02   // highlight only to first dot
     },
     2: {
@@ -266,6 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
       desc: "Completed Class 12th in Science stream focusing on Mathematics, Physics, Chemistry, and Computer Science principles.",
       image: "oneness.jpg",
       link: "https://www.onenessinternationalschool.com/",
+      result: "12ESULT.pdf",
       ratio: 0.50   // highlight to midpoint (right curve)
     },
     3: {
@@ -276,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
       desc: "Pursuing B.Tech in Computer Science & Engineering with core specialization in Database Management, AI/ML, Data Engineering, and Backend Architecture.",
       image: "kmbb.jpg",
       link: "https://www.kmbb.in/",
+      result: null,
       ratio: 1.0    // highlight full path to destination
     }
   };
@@ -354,6 +357,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el('spotlight-score')) el('spotlight-score').textContent = d.score;
         if (el('spotlight-desc'))  el('spotlight-desc').textContent  = d.desc;
         if (el('spotlight-link'))  el('spotlight-link').href         = d.link;
+        const resultBtn = el('spotlight-result');
+        if (resultBtn) {
+          if (d.result) {
+            resultBtn.href = d.result;
+            resultBtn.style.display = 'inline-flex';
+          } else {
+            resultBtn.style.display = 'none';
+          }
+        }
         card.style.opacity   = '1';
         card.style.transform = 'translateY(0)';
       }, 150);
