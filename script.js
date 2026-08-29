@@ -357,13 +357,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (el('spotlight-score')) el('spotlight-score').textContent = d.score;
         if (el('spotlight-desc'))  el('spotlight-desc').textContent  = d.desc;
         if (el('spotlight-link'))  el('spotlight-link').href         = d.link;
-        const resultBtn = el('spotlight-result');
-        if (resultBtn) {
+        const resultPill = el('spotlight-result-pill');
+        if (resultPill) {
           if (d.result) {
-            resultBtn.href = d.result;
-            resultBtn.style.display = 'inline-flex';
+            resultPill.href = d.result;
+            resultPill.style.display = 'inline-flex';
+            resultPill.style.pointerEvents = 'auto';
+            resultPill.title = 'Click to view result';
           } else {
-            resultBtn.style.display = 'none';
+            resultPill.removeAttribute('href');
+            resultPill.style.pointerEvents = 'none';
+            resultPill.title = '';
           }
         }
         card.style.opacity   = '1';
