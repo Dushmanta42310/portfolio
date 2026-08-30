@@ -1652,7 +1652,16 @@ nav {
 }
 
 .skill-card:hover .skill-icon-wrap i {
-  transform: scale(1.12);
+  transform: scale(1.14) rotate(-6deg);
+}
+
+.skill-card:hover .skill-icon-wrap.skill-icon-react i {
+  animation: iconSpin 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes iconSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 .skill-icon-git {
@@ -1684,6 +1693,13 @@ nav {
 .skill-icon-firebase { color: #ffca28; background: rgba(255, 202, 40, 0.12); }
 .skill-icon-netlify { color: #00c7b7; background: rgba(0, 199, 183, 0.1); }
 .skill-icon-render { color: #46e3b7; background: rgba(70, 227, 183, 0.1); }
+.skill-icon-html5 { color: #e44d26; background: rgba(228, 77, 38, 0.1); }
+.skill-icon-css3 { color: #264de4; background: rgba(38, 77, 228, 0.1); }
+.skill-icon-js { color: #f0db4f; background: rgba(240, 219, 79, 0.12); }
+.skill-icon-sql { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+.skill-icon-plsql { color: #ea1b22; background: rgba(234, 27, 34, 0.1); }
+.skill-icon-python { color: #3776ab; background: rgba(55, 118, 171, 0.1); }
+.skill-icon-powerbi { color: #f2c811; background: rgba(242, 200, 17, 0.12); }
 
 .skill-account-link {
   display: inline-flex;
