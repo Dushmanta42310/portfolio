@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dushmanta Das | DBA · Web Developer · Data Analytics · AI/ML · Cloud Engineer</title>
   <meta name="description" content="Portfolio of Dushmanta Das - DBA, Web Developer, Data Analytics, AI/ML, and Cloud Engineer skilled in SQL, PL/SQL, Python, Power BI, and modern web applications.">
-  <link rel="stylesheet" href="style.css?v=1.9" />
+  <link rel="stylesheet" href="style.css?v=2.0" />
   
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -412,9 +412,17 @@
         
         <!-- Project 1 -->
         <div class="project-card" data-aos="fade-up" data-aos-delay="50">
-          <div class="project-thumb-wrap">
-            <img src="work-in-progress-clipart.png" alt="Ride Invoice Studio" class="project-thumb" />
+          <div class="project-thumb-wrap project-slider" data-slider>
+            <div class="slider-track">
+              <img src="bill-dashboard.png" alt="Ride Invoice Studio Dashboard" class="project-thumb slider-slide" />
+              <img src="bill-map.png" alt="Ride Invoice Studio Map" class="project-thumb slider-slide" />
+              <img src="bill-invoice.png" alt="Ride Invoice Studio Invoice" class="project-thumb slider-slide" />
+              <img src="bill-tax.png" alt="Ride Invoice Studio Tax Sheet" class="project-thumb slider-slide" />
+            </div>
             <span class="project-status-badge">Flask · Full-Stack</span>
+            <button type="button" class="slider-arrow left" data-slider-prev aria-label="Previous slide"><i class="fa-solid fa-chevron-left"></i></button>
+            <button type="button" class="slider-arrow right" data-slider-next aria-label="Next slide"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="slider-dots" data-slider-dots></div>
           </div>
           <div class="project-body">
             <h3 class="project-title">Ride Invoice Studio</h3>
