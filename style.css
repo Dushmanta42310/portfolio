@@ -1898,6 +1898,94 @@ nav {
   color: var(--text-secondary);
 }
 
+/* --- Project Image Slider --- */
+.project-slider {
+  overflow: hidden;
+  position: relative;
+}
+
+.slider-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--transition-smooth);
+}
+
+.slider-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-slider:hover .slider-slide {
+  transform: none;
+}
+
+.project-slider .project-thumb {
+  transition: transform var(--transition-smooth);
+}
+
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+  z-index: 3;
+}
+
+.slider-arrow:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.slider-arrow.left { left: 12px; }
+.slider-arrow.right { right: 12px; }
+
+.project-slider:hover .slider-arrow {
+  opacity: 1;
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+
+.slider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all var(--transition-fast);
+}
+
+.slider-dot.active {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  width: 22px;
+  border-radius: 100px;
+} 
+
 /* ==========================================================================
    RESUME & CERTIFICATES SECTION
    ========================================================================== */

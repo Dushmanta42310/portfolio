@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dushmanta Das | DBA · Web Developer · Data Analytics · AI/ML · Cloud Engineer</title>
   <meta name="description" content="Portfolio of Dushmanta Das - DBA, Web Developer, Data Analytics, AI/ML, and Cloud Engineer skilled in SQL, PL/SQL, Python, Power BI, and modern web applications.">
-  <link rel="stylesheet" href="style.css?v=1.7" />
+  <link rel="stylesheet" href="style.css?v=1.8" />
   
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -489,9 +489,15 @@
 
         <!-- Project 5 -->
         <div class="project-card" data-aos="fade-up" data-aos-delay="250">
-          <div class="project-thumb-wrap">
-            <img src="work-in-progress-clipart.png" alt="BSN Tile Shop" class="project-thumb" />
+          <div class="project-thumb-wrap project-slider" data-slider>
+            <div class="slider-track">
+              <img src="bsn-login.png" alt="BSN Tile Shop Login" class="project-thumb slider-slide" />
+              <img src="bsn-dashboard.png" alt="BSN Tile Shop Dashboard" class="project-thumb slider-slide" />
+            </div>
             <span class="project-status-badge">Web Application</span>
+            <button type="button" class="slider-arrow left" data-slider-prev aria-label="Previous slide"><i class="fa-solid fa-chevron-left"></i></button>
+            <button type="button" class="slider-arrow right" data-slider-next aria-label="Next slide"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="slider-dots" data-slider-dots></div>
           </div>
           <div class="project-body">
             <h3 class="project-title">BSN Tile Shop</h3>
@@ -656,6 +662,6 @@
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-  <script src="script.js?v=1.4"></script>
+  <script src="script.js?v=1.5"></script>
 </body>
 </html>

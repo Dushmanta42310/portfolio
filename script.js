@@ -199,6 +199,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 4.1 Project Image Sliders
+  document.querySelectorAll('[data-slider]').forEach(slider => {
+    const track = slider.querySelector('.slider-track');
+    const slides = slider.querySelectorAll('.slider-slide');
+    const dotsWrap = slider.querySelector('[data-slider-dots]');
+    const prevBtn = slider.querySelector('[data-slider-prev]');
+    const nextBtn = slider.querySelector('[data-slider-next]');
+    let current = 0;
+
+    if (slides.length <= 1) return;
+
+    // Build dots
+    slides.forEach((_, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+      dot.addEventListener('click', () => goTo(i));
+      dotsWrap.appendChild(dot);
+    });
+
+    function goTo(index) {
+      current = (index + slides.length) % slides.length;
+      if (track) track.style.transform = `translateX(-${current * 100}%)`;
+      dotsWrap.querySelectorAll('.slider-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+    }
+
+    if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
+    if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
+
+    // Optional: auto-advance while hovering
+    let autoTimer = null;
+    function startAuto() {
+      stopAuto();
+      autoTimer = setInterval(() => goTo(current + 1), 4000);
+    }
+    function stopAuto() {
+      if (autoTimer) clearInterval(autoTimer);
+    }
+
+    slider.addEventListener('mouseenter', startAuto);
+    slider.addEventListener('mouseleave', stopAuto);
+    startAuto();
+  });
+
   // 5. Initialize EmailJS & Contact Form
   if (typeof emailjs !== 'undefined') {
     emailjs.init('9jlifRD_jpAIhUX87'); // Dushmanta's Public Key
