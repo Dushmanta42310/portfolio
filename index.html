@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dushmanta Das | DBA · Web Developer · Data Analytics · AI/ML · Cloud Engineer</title>
   <meta name="description" content="Portfolio of Dushmanta Das - DBA, Web Developer, Data Analytics, AI/ML, and Cloud Engineer skilled in SQL, PL/SQL, Python, Power BI, and modern web applications.">
-  <link rel="stylesheet" href="style.css?v=2.1" />
+  <link rel="stylesheet" href="style.css?v=2.2" />
   
   <!-- Modern Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -467,9 +467,15 @@
 
         <!-- Project 3 -->
         <div class="project-card" data-aos="fade-up" data-aos-delay="150">
-          <div class="project-thumb-wrap">
-            <img src="dashboard-sales.png" alt="Coffee Shop Sales Dashboard" class="project-thumb" />
+          <div class="project-thumb-wrap project-slider" data-slider>
+            <div class="slider-track">
+              <img src="dashboard-sales.png" alt="Coffee Shop Sales Dashboard" class="project-thumb slider-slide" />
+              <img src="dashboard-charts.png" alt="Coffee Shop Sales Charts" class="project-thumb slider-slide" />
+            </div>
             <span class="project-status-badge">Power BI · Analytics</span>
+            <button type="button" class="slider-arrow left" data-slider-prev aria-label="Previous slide"><i class="fa-solid fa-chevron-left"></i></button>
+            <button type="button" class="slider-arrow right" data-slider-next aria-label="Next slide"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="slider-dots" data-slider-dots></div>
           </div>
           <div class="project-body">
             <h3 class="project-title">Coffee Shop Sales Dashboard</h3>
