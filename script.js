@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4.1 Project Image Sliders
+  // 4.1 Project Image Sliders (interactive: swipe, drag, keyboard, progress bar)
   document.querySelectorAll('[data-slider]').forEach(slider => {
     const track = slider.querySelector('.slider-track');
     const slides = slider.querySelectorAll('.slider-slide');
@@ -207,6 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevBtn = slider.querySelector('[data-slider-prev]');
     const nextBtn = slider.querySelector('[data-slider-next]');
     let current = 0;
+    let isDragging = false;
+    let startX = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
 
     if (slides.length <= 1) return;
 
@@ -216,33 +220,154 @@ document.addEventListener('DOMContentLoaded', () => {
       dot.type = 'button';
       dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
       dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-      dot.addEventListener('click', () => goTo(i));
+      dot.addEventListener('click', () => { goTo(i); resetAutoPlay(); });
       dotsWrap.appendChild(dot);
     });
 
-    function goTo(index) {
-      current = (index + slides.length) % slides.length;
-      if (track) track.style.transform = `translateX(-${current * 100}%)`;
+    // Create slide counter
+    const counter = document.createElement('span');
+    counter.className = 'slider-counter';
+    counter.textContent = '1 / ' + slides.length;
+    slider.appendChild(counter);
+
+    // Create progress bar
+    const progressWrap = document.createElement('div');
+    progressWrap.className = 'slider-progress';
+    const progressBar = document.createElement('div');
+    progressBar.className = 'slider-progress-bar';
+    progressWrap.appendChild(progressBar);
+    slider.appendChild(progressWrap);
+
+    function updateUI() {
       dotsWrap.querySelectorAll('.slider-dot').forEach((d, i) => {
         d.classList.toggle('active', i === current);
       });
+      counter.textContent = (current + 1) + ' / ' + slides.length;
+      progressBar.style.width = ((current + 1) / slides.length * 100) + '%';
     }
 
-    if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
-    if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
+    function goTo(index, animate = true) {
+      current = (index + slides.length) % slides.length;
+      if (!animate) {
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(-' + (current * 100) + '%)';
+        prevTranslate = -current * slider.offsetWidth;
+        currentTranslate = prevTranslate;
+        requestAnimationFrame(() => { track.style.transition = ''; });
+      } else {
+        track.style.transform = 'translateX(-' + (current * 100) + '%)';
+      }
+      updateUI();
+    }
 
-    // Optional: auto-advance while hovering
+    // --- Touch / Drag support ---
+    function getPositionX(event) {
+      return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
+    }
+
+    function touchStart(event) {
+      isDragging = true;
+      startX = getPositionX(event);
+      track.classList.add('grabbing');
+    }
+
+    function touchMove(event) {
+      if (!isDragging) return;
+      const currentX = getPositionX(event);
+      const diff = currentX - startX;
+      currentTranslate = prevTranslate + diff;
+      const clampedTranslate = Math.max(
+        -(slides.length - 1) * slider.offsetWidth,
+        Math.min(0, currentTranslate)
+      );
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(' + clampedTranslate + 'px)';
+    }
+
+    function touchEnd() {
+      if (!isDragging) return;
+      isDragging = false;
+      track.classList.remove('grabbing');
+      const movedBy = currentTranslate - prevTranslate;
+      const threshold = slider.offsetWidth * 0.2;
+      if (movedBy < -threshold && current < slides.length - 1) {
+        goTo(current + 1);
+      } else if (movedBy > threshold && current > 0) {
+        goTo(current - 1);
+      } else {
+        goTo(current);
+      }
+      track.style.transition = '';
+      prevTranslate = -current * slider.offsetWidth;
+      currentTranslate = prevTranslate;
+      resetAutoPlay();
+    }
+
+    slider.addEventListener('touchstart', touchStart, { passive: true });
+    slider.addEventListener('touchmove', touchMove, { passive: true });
+    slider.addEventListener('touchend', touchEnd);
+    slider.addEventListener('mousedown', touchStart);
+    slider.addEventListener('mousemove', touchMove);
+    slider.addEventListener('mouseup', touchEnd);
+    slider.addEventListener('mouseleave', () => { if (isDragging) touchEnd(); });
+    slider.addEventListener('dragstart', e => e.preventDefault());
+
+    // --- Keyboard navigation ---
+    slider.setAttribute('tabindex', '0');
+    slider.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') { goTo(current - 1); resetAutoPlay(); }
+      if (e.key === 'ArrowRight') { goTo(current + 1); resetAutoPlay(); }
+    });
+
+    // --- Arrow buttons ---
+    if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); goTo(current + 1); resetAutoPlay(); });
+    if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); goTo(current - 1); resetAutoPlay(); });
+
+    // --- Auto-advance with progress animation ---
     let autoTimer = null;
+    let rafId = null;
+    const AUTO_INTERVAL = 5000;
+    let autoStart = 0;
+
+    function animateProgress() {
+      if (!autoTimer) return;
+      const elapsed = Date.now() - autoStart;
+      const pct = Math.min((elapsed / AUTO_INTERVAL) * 100, 100);
+      progressBar.style.width = ((current + 1) / slides.length * 100) + '%';
+      progressBar.style.background = 'linear-gradient(90deg, var(--accent-cyan) ' + pct + '%, transparent ' + pct + '%)';
+      if (pct < 100) rafId = requestAnimationFrame(animateProgress);
+    }
+
     function startAuto() {
       stopAuto();
-      autoTimer = setInterval(() => goTo(current + 1), 4000);
-    }
-    function stopAuto() {
-      if (autoTimer) clearInterval(autoTimer);
+      autoStart = Date.now();
+      autoTimer = setTimeout(() => {
+        goTo(current + 1);
+        startAuto();
+      }, AUTO_INTERVAL);
+      animateProgress();
     }
 
-    slider.addEventListener('mouseenter', startAuto);
-    slider.addEventListener('mouseleave', stopAuto);
+    function stopAuto() {
+      if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      progressBar.style.background = '';
+    }
+
+    function resetAutoPlay() {
+      stopAuto();
+      startAuto();
+    }
+
+    // Pause on hover (desktop) — restart when leaving
+    slider.addEventListener('mouseenter', () => stopAuto());
+    slider.addEventListener('mouseleave', () => startAuto());
+    // Touch devices: stop auto-play while touching
+    slider.addEventListener('touchstart', () => stopAuto(), { passive: true });
+    slider.addEventListener('touchend', () => startAuto(), { passive: true });
+
+    // Init
+    goTo(0, false);
     startAuto();
   });
 
