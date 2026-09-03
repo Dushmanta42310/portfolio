@@ -37,13 +37,134 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  let bulbDragged = false;
+
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', toggleThemeWithBulbEffect);
   }
 
   if (realisticBulb) {
-    realisticBulb.addEventListener('click', toggleThemeWithBulbEffect);
+    realisticBulb.addEventListener('click', (e) => {
+      if (bulbDragged) { bulbDragged = false; return; }
+      toggleThemeWithBulbEffect();
+    });
   }
+
+  // 1.2 Interactive Bulb: pendulum drag (limited area) + pull-down on phone
+  const bulbStage = document.getElementById('bulb-stage');
+
+  function initBulbDrag(wrapper) {
+    const stage = bulbStage || wrapper.parentElement || document.body;
+    const maxR = Math.min(stage.offsetWidth, stage.offsetHeight) / 2;
+    let isDrag = false;
+    let dragging = false;
+    let startX = 0;
+    let startY = 0;
+    let centerDX = 0;
+    let centerDY = 0;
+
+    // Pendulum-like transform: swing laterally (rotate) with limited vertical drop
+    function applyTransform() {
+      let scale = '';
+      if (window.matchMedia('(max-width: 768px)').matches) scale = ' scale(0.85)';
+      wrapper.style.transform =
+        'translateX(calc(-50% + ' + centerDX + 'px)) translateY(' + centerDY + 'px) rotate(' + (centerDX / Math.max(maxR, 1) * 18) + 'deg)' + scale;
+    }
+
+    function startDrag(e) {
+      if (e.type === 'mousedown') { if (e.button !== 0) return; }
+      const point = getPoint(e);
+      dragging = true;
+      isDrag = false;
+      startX = point.x;
+      startY = point.y;
+    }
+
+    function moveDrag(e) {
+      if (!dragging) return;
+      const point = getPoint(e);
+      const dxRaw = point.x - startX;
+      const dyRaw = point.y - startY;
+      if (!isDrag) {
+        const dist = Math.hypot(dxRaw, dyRaw);
+        if (dist < 4) { startX = point.x; startY = point.y; return; }
+        isDrag = true;
+        bulbDragged = true;
+        wrapper.classList.add('dragging');
+      }
+      let nx = centerDX + dxRaw;
+      let ny = centerDY + dyRaw;
+      // Constrain to limited circular/elliptical area
+      const rx = Math.min(maxR, stage.offsetWidth / 2 - 20);
+      const ry = Math.min(maxR, stage.offsetHeight / 2 - 20);
+      nx = Math.max(-rx, Math.min(rx, nx));
+      ny = Math.max(0, Math.min(ry, ny));
+      centerDX = nx;
+      centerDY = ny;
+      startX = point.x;
+      startY = point.y;
+      applyTransform();
+    }
+
+    function endDrag() {
+      if (!dragging) return;
+      dragging = false;
+      wrapper.classList.remove('dragging');
+      if (isDrag) {
+        // Reset drag flag shortly after so the pending 'click' gets swallowed
+        setTimeout(() => { bulbDragged = false; }, 0);
+        // Release: spring back to rest with a soft pendulum swing
+        wrapper.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        centerDX = 0;
+        centerDY = 0;
+        applyTransform();
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            wrapper.style.transition = '';
+          });
+        });
+        isDrag = false;
+      }
+    }
+
+    // Pointer events (mouse + touch unified) carry clientX/clientY directly;
+    // fall back to touch source if provided.
+    function getPoint(e) {
+      const src = e.touches ? e.touches[0] : e;
+      return { x: src.clientX, y: src.clientY };
+    }
+
+    // Pointer events unify mouse + touch
+    wrapper.addEventListener('pointerdown', startDrag);
+    window.addEventListener('pointermove', moveDrag);
+    window.addEventListener('pointerup', endDrag);
+
+    // Pull-down on the thread/cord (phone style): tap the cord to drop the bulb
+    const cord = wrapper.querySelector('.bulb-pull-cord');
+    if (cord) {
+      cord.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (dragging) return;
+        const wasPulled = cord.classList.contains('pulled');
+        if (!wasPulled) {
+          cord.classList.add('pulled');
+          wrapper.classList.add('pulled');
+          centerDY = Math.min(24, maxR * 0.5);
+          applyTransform();
+          setTimeout(() => {
+            cord.classList.remove('pulled');
+            wrapper.classList.remove('pulled');
+            centerDY = 0;
+            wrapper.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            applyTransform();
+            setTimeout(() => { wrapper.style.transition = ''; }, 600);
+          }, 250);
+        }
+      });
+    }
+  }
+
+  if (realisticBulb) initBulbDrag(realisticBulb);
 
   // 1.1 Typewriter Texting Animation for Hero Title
   const typewriterOutput = document.getElementById('typewriter-output');
