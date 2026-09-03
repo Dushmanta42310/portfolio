@@ -1730,7 +1730,7 @@ nav {
 .skill-icon-css3 { color: #264de4; background: rgba(38, 77, 228, 0.1); }
 .skill-icon-js { color: #f0db4f; background: rgba(240, 219, 79, 0.12); }
 .skill-icon-sql { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
-.skill-icon-plsql { color: #ea1b22; background: rgba(234, 27, 34, 0.1); }
+.skill-icon-plsql { color: #f80000; background: rgba(248, 0, 0, 0.1); }
 .skill-icon-python { color: #3776ab; background: rgba(55, 118, 171, 0.1); }
 .skill-icon-powerbi { color: #f2c811; background: rgba(242, 200, 17, 0.12); }
 
