@@ -29,12 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('theme', newTheme);
     updateThemeImages(newTheme);
 
-    // Trigger realistic swing animation on bulb
-    if (realisticBulb) {
-      realisticBulb.classList.remove('swinging');
-      void realisticBulb.offsetWidth; // Trigger DOM reflow to restart animation
-      realisticBulb.classList.add('swinging');
-    }
+    // Kick the bulb with a real physics impulse for a lively swing
+    if (typeof kickBulb === 'function') kickBulb();
   }
 
   let bulbDragged = false;
@@ -50,121 +46,201 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 1.2 Interactive Bulb: pendulum drag (limited area) + pull-down on phone
+  // 1.2 Interactive Real-Physics Bulb: spring-pendulum inside a bounded move arena
   const bulbStage = document.getElementById('bulb-stage');
 
-  function initBulbDrag(wrapper) {
+  function initBulbPhysics(wrapper) {
     const stage = bulbStage || wrapper.parentElement || document.body;
-    const maxR = Math.min(stage.offsetWidth, stage.offsetHeight) / 2;
-    let isDrag = false;
+    const wire = wrapper.querySelector('.bulb-wire');
+    const assembly = wrapper.querySelector('.bulb-assembly');
+    const cone = document.getElementById('bulb-light-cone');
+
+    // Physical constants (pixel space, seconds)
+    const WIRE_BASE = 18;          // anchor -> top of metal socket
+    const TO_GLASS = 80;           // socket top -> bulb glass centre inside the SVG
+    const L0 = WIRE_BASE + TO_GLASS; // natural cable length
+    const R_MIN = L0 * 0.3;
+    const R_MAX = L0 * 2.05;
+    const G = 940;                 // gravity px/s^2
+    const KS = 120;                // radial spring (bungee-cable) stiffness
+    const DR = 2.0;                // radial damping
+    const DA = 1.15;               // angular (pendulum) damping
+
+    let r = L0, vR = 0;
+    let theta = 0, vTheta = 0;
     let dragging = false;
-    let startX = 0;
-    let startY = 0;
-    let centerDX = 0;
-    let centerDY = 0;
+    let ptr = { x: 0, y: 0, active: false };
+    let lastKey = { t: 0, r: L0, theta: 0 };
+    let downPt = null;
+    let raf = 0, lastTime = 0;
 
-    // Pendulum-like transform: swing laterally (rotate) with limited vertical drop
-    function applyTransform() {
-      let scale = '';
-      if (window.matchMedia('(max-width: 768px)').matches) scale = ' scale(0.85)';
-      wrapper.style.transform =
-        'translateX(calc(-50% + ' + centerDX + 'px)) translateY(' + centerDY + 'px) rotate(' + (centerDX / Math.max(maxR, 1) * 18) + 'deg)' + scale;
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    function arena() {
+      return {
+        xMax: Math.max(40, stage.offsetWidth / 2 - 34),
+        yMax: Math.max(60, stage.offsetHeight - 36)
+      };
     }
 
-    function startDrag(e) {
-      if (e.type === 'mousedown') { if (e.button !== 0) return; }
-      const point = getPoint(e);
-      dragging = true;
-      isDrag = false;
-      startX = point.x;
-      startY = point.y;
+    function anchor() {
+      const rc = stage.getBoundingClientRect();
+      return { x: rc.left + rc.width / 2, y: rc.top };
     }
 
-    function moveDrag(e) {
-      if (!dragging) return;
-      const point = getPoint(e);
-      const dxRaw = point.x - startX;
-      const dyRaw = point.y - startY;
-      if (!isDrag) {
-        const dist = Math.hypot(dxRaw, dyRaw);
-        if (dist < 4) { startX = point.x; startY = point.y; return; }
-        isDrag = true;
-        bulbDragged = true;
-        wrapper.classList.add('dragging');
+    function polarXY(rr, tt) {
+      return { x: Math.sin(tt) * rr, y: Math.cos(tt) * rr };
+    }
+
+    function pointerToPolar(e) {
+      const a = anchor();
+      const dx = e.clientX - a.x;
+      const dy = Math.max(8, e.clientY - a.y);
+      const ar = arena();
+      let rr = Math.hypot(dx, dy);
+      let tt = Math.atan2(dx, dy);
+      const maxT = Math.asin(clamp(ar.xMax / Math.max(rr, 1), -1, 1));
+      tt = clamp(tt, -maxT, maxT);
+      rr = clamp(rr, R_MIN, Math.min(R_MAX, ar.yMax / Math.max(Math.cos(tt), 0.18)));
+      return { r: rr, theta: tt };
+    }
+
+    function applyVisual() {
+      const rodLen = r - TO_GLASS;
+      const wireLen = Math.max(2, rodLen);
+      if (wire) wire.style.height = wireLen + 'px';
+      if (assembly) assembly.style.top = (wireLen - 1) + 'px';
+      wrapper.style.transform = 'translateX(-50%) rotate(' + (theta * 180 / Math.PI) + 'deg)';
+      if (cone) {
+        const bob = polarXY(r, theta);
+        cone.style.transform =
+          'translateX(calc(-50% + ' + bob.x.toFixed(1) + 'px)) translateY(' + (bob.y * 0.16).toFixed(1) + 'px)';
       }
-      let nx = centerDX + dxRaw;
-      let ny = centerDY + dyRaw;
-      // Constrain to limited circular/elliptical area
-      const rx = Math.min(maxR, stage.offsetWidth / 2 - 20);
-      const ry = Math.min(maxR, stage.offsetHeight / 2 - 20);
-      nx = Math.max(-rx, Math.min(rx, nx));
-      ny = Math.max(0, Math.min(ry, ny));
-      centerDX = nx;
-      centerDY = ny;
-      startX = point.x;
-      startY = point.y;
-      applyTransform();
     }
 
-    function endDrag() {
+    function step(dt) {
+      dt = clamp(dt, 0, 1 / 30);
+
+      // Proximity reactivity: the bulb leans toward a cursor hovering nearby.
+      let steer = 0;
+      if (ptr.active) {
+        const a = anchor();
+        const dx = ptr.x - a.x, dy = ptr.y - a.y;
+        const dist = Math.hypot(dx, dy);
+        const LOOK = 300;
+        if (dist < LOOK && dist > 18) {
+          const want = Math.atan2(dx, dy);
+          const ar = arena();
+          const cap = Math.asin(clamp(ar.xMax / Math.max(r, 1), -1, 1));
+          let diff = clamp(want, -cap, cap) - theta;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          steer = clamp(diff * (1 - dist / LOOK) * 2.4, -3.2, 3.2);
+        }
+      }
+
+      // Low-level ambient sway so the bulb never looks frozen.
+      const now = performance.now();
+      const amb = (Math.sin(now / 1500) + 0.6 * Math.sin(now / 760)) * 0.3;
+
+      // Spring-pendulum equations of motion (semi-implicit Euler).
+      // +G*cos(theta): gravity stretches the cable outward (weight droop).
+      const ar = r * vTheta * vTheta - KS * (r - L0) - DR * vR + G * Math.cos(theta);
+      const aTh = -(2 * vR * vTheta) / Math.max(r, 16)
+                - (G / Math.max(r, 16)) * Math.sin(theta)
+                - DA * vTheta + steer + amb;
+
+      vR += ar * dt;
+      vTheta += aTh * dt;
+      r += vR * dt;
+      theta += vTheta * dt;
+
+      // Hard walls that mirror the bounded move arena.
+      r = clamp(r, R_MIN, R_MAX);
+      const ar2 = arena();
+      const maxT = Math.asin(clamp(ar2.xMax / Math.max(r, 1), -1, 1));
+      if (Math.abs(theta) > maxT) {
+        theta = clamp(theta, -maxT, maxT);
+        vTheta *= -0.32; // damped bounce back off the edge
+      }
+      if (r * Math.cos(theta) > ar2.yMax) {
+        r = ar2.yMax / Math.max(Math.cos(theta), 0.2);
+        vR *= -0.32;
+      }
+    }
+
+    function frame(t) {
+      const dt = lastTime ? (t - lastTime) / 1000 : 1 / 60;
+      lastTime = t;
+      if (!dragging) step(dt);
+      applyVisual();
+      raf = requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    function start(e) {
+      if (e.type === 'mousedown' && e.button !== 0) return;
+      const pt = pointerToPolar(e);
+      dragging = true;
+      r = pt.r; theta = pt.theta;
+      vR = 0; vTheta = 0;
+      lastKey = { t: performance.now(), r, theta };
+      downPt = { x: e.clientX, y: e.clientY };
+      bulbDragged = false;
+      wrapper.classList.add('dragging');
+      e.preventDefault();
+    }
+
+    function move(e) {
+      ptr.x = e.clientX; ptr.y = e.clientY; ptr.active = true;
+      if (!dragging) return;
+      const pt = pointerToPolar(e);
+      const now = performance.now();
+      const dt = Math.max(1 / 240, (now - lastKey.t) / 1000);
+      vR = (pt.r - lastKey.r) / dt;       // capture release velocity -> momentum
+      vTheta = (pt.theta - lastKey.theta) / dt;
+      r = pt.r; theta = pt.theta;
+      lastKey = { t: now, r, theta };
+      if (downPt && (Math.abs(e.clientX - downPt.x) > 5 || Math.abs(e.clientY - downPt.y) > 5)) {
+        bulbDragged = true;
+      }
+      applyVisual();
+    }
+
+    function end() {
       if (!dragging) return;
       dragging = false;
       wrapper.classList.remove('dragging');
-      if (isDrag) {
-        // Reset drag flag shortly after so the pending 'click' gets swallowed
-        setTimeout(() => { bulbDragged = false; }, 0);
-        // Release: spring back to rest with a soft pendulum swing
-        wrapper.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        centerDX = 0;
-        centerDY = 0;
-        applyTransform();
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            wrapper.style.transition = '';
-          });
-        });
-        isDrag = false;
-      }
+      if (bulbDragged) setTimeout(() => { bulbDragged = false; }, 0);
     }
 
-    // Pointer events (mouse + touch unified) carry clientX/clientY directly;
-    // fall back to touch source if provided.
-    function getPoint(e) {
-      const src = e.touches ? e.touches[0] : e;
-      return { x: src.clientX, y: src.clientY };
+    // Pluck the pull chain for a quick downward bounce.
+    function pluck() {
+      if (dragging) return;
+      vR += 150;
+      vTheta *= 0.4;
+      vTheta += (Math.random() < 0.5 ? -1 : 1) * 0.5;
     }
 
-    // Pointer events unify mouse + touch
-    wrapper.addEventListener('pointerdown', startDrag);
-    window.addEventListener('pointermove', moveDrag);
-    window.addEventListener('pointerup', endDrag);
+    wrapper.addEventListener('pointerdown', start);
+    window.addEventListener('pointermove', move, { passive: true });
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
 
-    // Pull-down on the thread/cord (phone style): tap the cord to drop the bulb
-    const cord = wrapper.querySelector('.bulb-pull-cord');
+    const cord = wrapper.querySelector('.bulb-cord');
     if (cord) {
-      cord.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (dragging) return;
-        const wasPulled = cord.classList.contains('pulled');
-        if (!wasPulled) {
-          cord.classList.add('pulled');
-          wrapper.classList.add('pulled');
-          centerDY = Math.min(24, maxR * 0.5);
-          applyTransform();
-          setTimeout(() => {
-            cord.classList.remove('pulled');
-            wrapper.classList.remove('pulled');
-            centerDY = 0;
-            wrapper.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            applyTransform();
-            setTimeout(() => { wrapper.style.transition = ''; }, 600);
-          }, 250);
-        }
-      });
+      cord.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); pluck(); });
+      cord.addEventListener('click', (e) => e.stopPropagation());
     }
+
+    // Called from the theme toggle to deliver a playful impulse.
+    window.kickBulb = function () {
+      vR += Math.max(40, Math.min(180, L0 * 0.8));
+      vTheta += (Math.random() < 0.5 ? -1 : 1) * (1.4 + Math.random() * 0.9);
+    };
   }
 
-  if (realisticBulb) initBulbDrag(realisticBulb);
+  if (realisticBulb) initBulbPhysics(realisticBulb);
 
   // 1.1 Typewriter Texting Animation for Hero Title
   const typewriterOutput = document.getElementById('typewriter-output');
