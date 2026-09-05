@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Theme Switcher (Pure Black <-> Pure White) with Realistic Bulb
   const themeToggleBtn = document.getElementById('theme-toggle');
   const realisticBulb = document.getElementById('realistic-bulb');
-  const bulbAssembly = realisticBulb ? realisticBulb.querySelector('.bulb-assembly') : null;
   const htmlRoot = document.documentElement;
 
   function updateThemeImages(theme) {
@@ -30,21 +29,218 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('theme', newTheme);
     updateThemeImages(newTheme);
 
-    // Swing the bulb (the wire stays fixed) each time the light flips
-    if (bulbAssembly) {
-      bulbAssembly.classList.remove('bulb-kick');
-      void bulbAssembly.offsetWidth;
-      bulbAssembly.classList.add('bulb-kick');
-    }
+    // Kick the bulb with a real physics impulse for a lively swing
+    if (typeof kickBulb === 'function') kickBulb();
   }
+
+  let bulbDragged = false;
 
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', toggleThemeWithBulbEffect);
   }
 
   if (realisticBulb) {
-    realisticBulb.addEventListener('click', toggleThemeWithBulbEffect);
+    realisticBulb.addEventListener('click', (e) => {
+      if (bulbDragged) { bulbDragged = false; return; }
+      toggleThemeWithBulbEffect();
+    });
   }
+
+  // 1.2 Interactive Real-Physics Bulb: spring-pendulum inside a bounded move arena
+  const bulbStage = document.getElementById('bulb-stage');
+
+  function initBulbPhysics(wrapper) {
+    const stage = bulbStage || wrapper.parentElement || document.body;
+    const wire = wrapper.querySelector('.bulb-wire');
+    const assembly = wrapper.querySelector('.bulb-assembly');
+    const cone = document.getElementById('bulb-light-cone');
+
+    // Physical constants (pixel space, seconds)
+    const WIRE_BASE = 18;          // anchor -> top of metal socket
+    const TO_GLASS = 80;           // socket top -> bulb glass centre inside the SVG
+    const L0 = WIRE_BASE + TO_GLASS; // natural cable length
+    const R_MIN = L0 * 0.3;
+    const R_MAX = L0 * 2.05;
+    const G = 940;                 // gravity px/s^2
+    const KS = 120;                // radial spring (bungee-cable) stiffness
+    const DR = 2.0;                // radial damping
+    const DA = 1.15;               // angular (pendulum) damping
+
+    let r = L0, vR = 0;
+    let theta = 0, vTheta = 0;
+    let dragging = false;
+    let ptr = { x: 0, y: 0, active: false };
+    let lastKey = { t: 0, r: L0, theta: 0 };
+    let downPt = null;
+    let raf = 0, lastTime = 0;
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    function arena() {
+      return {
+        xMax: Math.max(40, stage.offsetWidth / 2 - 34),
+        yMax: Math.max(60, stage.offsetHeight - 36)
+      };
+    }
+
+    function anchor() {
+      const rc = stage.getBoundingClientRect();
+      return { x: rc.left + rc.width / 2, y: rc.top };
+    }
+
+    function polarXY(rr, tt) {
+      return { x: Math.sin(tt) * rr, y: Math.cos(tt) * rr };
+    }
+
+    function pointerToPolar(e) {
+      const a = anchor();
+      const dx = e.clientX - a.x;
+      const dy = Math.max(8, e.clientY - a.y);
+      const ar = arena();
+      let rr = Math.hypot(dx, dy);
+      let tt = Math.atan2(dx, dy);
+      const maxT = Math.asin(clamp(ar.xMax / Math.max(rr, 1), -1, 1));
+      tt = clamp(tt, -maxT, maxT);
+      rr = clamp(rr, R_MIN, Math.min(R_MAX, ar.yMax / Math.max(Math.cos(tt), 0.18)));
+      return { r: rr, theta: tt };
+    }
+
+    function applyVisual() {
+      const rodLen = r - TO_GLASS;
+      const wireLen = Math.max(2, rodLen);
+      if (wire) wire.style.height = wireLen + 'px';
+      if (assembly) assembly.style.top = (wireLen - 1) + 'px';
+      wrapper.style.transform = 'translateX(-50%) rotate(' + (theta * 180 / Math.PI) + 'deg)';
+      if (cone) {
+        const bob = polarXY(r, theta);
+        cone.style.transform =
+          'translateX(calc(-50% + ' + bob.x.toFixed(1) + 'px)) translateY(' + (bob.y * 0.16).toFixed(1) + 'px)';
+      }
+    }
+
+    function step(dt) {
+      dt = clamp(dt, 0, 1 / 30);
+
+      // Proximity reactivity: the bulb leans toward a cursor hovering nearby.
+      let steer = 0;
+      if (ptr.active) {
+        const a = anchor();
+        const dx = ptr.x - a.x, dy = ptr.y - a.y;
+        const dist = Math.hypot(dx, dy);
+        const LOOK = 300;
+        if (dist < LOOK && dist > 18) {
+          const want = Math.atan2(dx, dy);
+          const ar = arena();
+          const cap = Math.asin(clamp(ar.xMax / Math.max(r, 1), -1, 1));
+          let diff = clamp(want, -cap, cap) - theta;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          steer = clamp(diff * (1 - dist / LOOK) * 2.4, -3.2, 3.2);
+        }
+      }
+
+      // Low-level ambient sway so the bulb never looks frozen.
+      const now = performance.now();
+      const amb = (Math.sin(now / 1500) + 0.6 * Math.sin(now / 760)) * 0.3;
+
+      // Spring-pendulum equations of motion (semi-implicit Euler).
+      // +G*cos(theta): gravity stretches the cable outward (weight droop).
+      const ar = r * vTheta * vTheta - KS * (r - L0) - DR * vR + G * Math.cos(theta);
+      const aTh = -(2 * vR * vTheta) / Math.max(r, 16)
+                - (G / Math.max(r, 16)) * Math.sin(theta)
+                - DA * vTheta + steer + amb;
+
+      vR += ar * dt;
+      vTheta += aTh * dt;
+      r += vR * dt;
+      theta += vTheta * dt;
+
+      // Hard walls that mirror the bounded move arena.
+      r = clamp(r, R_MIN, R_MAX);
+      const ar2 = arena();
+      const maxT = Math.asin(clamp(ar2.xMax / Math.max(r, 1), -1, 1));
+      if (Math.abs(theta) > maxT) {
+        theta = clamp(theta, -maxT, maxT);
+        vTheta *= -0.32; // damped bounce back off the edge
+      }
+      if (r * Math.cos(theta) > ar2.yMax) {
+        r = ar2.yMax / Math.max(Math.cos(theta), 0.2);
+        vR *= -0.32;
+      }
+    }
+
+    function frame(t) {
+      const dt = lastTime ? (t - lastTime) / 1000 : 1 / 60;
+      lastTime = t;
+      if (!dragging) step(dt);
+      applyVisual();
+      raf = requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    function start(e) {
+      if (e.type === 'mousedown' && e.button !== 0) return;
+      const pt = pointerToPolar(e);
+      dragging = true;
+      r = pt.r; theta = pt.theta;
+      vR = 0; vTheta = 0;
+      lastKey = { t: performance.now(), r, theta };
+      downPt = { x: e.clientX, y: e.clientY };
+      bulbDragged = false;
+      wrapper.classList.add('dragging');
+      e.preventDefault();
+    }
+
+    function move(e) {
+      ptr.x = e.clientX; ptr.y = e.clientY; ptr.active = true;
+      if (!dragging) return;
+      const pt = pointerToPolar(e);
+      const now = performance.now();
+      const dt = Math.max(1 / 240, (now - lastKey.t) / 1000);
+      vR = (pt.r - lastKey.r) / dt;       // capture release velocity -> momentum
+      vTheta = (pt.theta - lastKey.theta) / dt;
+      r = pt.r; theta = pt.theta;
+      lastKey = { t: now, r, theta };
+      if (downPt && (Math.abs(e.clientX - downPt.x) > 5 || Math.abs(e.clientY - downPt.y) > 5)) {
+        bulbDragged = true;
+      }
+      applyVisual();
+    }
+
+    function end() {
+      if (!dragging) return;
+      dragging = false;
+      wrapper.classList.remove('dragging');
+      if (bulbDragged) setTimeout(() => { bulbDragged = false; }, 0);
+    }
+
+    // Pluck the pull chain for a quick downward bounce.
+    function pluck() {
+      if (dragging) return;
+      vR += 150;
+      vTheta *= 0.4;
+      vTheta += (Math.random() < 0.5 ? -1 : 1) * 0.5;
+    }
+
+    wrapper.addEventListener('pointerdown', start);
+    window.addEventListener('pointermove', move, { passive: true });
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+
+    const cord = wrapper.querySelector('.bulb-cord');
+    if (cord) {
+      cord.addEventListener('pointerdown', (e) => { e.stopPropagation(); e.preventDefault(); pluck(); });
+      cord.addEventListener('click', (e) => e.stopPropagation());
+    }
+
+    // Called from the theme toggle to deliver a playful impulse.
+    window.kickBulb = function () {
+      vR += Math.max(40, Math.min(180, L0 * 0.8));
+      vTheta += (Math.random() < 0.5 ? -1 : 1) * (1.4 + Math.random() * 0.9);
+    };
+  }
+
+  if (realisticBulb) initBulbPhysics(realisticBulb);
 
   // 1.1 Typewriter Texting Animation for Hero Title
   const typewriterOutput = document.getElementById('typewriter-output');

@@ -153,59 +153,77 @@ body {
 }
 
 /* ==========================================================================
-   LIGHT-BULB THEME TOGGLE & VOLUMETRIC LIGHT CONE
+   REAL PHYSICS LIGHT BULB & VOLUMETRIC LIGHT CONE
    ========================================================================== */
 .bulb-light-cone {
   position: fixed;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
-  width: min(1200px, 100vw);
+  width: 1400px;
   height: 100vh;
   pointer-events: none;
   z-index: 1;
+  will-change: transform;
+  background: radial-gradient(ellipse 55% 75% at 50% 0%, rgba(255, 230, 110, 0.32) 0%, rgba(255, 240, 160, 0.14) 40%, transparent 75%);
   opacity: 0;
-  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  /* Warm head glow right under the bulb + a soft tapered beam that spreads downward */
-  background:
-    radial-gradient(ellipse 340px 280px at 50% 5%, rgba(255, 240, 175, 0.5) 0%, rgba(255, 224, 130, 0.2) 40%, rgba(255, 224, 130, 0) 70%),
-    linear-gradient(180deg, rgba(255, 234, 160, 0.3) 0%, rgba(255, 226, 145, 0.13) 34%, rgba(255, 226, 145, 0) 72%);
-  clip-path: polygon(45.5% 4%, 54.5% 4%, 88% 100%, 12% 100%);
-  -webkit-clip-path: polygon(45.5% 4%, 54.5% 4%, 88% 100%, 12% 100%);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme="light"] .bulb-light-cone {
   opacity: 1;
 }
 
-/* Stage box that keeps the toggle bulb centred under the navbar */
+/* Bounded drag arena: a defined "move area", never the whole screen */
 .bulb-stage {
   position: fixed;
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 96px;
-  height: 250px;
+  width: 470px;
+  height: 320px;
   z-index: 110;
   pointer-events: none;
   overflow: visible;
 }
 
-/* Interactive light-bulb toggle: the wire stays fixed, only the bulb swings below it */
+/* Faint silhouette of the allowed move zone (navigational affordance) */
+.bulb-move-area {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  width: 84%;
+  height: 74%;
+  transform: translateX(-50%);
+  border: 1px dashed rgba(255, 255, 255, 0.10);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+[data-theme="light"] .bulb-move-area {
+  border-color: rgba(0, 0, 0, 0.14);
+}
+
+/* Pendulum: whole assembly pivots around its top-centre anchor */
 .realistic-bulb-wrapper {
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
   width: 96px;
   z-index: 110;
-  cursor: pointer;
+  cursor: grab;
+  transform-origin: top center;
   user-select: none;
   -webkit-user-select: none;
+  touch-action: none;
   pointer-events: auto;
+  will-change: transform;
 }
 
-/* Short braided cord from the anchor to the top of the bulb image (never moves) */
+.realistic-bulb-wrapper.dragging {
+  cursor: grabbing;
+}
+
+/* Short braided cord from the anchor to the metal socket */
 .bulb-wire {
   width: 2px;
   height: 18px;
@@ -214,54 +232,90 @@ body {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
 }
 
-/* Assembly (light-bulb image) hangs from the wire and pivots at its top-centre */
+/* Assembly (SVG bulb + pull chain) translates when the cable is extended */
 .bulb-assembly {
   position: absolute;
-  top: 18px;
   left: 50%;
   transform: translateX(-50%);
-  transform-origin: top center;
-  animation: bulbSway 6s ease-in-out infinite;
-  will-change: transform;
 }
 
-.bulb-assembly.bulb-kick {
-  animation: bulbKick 0.7s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-/* The glowing 3D light-bulb image used as the theme toggle */
-.bulb-img {
+.bulb-svg {
   display: block;
   width: 96px;
   height: auto;
-  border-radius: 10px;
+  filter: drop-shadow(0 7px 14px rgba(0, 0, 0, 0.5));
+  transition: filter 0.35s ease;
+}
+
+/* Realistic SVG glass envelope + tungsten filament */
+.bulb-glass-shape {
+  transition: fill 0.35s ease;
+}
+
+.bulb-glare {
   pointer-events: none;
-  /* OFF state (dark theme): bulb looks dimmed / unlit */
-  filter: brightness(0.72) saturate(0.85) contrast(1.03) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
-  transition: filter 0.4s ease;
 }
 
-/* When Light is ON (light theme): warm emissive spectrum */
-[data-theme="light"] .bulb-img {
-  filter: brightness(1.08) saturate(1.12) contrast(1.02)
-          drop-shadow(0 0 18px rgba(255, 205, 80, 0.6))
-          drop-shadow(0 0 50px rgba(255, 175, 55, 0.45));
+/* When Light is ON (Warm Incandescent Emissive Glass) */
+[data-theme="light"] .bulb-glass-shape {
+  fill: url(#glassOn);
+  filter: drop-shadow(0 0 14px #fbbf24) drop-shadow(0 0 42px rgba(245, 158, 11, 0.65));
+  animation: lightOnFlicker 0.6s ease-out;
 }
 
-/* Gentle idle sway (replaces the removed drag physics) */
-@keyframes bulbSway {
-  0%, 100% { transform: translateX(-50%) rotate(-2.4deg); }
-  50%      { transform: translateX(-50%) rotate(2.4deg); }
+[data-theme="light"] .bulb-svg {
+  filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.5)) drop-shadow(0 0 46px rgba(245, 158, 11, 0.35));
 }
 
-/* Playful swing impulse each time the bulb toggles the theme */
-@keyframes bulbKick {
-  0%   { transform: translateX(-50%) rotate(-2.4deg); }
-  20%  { transform: translateX(-50%) rotate(16deg); }
-  45%  { transform: translateX(-50%) rotate(-11deg); }
-  70%  { transform: translateX(-50%) rotate(6deg); }
-  100% { transform: translateX(-50%) rotate(-2.4deg); }
+[data-theme="light"] .filament-coil {
+  stroke: #fff8dd;
+  filter: drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 12px #f59e0b);
 }
+
+[data-theme="light"] .filament-support {
+  stroke: #fde68a;
+  filter: drop-shadow(0 0 4px rgba(253, 230, 138, 0.8));
+}
+
+/* Brief "ignition" shimmer right after the filament is powered up */
+@keyframes lightOnFlicker {
+  0%   { opacity: 0.55; }
+  12%  { opacity: 1; }
+  25%  { opacity: 0.7; }
+  45%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+
+/* Decorative pull chain (click to "pluck" = downward bounce impulse) */
+.bulb-cord {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5px;
+  height: 24px;
+  background: repeating-linear-gradient(180deg, #c9c9ce 0 2px, transparent 2px 4px);
+  background-color: rgba(113, 113, 122, 0.9);
+  cursor: pointer;
+}
+
+.bulb-cord-handle {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 11px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #f4f4f5 0%, #a1a1aa 45%, #3f3f46 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+}
+
+.realistic-bulb-wrapper:hover .bulb-cord-handle {
+  transform: translate(-50%, 2px);
+}
+
+/* Swing is now CPU-driven by the real physics engine (no CSS keyframes needed) */
 
 @keyframes floatOrb {
   0% { transform: translate(0, 0) scale(1); }
@@ -2383,16 +2437,27 @@ footer {
   }
 
   .realistic-bulb-wrapper {
-    width: 72px;
+    width: 80px;
   }
 
-  .bulb-img {
-    width: 72px;
+  .bulb-svg {
+    width: 80px;
   }
 
+  /* Thin the pull chain on phones */
+  .bulb-cord {
+    width: 1px;
+  }
+
+  /* Shrunken drag arena on phones so the bulb stays near the navbar gap */
   .bulb-stage {
-    width: 72px;
-    height: 220px;
+    width: 230px;
+    height: 250px;
+  }
+
+  .bulb-move-area {
+    width: 86%;
+    height: 74%;
   }
 
   .bulb-light-cone {
