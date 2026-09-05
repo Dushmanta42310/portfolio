@@ -173,7 +173,7 @@ body {
   opacity: 1;
 }
 
-/* Bounded drag arena: a defined "move area", never the whole screen */
+/* Bounded swing arena: the bulb sways within this fixed zone */
 .bulb-stage {
   position: fixed;
   top: 0;
@@ -206,17 +206,12 @@ body {
   left: 50%;
   width: 96px;
   z-index: 110;
-  cursor: grab;
+  cursor: default;
   transform-origin: top center;
   user-select: none;
   -webkit-user-select: none;
-  touch-action: none;
   pointer-events: auto;
   will-change: transform;
-}
-
-.realistic-bulb-wrapper.dragging {
-  cursor: grabbing;
 }
 
 /* Short braided cord from the anchor to the metal socket */
@@ -2422,7 +2417,7 @@ footer {
     width: 1px;
   }
 
-  /* Shrunken drag arena on phones so the bulb stays near the navbar gap */
+  /* Shrunken swing arena on phones so the bulb stays near the navbar gap */
   .bulb-stage {
     width: 230px;
     height: 250px;

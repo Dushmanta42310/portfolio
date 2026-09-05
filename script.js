@@ -37,15 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof kickBulb === 'function') kickBulb();
   }
 
-  let bulbDragged = false;
-
   if (themeToggleBtn) {
     themeToggleBtn.addEventListener('click', toggleThemeWithBulbEffect);
   }
 
   if (realisticBulb) {
-    realisticBulb.addEventListener('click', (e) => {
-      if (bulbDragged) { bulbDragged = false; return; }
+    realisticBulb.addEventListener('click', () => {
       toggleThemeWithBulbEffect();
     });
   }
@@ -72,10 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let r = L0, vR = 0;
     let theta = 0, vTheta = 0;
-    let dragging = false;
-    let ptr = { x: 0, y: 0, active: false };
-    let lastKey = { t: 0, r: L0, theta: 0 };
-    let downPt = null;
     let raf = 0, lastTime = 0;
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -96,19 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return { x: Math.sin(tt) * rr, y: Math.cos(tt) * rr };
     }
 
-    function pointerToPolar(e) {
-      const a = anchor();
-      const dx = e.clientX - a.x;
-      const dy = Math.max(8, e.clientY - a.y);
-      const ar = arena();
-      let rr = Math.hypot(dx, dy);
-      let tt = Math.atan2(dx, dy);
-      const maxT = Math.asin(clamp(ar.xMax / Math.max(rr, 1), -1, 1));
-      tt = clamp(tt, -maxT, maxT);
-      rr = clamp(rr, R_MIN, Math.min(R_MAX, ar.yMax / Math.max(Math.cos(tt), 0.18)));
-      return { r: rr, theta: tt };
-    }
-
     function applyVisual() {
       const rodLen = r - TO_GLASS;
       const wireLen = Math.max(2, rodLen);
@@ -125,24 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function step(dt) {
       dt = clamp(dt, 0, 1 / 30);
 
-      // Proximity reactivity: the bulb leans toward a cursor hovering nearby.
-      let steer = 0;
-      if (ptr.active) {
-        const a = anchor();
-        const dx = ptr.x - a.x, dy = ptr.y - a.y;
-        const dist = Math.hypot(dx, dy);
-        const LOOK = 300;
-        if (dist < LOOK && dist > 18) {
-          const want = Math.atan2(dx, dy);
-          const ar = arena();
-          const cap = Math.asin(clamp(ar.xMax / Math.max(r, 1), -1, 1));
-          let diff = clamp(want, -cap, cap) - theta;
-          while (diff > Math.PI) diff -= Math.PI * 2;
-          while (diff < -Math.PI) diff += Math.PI * 2;
-          steer = clamp(diff * (1 - dist / LOOK) * 2.4, -3.2, 3.2);
-        }
-      }
-
       // Low-level ambient sway so the bulb never looks frozen.
       const now = performance.now();
       const amb = (Math.sin(now / 1500) + 0.6 * Math.sin(now / 760)) * 0.3;
@@ -152,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ar = r * vTheta * vTheta - KS * (r - L0) - DR * vR + G * Math.cos(theta);
       const aTh = -(2 * vR * vTheta) / Math.max(r, 16)
                 - (G / Math.max(r, 16)) * Math.sin(theta)
-                - DA * vTheta + steer + amb;
+                - DA * vTheta + amb;
 
       vR += ar * dt;
       vTheta += aTh * dt;
@@ -176,60 +138,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function frame(t) {
       const dt = lastTime ? (t - lastTime) / 1000 : 1 / 60;
       lastTime = t;
-      if (!dragging) step(dt);
+      step(dt);
       applyVisual();
       raf = requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
 
-    function start(e) {
-      if (e.type === 'mousedown' && e.button !== 0) return;
-      const pt = pointerToPolar(e);
-      dragging = true;
-      r = pt.r; theta = pt.theta;
-      vR = 0; vTheta = 0;
-      lastKey = { t: performance.now(), r, theta };
-      downPt = { x: e.clientX, y: e.clientY };
-      bulbDragged = false;
-      wrapper.classList.add('dragging');
-      e.preventDefault();
-    }
-
-    function move(e) {
-      ptr.x = e.clientX; ptr.y = e.clientY; ptr.active = true;
-      if (!dragging) return;
-      const pt = pointerToPolar(e);
-      const now = performance.now();
-      const dt = Math.max(1 / 240, (now - lastKey.t) / 1000);
-      vR = (pt.r - lastKey.r) / dt;       // capture release velocity -> momentum
-      vTheta = (pt.theta - lastKey.theta) / dt;
-      r = pt.r; theta = pt.theta;
-      lastKey = { t: now, r, theta };
-      if (downPt && (Math.abs(e.clientX - downPt.x) > 5 || Math.abs(e.clientY - downPt.y) > 5)) {
-        bulbDragged = true;
-      }
-      applyVisual();
-    }
-
-    function end() {
-      if (!dragging) return;
-      dragging = false;
-      wrapper.classList.remove('dragging');
-      if (bulbDragged) setTimeout(() => { bulbDragged = false; }, 0);
-    }
-
     // Pluck the pull chain for a quick downward bounce.
     function pluck() {
-      if (dragging) return;
       vR += 150;
       vTheta *= 0.4;
       vTheta += (Math.random() < 0.5 ? -1 : 1) * 0.5;
     }
-
-    wrapper.addEventListener('pointerdown', start);
-    window.addEventListener('pointermove', move, { passive: true });
-    window.addEventListener('pointerup', end);
-    window.addEventListener('pointercancel', end);
 
     const cord = wrapper.querySelector('.bulb-cord');
     if (cord) {
