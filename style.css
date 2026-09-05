@@ -194,13 +194,9 @@ body {
   width: 84%;
   height: 74%;
   transform: translateX(-50%);
-  border: 1px dashed rgba(255, 255, 255, 0.10);
+  border: none;
   border-radius: 50%;
   pointer-events: none;
-}
-
-[data-theme="light"] .bulb-move-area {
-  border-color: rgba(0, 0, 0, 0.14);
 }
 
 /* Pendulum: whole assembly pivots around its top-centre anchor */
