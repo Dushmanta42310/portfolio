@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // 1. Theme Switcher (Pure Black <-> Pure White) with Realistic Bulb
   const themeToggleBtn = document.getElementById('theme-toggle');
   const realisticBulb = document.getElementById('realistic-bulb');
+  const bulbAssembly = realisticBulb ? realisticBulb.querySelector('.bulb-assembly') : null;
   const htmlRoot = document.documentElement;
 
   function updateThemeImages(theme) {
@@ -29,11 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('theme', newTheme);
     updateThemeImages(newTheme);
 
-    // Playful swing on the toggle bulb each time the light flips
-    if (realisticBulb) {
-      realisticBulb.classList.remove('bulb-kick');
-      void realisticBulb.offsetWidth;
-      realisticBulb.classList.add('bulb-kick');
+    // Swing the bulb (the wire stays fixed) each time the light flips
+    if (bulbAssembly) {
+      bulbAssembly.classList.remove('bulb-kick');
+      void bulbAssembly.offsetWidth;
+      bulbAssembly.classList.add('bulb-kick');
     }
   }
 

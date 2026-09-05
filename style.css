@@ -159,14 +159,19 @@ body {
   position: fixed;
   top: 0;
   left: 50%;
-  width: 1400px;
+  transform: translateX(-50%);
+  width: min(1200px, 100vw);
   height: 100vh;
   pointer-events: none;
   z-index: 1;
-  will-change: transform;
-  background: radial-gradient(ellipse 55% 75% at 50% 0%, rgba(255, 230, 110, 0.32) 0%, rgba(255, 240, 160, 0.14) 40%, transparent 75%);
   opacity: 0;
-  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Warm head glow right under the bulb + a soft tapered beam that spreads downward */
+  background:
+    radial-gradient(ellipse 340px 280px at 50% 5%, rgba(255, 240, 175, 0.5) 0%, rgba(255, 224, 130, 0.2) 40%, rgba(255, 224, 130, 0) 70%),
+    linear-gradient(180deg, rgba(255, 234, 160, 0.3) 0%, rgba(255, 226, 145, 0.13) 34%, rgba(255, 226, 145, 0) 72%);
+  clip-path: polygon(45.5% 4%, 54.5% 4%, 88% 100%, 12% 100%);
+  -webkit-clip-path: polygon(45.5% 4%, 54.5% 4%, 88% 100%, 12% 100%);
 }
 
 [data-theme="light"] .bulb-light-cone {
@@ -186,27 +191,21 @@ body {
   overflow: visible;
 }
 
-/* Interactive light-bulb toggle: whole assembly pivots around its top-centre anchor */
+/* Interactive light-bulb toggle: the wire stays fixed, only the bulb swings below it */
 .realistic-bulb-wrapper {
   position: absolute;
   top: 0;
   left: 50%;
+  transform: translateX(-50%);
   width: 96px;
   z-index: 110;
   cursor: pointer;
-  transform-origin: top center;
   user-select: none;
   -webkit-user-select: none;
   pointer-events: auto;
-  will-change: transform;
-  animation: bulbSway 6s ease-in-out infinite;
 }
 
-.realistic-bulb-wrapper.bulb-kick {
-  animation: bulbKick 0.7s cubic-bezier(0.2, 0.8, 0.3, 1);
-}
-
-/* Short braided cord from the anchor to the top of the bulb image */
+/* Short braided cord from the anchor to the top of the bulb image (never moves) */
 .bulb-wire {
   width: 2px;
   height: 18px;
@@ -215,11 +214,19 @@ body {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.45);
 }
 
-/* Assembly (light-bulb image) hangs from the cable */
+/* Assembly (light-bulb image) hangs from the wire and pivots at its top-centre */
 .bulb-assembly {
   position: absolute;
+  top: 18px;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: top center;
+  animation: bulbSway 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.bulb-assembly.bulb-kick {
+  animation: bulbKick 0.7s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 
 /* The glowing 3D light-bulb image used as the theme toggle */
@@ -230,15 +237,15 @@ body {
   border-radius: 10px;
   pointer-events: none;
   /* OFF state (dark theme): bulb looks dimmed / unlit */
-  filter: brightness(0.5) saturate(0.45) contrast(1.05) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+  filter: brightness(0.72) saturate(0.85) contrast(1.03) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
   transition: filter 0.4s ease;
 }
 
-/* When Light is ON (light theme): full spectrum + warm glow */
+/* When Light is ON (light theme): warm emissive spectrum */
 [data-theme="light"] .bulb-img {
-  filter: brightness(1.18) saturate(1.15) contrast(1.02)
-          drop-shadow(0 0 16px rgba(255, 200, 60, 0.55))
-          drop-shadow(0 0 46px rgba(255, 170, 50, 0.4));
+  filter: brightness(1.08) saturate(1.12) contrast(1.02)
+          drop-shadow(0 0 18px rgba(255, 205, 80, 0.6))
+          drop-shadow(0 0 50px rgba(255, 175, 55, 0.45));
 }
 
 /* Gentle idle sway (replaces the removed drag physics) */
@@ -250,9 +257,9 @@ body {
 /* Playful swing impulse each time the bulb toggles the theme */
 @keyframes bulbKick {
   0%   { transform: translateX(-50%) rotate(-2.4deg); }
-  20%  { transform: translateX(-50%) rotate(18deg) scale(1.04); }
-  45%  { transform: translateX(-50%) rotate(-13deg) scale(0.98); }
-  70%  { transform: translateX(-50%) rotate(7deg); }
+  20%  { transform: translateX(-50%) rotate(16deg); }
+  45%  { transform: translateX(-50%) rotate(-11deg); }
+  70%  { transform: translateX(-50%) rotate(6deg); }
   100% { transform: translateX(-50%) rotate(-2.4deg); }
 }
 
