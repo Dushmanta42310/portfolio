@@ -239,45 +239,22 @@ body {
   transform: translateX(-50%);
 }
 
-.bulb-svg {
+.bulb-img {
   display: block;
-  width: 96px;
+  width: 88px;
   height: auto;
+  pointer-events: none;
   filter: drop-shadow(0 7px 14px rgba(0, 0, 0, 0.5));
   transition: filter 0.35s ease;
 }
 
-/* Realistic SVG glass envelope + tungsten filament */
-.bulb-glass-shape {
-  transition: fill 0.35s ease;
-}
-
-.bulb-glare {
-  pointer-events: none;
-}
-
-/* When Light is ON (Warm Incandescent Emissive Glass) */
-[data-theme="light"] .bulb-glass-shape {
-  fill: url(#glassOn);
-  filter: drop-shadow(0 0 14px #fbbf24) drop-shadow(0 0 42px rgba(245, 158, 11, 0.65));
+/* When Light is ON (Warm Incandescent Emissive Glow) */
+[data-theme="light"] .bulb-img {
+  filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.5)) drop-shadow(0 0 46px rgba(245, 158, 11, 0.35));
   animation: lightOnFlicker 0.6s ease-out;
 }
 
-[data-theme="light"] .bulb-svg {
-  filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.5)) drop-shadow(0 0 46px rgba(245, 158, 11, 0.35));
-}
-
-[data-theme="light"] .filament-coil {
-  stroke: #fff8dd;
-  filter: drop-shadow(0 0 5px #ffffff) drop-shadow(0 0 12px #f59e0b);
-}
-
-[data-theme="light"] .filament-support {
-  stroke: #fde68a;
-  filter: drop-shadow(0 0 4px rgba(253, 230, 138, 0.8));
-}
-
-/* Brief "ignition" shimmer right after the filament is powered up */
+/* Brief "ignition" shimmer right after the light is powered up */
 @keyframes lightOnFlicker {
   0%   { opacity: 0.55; }
   12%  { opacity: 1; }
@@ -2440,8 +2417,8 @@ footer {
     width: 80px;
   }
 
-  .bulb-svg {
-    width: 80px;
+  .bulb-img {
+    width: 72px;
   }
 
   /* Thin the pull chain on phones */

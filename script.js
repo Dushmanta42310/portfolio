@@ -15,6 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageSrc = theme === 'light' ? 'profile-light.jpg' : 'profile-dark.jpg';
     if (heroImg) heroImg.src = imageSrc;
     if (navImg) navImg.src = imageSrc;
+
+    const bulbImg = document.getElementById('toggle-bulb-img');
+    const bulbSrc = theme === 'light' ? 'bulb-light.png' : 'bulb-dark.png';
+    if (bulbImg) bulbImg.src = bulbSrc;
   }
 
   // Retrieve saved theme or default to 'dark' (pure black)
