@@ -30,64 +30,12 @@
   <!-- Volumetric Bulb Light Cone -->
   <div class="bulb-light-cone" id="bulb-light-cone"></div>
 
-  <!-- Bounded interactive light bulb: real spring-pendulum physics inside a defined move arena -->
+  <!-- Interactive light bulb: click to flip the light spectrum & shadow -->
   <div class="bulb-stage" id="bulb-stage">
-    <div class="bulb-move-area" aria-hidden="true"></div>
-
-    <div class="realistic-bulb-wrapper" id="realistic-bulb" title="Click to turn the light on/off — drag to swing within the bounded zone">
+    <div class="realistic-bulb-wrapper" id="realistic-bulb" title="Click to turn the light on/off">
       <div class="bulb-wire"></div>
       <div class="bulb-assembly">
-        <svg class="bulb-svg" viewBox="0 0 120 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <linearGradient id="metalGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#3f3f46" />
-              <stop offset="0.28" stop-color="#e4e4e7" />
-              <stop offset="0.5" stop-color="#71717a" />
-              <stop offset="0.72" stop-color="#fafafa" />
-              <stop offset="1" stop-color="#52525b" />
-            </linearGradient>
-            <linearGradient id="collarGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#27272a" />
-              <stop offset="1" stop-color="#0c0c0e" />
-            </linearGradient>
-            <radialGradient id="glassOff" cx="0.42" cy="0.34" r="0.78">
-              <stop offset="0" stop-color="#ffffff" stop-opacity="0.55" />
-              <stop offset="0.45" stop-color="#ffffff" stop-opacity="0.10" />
-              <stop offset="0.85" stop-color="#0b0b0d" stop-opacity="0.40" />
-              <stop offset="1" stop-color="#000000" stop-opacity="0.9" />
-            </radialGradient>
-            <radialGradient id="glassOn" cx="0.5" cy="0.42" r="0.72">
-              <stop offset="0" stop-color="#ffffff" />
-              <stop offset="0.22" stop-color="#fff4c2" />
-              <stop offset="0.55" stop-color="#ffd876" />
-              <stop offset="0.85" stop-color="#f59e0b" />
-              <stop offset="1" stop-color="#b45309" />
-            </radialGradient>
-          </defs>
-
-          <g class="bulb-socket">
-            <rect x="45" y="0" width="30" height="22" rx="4" fill="url(#metalGrad)" />
-            <path class="socket-ridges" d="M45 4H75 M45 9H75 M45 14H75 M45 18H75" stroke="rgba(0,0,0,0.55)" stroke-width="1.4" />
-            <rect x="52" y="0" width="16" height="3" rx="1.5" fill="#18181b" />
-            <path d="M45 22 L49 32 Q60 36 71 32 L75 22 Z" fill="url(#collarGrad)" />
-          </g>
-
-          <path class="bulb-glass-shape"
-            d="M49 32 C36 38 26 52 26 78 C26 106 40 128 60 128 C80 128 94 106 94 78 C94 52 84 38 71 32 Z"
-            fill="url(#glassOff)" stroke="rgba(255,255,255,0.28)" stroke-width="1" />
-
-          <g class="bulb-filament">
-            <path class="filament-support" d="M57 30 V76 M63 30 V76" stroke="#8f8f96" stroke-width="1.1" fill="none" />
-            <path class="filament-coil" d="M55 74 q2 -4 4 0 q2 4 4 0" stroke="#c8c8ce" stroke-width="1.8" fill="none" stroke-linecap="round" />
-          </g>
-
-          <ellipse class="bulb-glare" cx="36" cy="58" rx="6" ry="15" fill="#ffffff" opacity="0.5" transform="rotate(-16 36 58)" />
-          <ellipse class="bulb-glare" cx="88" cy="90" rx="3" ry="8" fill="#ffffff" opacity="0.28" transform="rotate(24 88 90)" />
-        </svg>
-
-        <div class="bulb-cord">
-          <div class="bulb-cord-handle"></div>
-        </div>
+        <img class="bulb-img" src="pngtree-bulb.png" alt="Light bulb theme toggle" />
       </div>
     </div>
   </div>
