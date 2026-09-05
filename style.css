@@ -237,7 +237,7 @@ body {
 
 .bulb-img {
   display: block;
-  width: 60px;
+  width: 54px;
   height: auto;
   pointer-events: none;
   filter: drop-shadow(0 7px 14px rgba(0, 0, 0, 0.5));
@@ -2414,7 +2414,7 @@ footer {
   }
 
   .bulb-img {
-    width: 50px;
+    width: 46px;
   }
 
   /* Thin the pull chain on phones */
