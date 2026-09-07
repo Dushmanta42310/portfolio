@@ -575,7 +575,7 @@
           </a>
         </div>
 
-        <!-- Certificate Card -->
+        <!-- Certificate Card: Coursera -->
         <a href="https://www.coursera.org/account/accomplishments/verify/BAZVV0F0QKUR?utm_source=ln&utm_medium=certificate&utm_content=cert_image&utm_campaign=sharing_cta&utm_product=course" target="_blank" rel="noopener noreferrer" class="cert-card" data-aos="fade-left">
           <div class="cert-preview-wrap">
             <img src="CERTIFICATE_LANDING_PAGE~BAZVV0F0QKUR.jpeg" alt="Coursera SQL Certificate" class="cert-preview" />
@@ -589,9 +589,51 @@
           </div>
         </a>
 
+        <!-- Certificate Card: Thiranex (Interactive Preview) -->
+        <button type="button" class="cert-card cert-card-btn" data-aos="fade-left" data-cert-modal="thiranex-modal">
+          <div class="cert-preview-wrap">
+            <img src="CERTIFICATE_LANDING_PAGE~BAZVV0F0QKUR.jpeg" alt="Internship certificate preview" class="cert-preview cert-preview-pdf"
+                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+            <div class="cert-pdf-thumb">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>Thiranex</span>
+            </div>
+          </div>
+          <div class="cert-info">
+            <div>
+              <h4 class="cert-title">Internship Certificate - Thiranex</h4>
+              <span class="edu-meta"><i class="fa-solid fa-certificate"></i> THX-JUN1926-585</span>
+            </div>
+            <span class="cert-view-pill"><i class="fa-solid fa-magnifying-glass-plus"></i> Preview</span>
+          </div>
+        </button>
+
       </div>
     </div>
   </section>
+
+  <!-- Certificate Preview Modal (Thiranex) -->
+  <div class="cert-modal" id="thiranex-modal" aria-hidden="true">
+    <div class="cert-modal-overlay" data-cert-close></div>
+    <div class="cert-modal-content" role="dialog" aria-modal="true" aria-label="Internship certificate preview">
+      <button type="button" class="cert-modal-close" data-cert-close aria-label="Close preview">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="cert-modal-header">
+        <h4 class="cert-modal-title"><i class="fa-solid fa-certificate"></i> Internship Certificate - Thiranex</h4>
+        <span class="edu-meta">THX-JUN1926-585 &middot; Dushmanta Das</span>
+      </div>
+      <div class="cert-modal-body">
+        <iframe class="cert-modal-frame" src="Thiranex_Certificate_Dushmanta_Das_THX-JUN1926-585.pdf" title="Thiranex Internship Certificate" loading="lazy"></iframe>
+      </div>
+      <div class="cert-modal-footer">
+        <a href="Thiranex_Certificate_Dushmanta_Das_THX-JUN1926-585.pdf" download class="btn btn-primary">
+          <i class="fa-solid fa-download"></i>
+          <span>Download Certificate</span>
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- Contact Section -->
   <section id="contact" class="contact-section">

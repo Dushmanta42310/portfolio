@@ -685,5 +685,29 @@ document.addEventListener('DOMContentLoaded', () => {
       e.target.classList.remove('is-active');
     }
   });
+
+  // Certificate preview modal (lightbox)
+  const certModal = document.getElementById('thiranex-modal');
+  if (certModal) {
+    const openModal = () => {
+      certModal.classList.add('is-open');
+      certModal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    };
+    const closeModal = () => {
+      certModal.classList.remove('is-open');
+      certModal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    };
+    document.querySelectorAll('[data-cert-modal]').forEach(btn => {
+      btn.addEventListener('click', openModal);
+    });
+    certModal.querySelectorAll('[data-cert-close]').forEach(el => {
+      el.addEventListener('click', closeModal);
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && certModal.classList.contains('is-open')) closeModal();
+    });
+  }
 });
 
