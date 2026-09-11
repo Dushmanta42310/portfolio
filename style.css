@@ -204,7 +204,7 @@ body {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 84px;
+  width: 72px;
   z-index: 110;
   cursor: default;
   transform-origin: top center;
@@ -232,7 +232,7 @@ body {
 
 .bulb-img {
   display: block;
-  width: 46px;
+  width: 40px;
   height: auto;
   pointer-events: none;
   filter: drop-shadow(0 7px 14px rgba(0, 0, 0, 0.5));
@@ -2566,11 +2566,11 @@ footer {
   }
 
   .realistic-bulb-wrapper {
-    width: 72px;
+    width: 62px;
   }
 
   .bulb-img {
-    width: 40px;
+    width: 34px;
   }
 
   /* Thin the pull chain on phones */

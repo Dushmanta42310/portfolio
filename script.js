@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Physical constants (pixel space, seconds)
     const WIRE_BASE = 18;          // anchor -> top of metal socket
-    const TO_GLASS = 80;           // socket top -> bulb glass centre inside the SVG
+    const TO_GLASS = 70;           // socket top -> bulb glass centre inside the SVG
     const L0 = WIRE_BASE + TO_GLASS; // natural cable length
     const R_MIN = L0 * 0.3;
     const R_MAX = L0 * 2.05;
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function arena() {
       return {
-        xMax: Math.max(40, stage.offsetWidth / 2 - 34),
+        xMax: Math.max(40, stage.offsetWidth / 2 - 30),
         yMax: Math.max(60, stage.offsetHeight - 36)
       };
     }
