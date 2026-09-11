@@ -439,9 +439,15 @@
 
         <!-- Project 2 -->
         <div class="project-card" data-aos="fade-up" data-aos-delay="100">
-          <div class="project-thumb-wrap">
-            <img src="Screenshot 2026-09-11 233009.png" alt="Airline Operation Suite" class="project-thumb" />
+          <div class="project-thumb-wrap project-slider" data-slider>
+            <div class="slider-track">
+              <img src="Screenshot 2026-09-11 233009.png" alt="Airline Operation Suite" class="project-thumb slider-slide" />
+              <img src="Screenshot 2026-09-11 233342.png" alt="Airline Operation Suite" class="project-thumb slider-slide" />
+            </div>
             <span class="project-status-badge">Database System</span>
+            <button type="button" class="slider-arrow left" data-slider-prev aria-label="Previous slide"><i class="fa-solid fa-chevron-left"></i></button>
+            <button type="button" class="slider-arrow right" data-slider-next aria-label="Next slide"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="slider-dots" data-slider-dots></div>
           </div>
           <div class="project-body">
             <h3 class="project-title">Airline Operation Suite</h3>
