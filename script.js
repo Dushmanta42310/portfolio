@@ -4,25 +4,141 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 0. Netflix-Style Interactive Intro Loader
+  // 0. Smooth Pixar-Style Intro Loader (hopping dot creates ".dev")
   (function initIntroLoader() {
     const loader = document.getElementById('loader-screen');
     if (!loader) return;
 
     const bar = document.getElementById('loader-progress-bar');
     const skipBtn = document.getElementById('loader-skip');
-    const DURATION = 3400; // total intro length before auto-dismiss
+    const hopper = document.getElementById('loader-hopper');
+    const wordEl = document.getElementById('loader-word');
+    const logoEl = document.getElementById('loader-logo');
+    const periodEl = document.getElementById('dev-dot');
+
+    const DURATION = 4200; // total intro length before auto-dismiss
+    const HOP_START = 1550;  // begin hopping after letters settle
+    const HOP_DURATION = 1600;
     const start = performance.now();
 
     let done = false;
     let rafId = 0;
+    let hopRaf = 0;
     let removeTimer = 0;
 
     document.body.classList.add('loader-active');
 
+    // ---------- Hopping ball: left edge of word -> drops EXACTLY onto the "." ----------
+    // Use the real glyph box of the period, not the tall letter container,
+    // so the ball visually lands ON the dot (no misalignment / no flash).
+    function glyphCenter(el) {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const boxes = range.getClientRects();
+      if (boxes && boxes.length) {
+        const last = boxes[boxes.length - 1];
+        return { x: last.left + last.width / 2, y: last.top + last.height / 2 };
+      }
+      const b = el.getBoundingClientRect();
+      return { x: b.left + b.width / 2, y: b.top + b.height / 2 };
+    }
+
+    // Soft "settle" easing used only for the final drop onto the dot.
+    function easeOutBounce(x) {
+      const n1 = 7.5625;
+      const d1 = 2.75;
+      if (x < 1 / d1) return n1 * x * x;
+      if (x < 2 / d1) return n1 * (x -= 1.5 / d1) * x + 0.75;
+      if (x < 2.5 / d1) return n1 * (x -= 2.25 / d1) * x + 0.9375;
+      return n1 * (x -= 2.625 / d1) * x + 0.984375;
+    }
+
+    const easeInQuad = (x) => x * x;
+
+    const dotStyle = hopper ? hopper.style : null;
+    const DOT = { size: 18 };
+
+    function runHops() {
+      if (!hopper || !wordEl || !logoEl || !periodEl) return;
+
+      const logoRect = logoEl.getBoundingClientRect();
+      const firstLtr = wordEl.querySelector('.ltr');
+      const firstRect = firstLtr ? firstLtr.getBoundingClientRect() : logoRect;
+      const periodCenter = glyphCenter(periodEl);
+
+      const startX = firstRect.left - logoRect.left + firstRect.width / 2;
+      const endX   = periodCenter.x - logoRect.left;
+      const landY  = periodCenter.y - logoRect.top - hopper.offsetHeight * 0.42; // rest ON the dot
+
+      DOT.size = hopper.offsetWidth;
+
+      // Gentle fade-in (no pop).
+      dotStyle.transition = 'opacity 0.25s ease';
+      dotStyle.opacity = '1';
+
+      // Two short lead hops, then one higher leap that drops onto the dot with a bounce.
+      const hops = [
+        { t0: 0.00, t1: 0.40, amp: 54 },
+        { t0: 0.40, t1: 0.70, amp: 44 },
+        { t0: 0.70, t1: 1.00, amp: 120 }
+      ];
+
+      const hopStart = performance.now();
+
+      function frame(now) {
+        const t = Math.min(1, (now - hopStart) / HOP_DURATION);
+
+        const x = startX + (endX - startX) * t;
+        let y = landY;
+        const lastHop = hops[hops.length - 1];
+
+        if (t < lastHop.t1) {
+          if (t <= hops[1].t1) {
+            // Lead hops: simple smooth arcs above the landing level.
+            for (let i = 0; i < hops.length - 1; i++) {
+              if (t >= hops[i].t0 && t <= hops[i].t1) {
+                const s = (t - hops[i].t0) / (hops[i].t1 - hops[i].t0);
+                y = landY - hops[i].amp * Math.sin(Math.PI * s);
+              }
+            }
+          } else {
+            // Final leap: rise smoothly, then fall onto the dot with a soft Pixar bounce.
+            const seg = (t - lastHop.t0) / (lastHop.t1 - lastHop.t0);
+            const lift = 0.26;
+            let h;
+            if (seg < lift) h = lastHop.amp * easeInQuad(seg / lift);
+            else h = lastHop.amp * (1 - easeOutBounce((seg - lift) / (1 - lift)));
+            y = landY - h;
+          }
+        }
+
+        if (dotStyle) {
+          dotStyle.transform =
+            'translate(' + (x - DOT.size / 2).toFixed(1) + 'px,' + (y - DOT.size / 2).toFixed(1) + 'px)';
+        }
+
+        if (t < 1) {
+          hopRaf = requestAnimationFrame(frame);
+        } else {
+          // Landed: squash the dot (Pixar stomp), reveal ".dev", fade ball out smoothly.
+          periodEl.classList.add('is-squashed');
+          hopper.classList.add('is-landed');
+          dotStyle.transition = 'opacity 0.5s ease';
+          dotStyle.opacity = '0';
+          if (wordEl) wordEl.classList.add('dev-revealed');
+          setTimeout(() => { hopper.style.display = 'none'; }, 550);
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // ---------- Intro timing ----------
     function tick(now) {
       const pct = Math.min(100, ((now - start) / DURATION) * 100);
       if (bar) bar.style.width = pct + '%';
+
+      if (now - start >= HOP_START && !hopRaf) runHops();
+
       if (pct < 100) {
         rafId = requestAnimationFrame(tick);
       } else {
@@ -30,12 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // ---------- Dismissal ----------
     function finish() {
       if (done) return;
       done = true;
       if (rafId) cancelAnimationFrame(rafId);
+      if (hopRaf) cancelAnimationFrame(hopRaf);
       if (removeTimer) clearTimeout(removeTimer);
 
+      wordEl.classList.add('dev-revealed');
       loader.classList.add('is-hidden');
       document.body.classList.remove('loader-active');
 
