@@ -4,6 +4,68 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 0. Netflix-Style Interactive Intro Loader
+  (function initIntroLoader() {
+    const loader = document.getElementById('loader-screen');
+    if (!loader) return;
+
+    const bar = document.getElementById('loader-progress-bar');
+    const skipBtn = document.getElementById('loader-skip');
+    const DURATION = 3400; // total intro length before auto-dismiss
+    const start = performance.now();
+
+    let done = false;
+    let rafId = 0;
+    let removeTimer = 0;
+
+    document.body.classList.add('loader-active');
+
+    function tick(now) {
+      const pct = Math.min(100, ((now - start) / DURATION) * 100);
+      if (bar) bar.style.width = pct + '%';
+      if (pct < 100) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        finish();
+      }
+    }
+
+    function finish() {
+      if (done) return;
+      done = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      if (removeTimer) clearTimeout(removeTimer);
+
+      loader.classList.add('is-hidden');
+      document.body.classList.remove('loader-active');
+
+      removeTimer = setTimeout(() => {
+        if (loader.parentNode) loader.parentNode.removeChild(loader);
+      }, 900);
+
+      window.dispatchEvent(new Event('portfolio:loaded'));
+    }
+
+    function skip(e) {
+      if (e) e.preventDefault();
+      finish();
+    }
+
+    // Interactive dismissal: button, tapping the backdrop, or keyboard
+    if (skipBtn) skipBtn.addEventListener('click', skip);
+    loader.addEventListener('click', (e) => {
+      if (e.target === loader) skip(e);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!done && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) skip(e);
+    });
+
+    // Failsafe: never let the loader trap the visitor if RAF stalls
+    removeTimer = setTimeout(finish, DURATION + 1500);
+
+    requestAnimationFrame(tick);
+  })();
+
   // 1. Theme Switcher (Pure Black <-> Pure White) with Realistic Bulb
   const themeToggleBtn = document.getElementById('theme-toggle');
   const realisticBulb = document.getElementById('realistic-bulb');
