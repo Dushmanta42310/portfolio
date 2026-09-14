@@ -84,27 +84,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = 150;
+        const influence = 240;
 
-        // When cursor is nearby: attract particle toward cursor
+        // Soft attraction toward the cursor (smooth flow, no hard suction)
         if (dist < influence && dist > 0.01) {
-          const pull = (1 - dist / influence) * 1.2;
+          const pull = (1 - dist / influence) * 0.5;
           p.vx += (dx / dist) * pull;
           p.vy += (dy / dist) * pull;
         }
 
-        // Always: spring back toward home position
-        const homeDx = p.homeX - p.x;
-        const homeDy = p.homeY - p.y;
-        p.vx += homeDx * 0.02;
-        p.vy += homeDy * 0.02;
+        // Gentle pull back toward home position
+        p.vx += (p.homeX - p.x) * 0.02;
+        p.vy += (p.homeY - p.y) * 0.02;
 
         p.x += p.vx;
         p.y += p.vy;
 
-        // Dampen
-        p.vx *= 0.92;
-        p.vy *= 0.92;
+        // Smooth damping
+        p.vx *= 0.9;
+        p.vy *= 0.9;
 
         // Wrap around edges
         if (p.x < -20) p.x = canvas.width + 20;
