@@ -2694,8 +2694,8 @@ footer {
 }
 
 /* ==========================================================================
-   SMOOTH PIXAR-STYLE INTRO LOADER
-   A glowing dot hops across the wordmark and lands to create ".dev"
+   INTERACTIVE INTRO LOADER
+   Particles react to mouse, cursor glow, terminal typing, bouncing dot
    ========================================================================== */
 body.loader-active {
   overflow: hidden;
@@ -2712,6 +2712,7 @@ body.loader-active {
   background: radial-gradient(ellipse 80% 70% at 50% 50%, #0b0b12 0%, #000000 70%);
   overflow: hidden;
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s ease;
+  cursor: crosshair;
 }
 
 .loader-screen.is-hidden {
@@ -2720,7 +2721,56 @@ body.loader-active {
   pointer-events: none;
 }
 
-/* --- Logo stage (hopping dot is positioned against this) --- */
+/* --- Mouse-reactive particle canvas --- */
+.loader-particles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* --- Cursor-following glow orb --- */
+.loader-cursor-glow {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+  z-index: 1;
+  pointer-events: none;
+  will-change: transform;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: screen;
+}
+
+/* --- Click ripple rings --- */
+.loader-click-rings {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.loader-click-ring {
+  position: absolute;
+  border: 2px solid rgba(56, 189, 248, 0.55);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: clickRing 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes clickRing {
+  0%   { width: 0; height: 0; opacity: 0.9; }
+  100% { width: 160px; height: 160px; opacity: 0; }
+}
+
+/* --- Logo stage --- */
 .loader-logo {
   position: relative;
   z-index: 2;
@@ -2729,6 +2779,7 @@ body.loader-active {
   align-items: center;
   text-align: center;
   padding: 24px 16px 12px;
+  pointer-events: none;
 }
 
 .loader-word {
@@ -2749,8 +2800,8 @@ body.loader-active {
   opacity: 0;
   transform: translateY(18px);
   filter: blur(6px);
-  animation: ltrIn 0.7s ease-out forwards;
-  animation-delay: calc(0.15s + var(--i) * 70ms);
+  animation: ltrIn 0.8s ease-out forwards;
+  animation-delay: calc(0.2s + var(--i) * 90ms);
 }
 
 @keyframes ltrIn {
@@ -2820,6 +2871,96 @@ body.loader-active {
   transition: opacity 0.4s ease;
 }
 
+/* Slowing trail shimmer added by JS via a pseudo clone */
+.loader-hopper-trail {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.45) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  will-change: transform, opacity;
+  animation: trailFade 0.8s ease-out forwards;
+}
+
+@keyframes trailFade {
+  0%   { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(2.6); }
+}
+
+/* --- Avatar silhouette that pulses in above the wordmark --- */
+.loader-avatar-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  padding: 3px;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.35);
+  margin-bottom: clamp(10px, 2.5vw, 20px);
+  animation: avatarRingPulse 1.5s ease-out;
+  transform: scale(1);
+}
+
+.loader-avatar-ring img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 15px;
+  display: block;
+}
+
+@keyframes avatarRingPulse {
+  0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+  60%  { transform: scale(1.08) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+/* --- Terminal-style typing line --- */
+.loader-terminal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: clamp(12px, 2.5vw, 20px);
+  font-family: var(--font-main);
+  font-size: clamp(0.62rem, 2.4vw, 0.9rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #a1a1aa;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 7px 16px;
+  border-radius: 999px;
+  opacity: 0;
+  animation: subFade 0.6s ease 1.9s forwards;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.loader-terminal .terminal-prompt {
+  color: var(--accent-cyan);
+  font-weight: 800;
+}
+
+.loader-terminal .terminal-text {
+  color: #d4d4d8;
+}
+
+.loader-terminal .terminal-text .ok {
+  color: var(--accent-emerald);
+  font-weight: 700;
+}
+
+.loader-terminal .terminal-cursor {
+  color: var(--accent-cyan);
+  animation: blinkCursor 0.8s infinite;
+  margin-left: 2px;
+  transition: opacity 0.4s ease;
+}
+
+.loader-terminal.is-typed .terminal-cursor {
+  opacity: 0;
+}
+
 .loader-sub {
   margin-top: clamp(12px, 2.5vw, 20px);
   font-family: var(--font-main);
@@ -2830,7 +2971,7 @@ body.loader-active {
   color: #a1a1aa;
   opacity: 0;
   animation: subFade 0.8s ease forwards;
-  animation-delay: 3.15s;
+  animation-delay: 4.3s;
 }
 
 .loader-sub .accent {
@@ -2874,6 +3015,20 @@ body.loader-active {
   transition: width 0.2s linear;
 }
 
+/* --- Percentage readout (interactive feedback) --- */
+.loader-percent {
+  position: absolute;
+  bottom: clamp(78px, 14vh, 118px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-heading);
+  font-size: clamp(0.7rem, 2.5vw, 0.95rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.4);
+  z-index: 4;
+}
+
 /* --- Skip control (interactive) --- */
 .loader-skip {
   position: absolute;
@@ -2895,7 +3050,7 @@ body.loader-active {
   cursor: pointer;
   z-index: 5;
   opacity: 0;
-  animation: subFade 0.6s ease 2.2s forwards;
+  animation: subFade 0.6s ease 2.9s forwards;
   transition: color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
@@ -2929,11 +3084,26 @@ body.loader-active {
   .loader-progress {
     bottom: 54px;
   }
+
+  .loader-percent {
+    bottom: 74px;
+  }
+
+  .loader-avatar-ring {
+    width: 52px;
+    height: 52px;
+  }
+
+  .loader-cursor-glow {
+    width: 150px;
+    height: 150px;
+  }
 }
 
 /* --- Respect reduced-motion preferences --- */
 @media (prefers-reduced-motion: reduce) {
-  .loader-hopper {
+  .loader-hopper,
+  .loader-particles {
     display: none;
   }
 
@@ -2951,7 +3121,8 @@ body.loader-active {
   }
 
   .loader-sub,
-  .loader-skip {
+  .loader-skip,
+  .loader-terminal {
     animation-duration: 0.01ms;
     animation-delay: 0ms;
     opacity: 1;

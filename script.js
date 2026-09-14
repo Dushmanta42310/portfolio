@@ -4,7 +4,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 0. Smooth Pixar-Style Intro Loader (hopping dot creates ".dev")
+  // 0. Interactive Intro Loader: particles, cursor glow, terminal typing, hopping dot
   (function initIntroLoader() {
     const loader = document.getElementById('loader-screen');
     if (!loader) return;
@@ -15,10 +15,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const wordEl = document.getElementById('loader-word');
     const logoEl = document.getElementById('loader-logo');
     const periodEl = document.getElementById('dev-dot');
+    const canvas = document.getElementById('loader-particles');
+    const cursorGlow = document.getElementById('loader-cursor-glow');
+    const clickRings = document.getElementById('loader-click-rings');
+    const percentEl = document.getElementById('loader-percent');
+    const terminalText = document.getElementById('terminal-text');
 
-    const DURATION = 4200; // total intro length before auto-dismiss
-    const HOP_START = 1550;  // begin hopping after letters settle
-    const HOP_DURATION = 1600;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DURATION = reducedMotion ? 1500 : 5800; // total intro length before auto-dismiss
+    const HOP_START = 2400; // begin hopping after letters settle
+    const HOP_DURATION = 2900;
+    const hopSegs = [
+      { t0: 0.00, t1: 0.46, amp: 72 },
+      { t0: 0.46, t1: 0.74, amp: 54 },
+      { t0: 0.74, t1: 1.00, amp: 168 }
+    ];
     const start = performance.now();
 
     let done = false;
@@ -28,7 +39,164 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.body.classList.add('loader-active');
 
-    // ---------- Hopping ball: left edge of word -> drops EXACTLY onto the "." ----------
+    // ============ A) Mouse-reactive particle field ============
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    let particles = [];
+    let mouse = { x: -9999, y: -9999 };
+    const PARTICLE_COUNT = 90;
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    function spawnParticles() {
+      if (!canvas) return;
+      particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          r: Math.random() * 2 + 0.6,
+          baseR: 0,
+          hue: Math.random() < 0.6 ? 199 : 262, // cyan / purple family
+          pulse: Math.random() * Math.PI * 2,
+          active: true
+        });
+      }
+    }
+
+    function drawParticles() {
+      if (!ctx || !canvas || done) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) return;
+
+      for (const p of particles) {
+        // Slight drift
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Mouse attraction / repulsion
+        const dx = mouse.x - p.x;
+        const dy = mouse.y - p.y;
+        const dist = Math.hypot(dx, dy);
+        const influence = 150;
+        if (dist < influence && dist > 0.01) {
+          const force = (1 - dist / influence) * 0.8;
+          p.vx += (dx / dist) * force * 0.2;
+          p.vy += (dy / dist) * force * 0.2;
+        }
+
+        // Dampen & clamp velocity
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+        p.vx = Math.max(-1.4, Math.min(1.4, p.vx));
+        p.vy = Math.max(-1.4, Math.min(1.4, p.vy));
+
+        // Wrap around edges
+        if (p.x < -20) p.x = canvas.width + 20;
+        if (p.x > canvas.width + 20) p.x = -20;
+        if (p.y < -20) p.y = canvas.height + 20;
+        if (p.y > canvas.height + 20) p.y = -20;
+
+        // Pulsing brightness
+        p.pulse += 0.03;
+        const alpha = 0.3 + Math.sin(p.pulse) * 0.2 + 0.15;
+
+        ctx.beginPath();
+        ctx.fillStyle = 'hsla(' + p.hue + ', 90%, 65%, ' + Math.max(0.05, alpha) + ')';
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Connect nearby particles with faint lines (constellation feel)
+        for (const q of particles) {
+          if (q === p) continue;
+          const qdx = p.x - q.x;
+          const qdy = p.y - q.y;
+          const qdist = qdx * qdx + qdy * qdy;
+          if (qdist < 110 * 110) {
+            const a = (1 - Math.sqrt(qdist) / 110) * 0.08;
+            ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+
+    // ============ B) Cursor glow orb (smooth lerp follow) ============
+    let glowX = window.innerWidth / 2;
+    let glowY = window.innerHeight / 2;
+    let targetX = glowX;
+    let targetY = glowY;
+
+    function tickCursorGlow() {
+      if (!cursorGlow || done) return;
+      glowX += (targetX - glowX) * 0.16;
+      glowY += (targetY - glowY) * 0.16;
+      cursorGlow.style.transform =
+        'translate(' + (glowX - 120).toFixed(1) + 'px,' + (glowY - 120).toFixed(1) + 'px)';
+      requestAnimationFrame(tickCursorGlow);
+    }
+
+    // ============ C) Click ripple rings ============
+    function spawnClickRing(clientX, clientY) {
+      if (!clickRings) return;
+      const ring = document.createElement('span');
+      ring.className = 'loader-click-ring';
+      ring.style.left = clientX + 'px';
+      ring.style.top = clientY + 'px';
+      clickRings.appendChild(ring);
+      setTimeout(() => { ring.parentNode && ring.parentNode.removeChild(ring); }, 750);
+    }
+
+    // ============ D) Terminal typing sequence ============
+    const terminalLines = [
+      '$ loading portfolio ...',
+      '$ init DBA modules ........ OK',
+      '$ mount FLASK core ........ OK',
+      '$ embed AI/ML models ...... OK',
+      '$ start RAG engine ........ OK',
+      'dushmanta.dev READY'
+    ];
+
+    function runTerminal() {
+      if (!terminalText) return;
+      const wrap = document.getElementById('loader-terminal');
+      let lineIdx = 0;
+      let chIdx = 0;
+
+      function typeLine() {
+        const line = terminalLines[lineIdx];
+        if (chIdx <= line.length) {
+          terminalText.innerHTML =
+            line.slice(0, chIdx === 0 ? 0 : chIdx) +
+            (chIdx >= line.length ? '<span class="ok"> &nbsp;ok</span>' : '');
+          chIdx++;
+          setTimeout(typeLine, 26);
+        } else {
+          lineIdx++;
+          chIdx = 0;
+          if (lineIdx < terminalLines.length) {
+            setTimeout(typeLine, 160);
+          } else if (wrap) {
+            wrap.classList.add('is-typed');
+          }
+        }
+      }
+      typeLine();
+    }
+
+    // ============ E) Hopping dot (left edge -> onto the ".") ============
     // Use the real glyph box of the period, not the tall letter container,
     // so the ball visually lands ON the dot (no misalignment / no flash).
     function glyphCenter(el) {
@@ -57,6 +225,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const dotStyle = hopper ? hopper.style : null;
     const DOT = { size: 18 };
+    let trailEl = null;
+
+    // Trail clone that shimmers behind the hopping dot
+    function makeTrail() {
+      if (!hopper || trailEl) return;
+      trailEl = document.createElement('div');
+      trailEl.className = 'loader-hopper-trail';
+      loader.appendChild(trailEl);
+    }
 
     function runHops() {
       if (!hopper || !wordEl || !logoEl || !periodEl) return;
@@ -71,19 +248,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const landY  = periodCenter.y - logoRect.top - hopper.offsetHeight * 0.42; // rest ON the dot
 
       DOT.size = hopper.offsetWidth;
+      makeTrail();
 
       // Gentle fade-in (no pop).
       dotStyle.transition = 'opacity 0.25s ease';
       dotStyle.opacity = '1';
 
-      // Two short lead hops, then one higher leap that drops onto the dot with a bounce.
-      const hops = [
-        { t0: 0.00, t1: 0.40, amp: 54 },
-        { t0: 0.40, t1: 0.70, amp: 44 },
-        { t0: 0.70, t1: 1.00, amp: 120 }
-      ];
+      // Two relaxed lead hops, then one higher leap that drops onto the dot with a bounce.
+      const hops = hopSegs;
 
       const hopStart = performance.now();
+      let lastX = startX, lastY = landY;
 
       function frame(now) {
         const t = Math.min(1, (now - hopStart) / HOP_DURATION);
@@ -112,9 +287,24 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
+        // Draw trail: ghost circles at the previous position
+        if (trailEl) {
+          trailEl.style.left = (logoRect.left + lastX - DOT.size / 2) + 'px';
+          trailEl.style.top = (logoRect.top + lastY - DOT.size / 2) + 'px';
+          trailEl.style.width = DOT.size + 'px';
+          trailEl.style.height = DOT.size + 'px';
+          trailEl.style.opacity = '0.35';
+          setTimeout(() => { if (trailEl) trailEl.style.opacity = '0'; }, 60);
+        }
+        lastX = x;
+        lastY = y;
+
+        const vy = y - lastY;
+        const squash = Math.max(-0.16, Math.min(0.16, vy * 0.03));
         if (dotStyle) {
           dotStyle.transform =
-            'translate(' + (x - DOT.size / 2).toFixed(1) + 'px,' + (y - DOT.size / 2).toFixed(1) + 'px)';
+            'translate(' + (x - DOT.size / 2).toFixed(1) + 'px,' + (y - DOT.size / 2).toFixed(1) + 'px)' +
+            ' scale(' + (1 + squash).toFixed(3) + ',' + (1 - squash).toFixed(3) + ')';
         }
 
         if (t < 1) {
@@ -126,6 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
           dotStyle.transition = 'opacity 0.5s ease';
           dotStyle.opacity = '0';
           if (wordEl) wordEl.classList.add('dev-revealed');
+          if (trailEl) { trailEl.style.display = 'none'; trailEl = null; }
           setTimeout(() => { hopper.style.display = 'none'; }, 550);
         }
       }
@@ -133,9 +324,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------- Intro timing ----------
+    let lastPct = -1;
     function tick(now) {
       const pct = Math.min(100, ((now - start) / DURATION) * 100);
       if (bar) bar.style.width = pct + '%';
+      if (percentEl) {
+        const rounded = Math.round(pct);
+        if (rounded !== lastPct) {
+          percentEl.textContent = rounded + '%';
+          lastPct = rounded;
+        }
+      }
 
       if (now - start >= HOP_START && !hopRaf) runHops();
 
@@ -153,6 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (rafId) cancelAnimationFrame(rafId);
       if (hopRaf) cancelAnimationFrame(hopRaf);
       if (removeTimer) clearTimeout(removeTimer);
+      if (percentEl) percentEl.textContent = '100%';
 
       wordEl.classList.add('dev-revealed');
       loader.classList.add('is-hidden');
@@ -170,14 +370,61 @@ document.addEventListener('DOMContentLoaded', () => {
       finish();
     }
 
-    // Interactive dismissal: button, tapping the backdrop, or keyboard
+    // ---------- Interactive listeners ----------
     if (skipBtn) skipBtn.addEventListener('click', skip);
     loader.addEventListener('click', (e) => {
-      if (e.target === loader) skip(e);
+      if (e.target === loader) {
+        spawnClickRing(e.clientX, e.clientY);
+        skip(e);
+      }
     });
     document.addEventListener('keydown', (e) => {
       if (!done && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) skip(e);
     });
+
+    // Any click on the screen during the intro spawns a ripple
+    document.addEventListener('pointerdown', (e) => {
+      if (!done) spawnClickRing(e.clientX, e.clientY);
+    });
+
+    // Mouse move -> particles react & glow follows
+    document.addEventListener('pointermove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      targetX = e.clientX;
+      targetY = e.clientY;
+      // Nudge a few particles toward the cursor
+      if (particles.length) {
+        for (let i = 0; i < 6; i++) {
+          const p = particles[Math.floor(Math.random() * particles.length)];
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 1) {
+            p.vx += (dx / d) * 0.9;
+            p.vy += (dy / d) * 0.9;
+          }
+        }
+      }
+    });
+
+    // Keyboard-only users: glow follows a slight idle drift
+    document.addEventListener('keydown', () => {
+      targetX = window.innerWidth / 2;
+      targetY = window.innerHeight / 2;
+    });
+
+    // ---------- Boot ----------
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      spawnParticles();
+    });
+
+    resizeCanvas();
+    spawnParticles();
+    requestAnimationFrame(drawParticles);
+    requestAnimationFrame(tickCursorGlow);
+    runTerminal();
 
     // Failsafe: never let the loader trap the visitor if RAF stalls
     removeTimer = setTimeout(finish, DURATION + 1500);
