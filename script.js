@@ -55,14 +55,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!canvas) return;
       particles = [];
       for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
         particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.6,
-          vy: (Math.random() - 0.5) * 0.6,
+          x: x,
+          y: y,
+          homeX: x,
+          homeY: y,
+          vx: 0,
+          vy: 0,
           r: Math.random() * 2 + 0.6,
           baseR: 0,
-          hue: Math.random() < 0.6 ? 199 : 262, // cyan / purple family
+          hue: Math.random() < 0.6 ? 199 : 262,
           pulse: Math.random() * Math.PI * 2,
           active: true
         });
@@ -77,26 +81,30 @@ document.addEventListener('DOMContentLoaded', () => {
       if (reduce) return;
 
       for (const p of particles) {
-        // Slight drift
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Mouse attraction / repulsion
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = 150;
+        const influence = 80;
+
+        // When cursor is nearby: attract particle toward cursor
         if (dist < influence && dist > 0.01) {
-          const force = (1 - dist / influence) * 0.8;
-          p.vx += (dx / dist) * force * 0.2;
-          p.vy += (dy / dist) * force * 0.2;
+          const pull = (1 - dist / influence) * 1.2;
+          p.vx += (dx / dist) * pull;
+          p.vy += (dy / dist) * pull;
         }
 
-        // Dampen & clamp velocity
-        p.vx *= 0.985;
-        p.vy *= 0.985;
-        p.vx = Math.max(-1.4, Math.min(1.4, p.vx));
-        p.vy = Math.max(-1.4, Math.min(1.4, p.vy));
+        // Always: spring back toward home position
+        const homeDx = p.homeX - p.x;
+        const homeDy = p.homeY - p.y;
+        p.vx += homeDx * 0.02;
+        p.vy += homeDy * 0.02;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Dampen
+        p.vx *= 0.92;
+        p.vy *= 0.92;
 
         // Wrap around edges
         if (p.x < -20) p.x = canvas.width + 20;
@@ -391,19 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
       mouse.y = e.clientY;
       targetX = e.clientX;
       targetY = e.clientY;
-      // Nudge a few particles toward the cursor
-      if (particles.length) {
-        for (let i = 0; i < 6; i++) {
-          const p = particles[Math.floor(Math.random() * particles.length)];
-          const dx = mouse.x - p.x;
-          const dy = mouse.y - p.y;
-          const d = Math.hypot(dx, dy);
-          if (d > 1) {
-            p.vx += (dx / d) * 0.9;
-            p.vy += (dy / d) * 0.9;
-          }
-        }
-      }
     });
 
     // Keyboard-only users: glow follows a slight idle drift
