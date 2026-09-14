@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
       glowX += (targetX - glowX) * 0.16;
       glowY += (targetY - glowY) * 0.16;
       cursorGlow.style.transform =
-        'translate(' + (glowX - 120).toFixed(1) + 'px,' + (glowY - 120).toFixed(1) + 'px)';
+        'translate(' + (glowX - 40).toFixed(1) + 'px,' + (glowY - 40).toFixed(1) + 'px)';
       requestAnimationFrame(tickCursorGlow);
     }
 
