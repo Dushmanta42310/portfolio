@@ -162,10 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ============ D) Terminal typing sequence ============
     const terminalLines = [
       '$ loading portfolio ...',
-      '$ init DBA modules ........ OK',
-      '$ mount FLASK core ........ OK',
-      '$ embed AI/ML models ...... OK',
-      '$ start RAG engine ........ OK',
+      '$ init DBA modules ........',
+      '$ mount FLASK core ........',
+      '$ embed AI/ML models ......',
+      '$ start RAG engine ........',
       'dushmanta.dev READY'
     ];
 
@@ -178,9 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
       function typeLine() {
         const line = terminalLines[lineIdx];
         if (chIdx <= line.length) {
-          terminalText.innerHTML =
-            line.slice(0, chIdx === 0 ? 0 : chIdx) +
-            (chIdx >= line.length ? '<span class="ok"> &nbsp;ok</span>' : '');
+          terminalText.innerHTML = line.slice(0, chIdx === 0 ? 0 : chIdx);
           chIdx++;
           setTimeout(typeLine, 26);
         } else {
