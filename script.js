@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = 80;
+        const influence = 150;
 
         // When cursor is nearby: attract particle toward cursor
         if (dist < influence && dist > 0.01) {
