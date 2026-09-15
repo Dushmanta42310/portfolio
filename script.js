@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas ? canvas.getContext('2d') : null;
     let particles = [];
     let mouse = { x: -9999, y: -9999 };
+    let prevMouse = { x: -9999, y: -9999 };
+    let flowX = 0;
+    let flowY = 0; // smoothed cursor velocity
     const PARTICLE_COUNT = 1200;
 
     function resizeCanvas() {
@@ -80,29 +83,69 @@ document.addEventListener('DOMContentLoaded', () => {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduce) return;
 
+      const mvelRawX = mouse.x - prevMouse.x;
+      const mvelRawY = mouse.y - prevMouse.y;
+      prevMouse.x = mouse.x;
+      prevMouse.y = mouse.y;
+
+      // Smoothed cursor velocity — dot speed mirrors cursor speed without micro-jitter
+      flowX += (mvelRawX - flowX) * 0.38;
+      flowY += (mvelRawY - flowY) * 0.38;
+      const flowLen = Math.hypot(flowX, flowY);
+      const flowMin = 1.6;
+      const flowMax = 13;
+      const scaled = Math.min(flowMax, Math.max(flowMin, flowLen * 0.55));
+      const fx = scaled * (flowLen > 0.01 ? flowX / flowLen : 0);
+      const fy = scaled * (flowLen > 0.01 ? flowY / flowLen : 0);
+
+      // Spatial grid so line-linking stays fast even with 1200+ dots (avoids O(n^2))
+      const LINK_DIST = 110;
+      const CELL = LINK_DIST;
+      const grid = new Map();
+      const cellKey = (cx, cy) => cx + ',' + cy;
+      for (const p of particles) {
+        const key = cellKey(Math.floor(p.x / CELL), Math.floor(p.y / CELL));
+        let bucket = grid.get(key);
+        if (!bucket) { bucket = []; grid.set(key, bucket); }
+        bucket.push(p);
+      }
+
       for (const p of particles) {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = 240;
+        const influence = 260;
 
-        // Soft attraction toward the cursor (smooth flow, no hard suction)
         if (dist < influence && dist > 0.01) {
-          const pull = (1 - dist / influence) * 0.5;
+          const t = 1 - dist / influence;
+          const pull = t * 0.9;
           p.vx += (dx / dist) * pull;
           p.vy += (dy / dist) * pull;
+
+          // Flow with the cursor: fast cursor -> fast smooth glide, slow -> gentle drift
+          p.vx += fx;
+          p.vy += fy;
         }
 
-        // Gentle pull back toward home position
-        p.vx += (p.homeX - p.x) * 0.02;
-        p.vy += (p.homeY - p.y) * 0.02;
+        // Smooth return to home position when the cursor is nowhere near
+        p.vx += (p.homeX - p.x) * 0.03;
+        p.vy += (p.homeY - p.y) * 0.03;
+
+        // Cap top speed so a violent flick can't fling dots around
+        const speed = Math.hypot(p.vx, p.vy);
+        const maxSpeed = 14;
+        if (speed > maxSpeed) {
+          const s = maxSpeed / speed;
+          p.vx *= s;
+          p.vy *= s;
+        }
 
         p.x += p.vx;
         p.y += p.vy;
 
-        // Smooth damping
-        p.vx *= 0.9;
-        p.vy *= 0.9;
+        // Stronger damping = silky smooth, no overshoot wobble
+        p.vx *= 0.88;
+        p.vy *= 0.88;
 
         // Wrap around edges
         if (p.x < -20) p.x = canvas.width + 20;
@@ -120,19 +163,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fill();
 
         // Connect nearby particles with faint lines (constellation feel)
-        for (const q of particles) {
-          if (q === p) continue;
-          const qdx = p.x - q.x;
-          const qdy = p.y - q.y;
-          const qdist = qdx * qdx + qdy * qdy;
-          if (qdist < 110 * 110) {
-            const a = (1 - Math.sqrt(qdist) / 110) * 0.08;
-            ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
-            ctx.lineWidth = 0.6;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.stroke();
+        const cx = Math.floor(p.x / CELL);
+        const cy = Math.floor(p.y / CELL);
+        for (let gx = cx - 1; gx <= cx + 1; gx++) {
+          for (let gy = cy - 1; gy <= cy + 1; gy++) {
+            const bucket = grid.get(cellKey(gx, gy));
+            if (!bucket) continue;
+            for (const q of bucket) {
+              if (q === p) continue;
+              const qdx = p.x - q.x;
+              const qdy = p.y - q.y;
+              const qdist = qdx * qdx + qdy * qdy;
+              if (qdist < LINK_DIST * LINK_DIST) {
+                const a = (1 - Math.sqrt(qdist) / LINK_DIST) * 0.08;
+                ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
+                ctx.lineWidth = 0.6;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(q.x, q.y);
+                ctx.stroke();
+              }
+            }
           }
         }
       }
