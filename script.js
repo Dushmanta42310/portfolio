@@ -345,7 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (pct < 100) {
         rafId = requestAnimationFrame(tick);
       } else {
-        finish();
+        // Intro sequence finished — reveal the "Let's Go" button and wait for the click.
+        loader.classList.add('is-ready');
       }
     }
 
@@ -377,13 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------- Interactive listeners ----------
     if (skipBtn) skipBtn.addEventListener('click', skip);
     loader.addEventListener('click', (e) => {
-      if (e.target === loader) {
-        spawnClickRing(e.clientX, e.clientY);
-        skip(e);
-      }
-    });
-    document.addEventListener('keydown', (e) => {
-      if (!done && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) skip(e);
+      if (e.target === loader) spawnClickRing(e.clientX, e.clientY);
     });
 
     // Any click on the screen during the intro spawns a ripple
@@ -417,8 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(tickCursorGlow);
     runTerminal();
 
-    // Failsafe: never let the loader trap the visitor if RAF stalls
-    removeTimer = setTimeout(finish, DURATION + 1500);
+    // Loader stays on screen until the user clicks "Let's Go" — no auto-dismiss.
 
     requestAnimationFrame(tick);
   })();
