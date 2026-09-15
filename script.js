@@ -43,7 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas ? canvas.getContext('2d') : null;
     let particles = [];
     let mouse = { x: -9999, y: -9999 };
-    const PARTICLE_COUNT = 1200;
+    let prevMouse = { x: -9999, y: -9999 };
+    let flowX = 0;
+    let flowY = 0; // smoothed cursor velocity, drives the interactive follow
+    const PARTICLE_COUNT = 700;
 
     function resizeCanvas() {
       if (!canvas) return;
@@ -80,29 +83,51 @@ document.addEventListener('DOMContentLoaded', () => {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduce) return;
 
+      // Smoothed cursor speed -> a 0..1 "intensity" factor (0 = still, 1 = fast flick)
+      const rawVX = mouse.x - prevMouse.x;
+      const rawVY = mouse.y - prevMouse.y;
+      prevMouse.x = mouse.x;
+      prevMouse.y = mouse.y;
+
+      flowX += (rawVX - flowX) * 0.12;
+      flowY += (rawVY - flowY) * 0.12;
+      const flowMag = Math.min(1, Math.hypot(flowX, flowY) / 24);
+
+      // Spatial grid keeps line-linking fast (avoids O(n^2) lag)
+      const LINK_DIST = 110;
+      const CELL = LINK_DIST;
+      const grid = new Map();
+      const cellKey = (cx, cy) => cx + ',' + cy;
+      for (const p of particles) {
+        const key = cellKey(Math.floor(p.x / CELL), Math.floor(p.y / CELL));
+        let bucket = grid.get(key);
+        if (!bucket) { bucket = []; grid.set(key, bucket); }
+        bucket.push(p);
+      }
+
       for (const p of particles) {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = 240;
+        const influence = 250;
 
-        // Soft attraction toward the cursor (smooth flow, no hard suction)
         if (dist < influence && dist > 0.01) {
-          const pull = (1 - dist / influence) * 0.5;
+          // EXACT original follow force — just scaled by cursor speed:
+          // still cursor = gentle, fast cursor = dots chase faster.
+          const pull = (1 - dist / influence) * (0.3 + flowMag * 0.42);
           p.vx += (dx / dist) * pull;
           p.vy += (dy / dist) * pull;
         }
 
-        // Gentle pull back toward home position
+        // Original home spring, damping raised for a smoother, softer glide
         p.vx += (p.homeX - p.x) * 0.02;
         p.vy += (p.homeY - p.y) * 0.02;
 
         p.x += p.vx;
         p.y += p.vy;
 
-        // Smooth damping
-        p.vx *= 0.9;
-        p.vy *= 0.9;
+        p.vx *= 0.94;
+        p.vy *= 0.94;
 
         // Wrap around edges
         if (p.x < -20) p.x = canvas.width + 20;
@@ -120,19 +145,27 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fill();
 
         // Connect nearby particles with faint lines (constellation feel)
-        for (const q of particles) {
-          if (q === p) continue;
-          const qdx = p.x - q.x;
-          const qdy = p.y - q.y;
-          const qdist = qdx * qdx + qdy * qdy;
-          if (qdist < 110 * 110) {
-            const a = (1 - Math.sqrt(qdist) / 110) * 0.08;
-            ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
-            ctx.lineWidth = 0.6;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(q.x, q.y);
-            ctx.stroke();
+        const cx = Math.floor(p.x / CELL);
+        const cy = Math.floor(p.y / CELL);
+        for (let gx = cx - 1; gx <= cx + 1; gx++) {
+          for (let gy = cy - 1; gy <= cy + 1; gy++) {
+            const bucket = grid.get(cellKey(gx, gy));
+            if (!bucket) continue;
+            for (const q of bucket) {
+              if (q === p) continue;
+              const qdx = p.x - q.x;
+              const qdy = p.y - q.y;
+              const qdist = qdx * qdx + qdy * qdy;
+              if (qdist < LINK_DIST * LINK_DIST) {
+                const a = (1 - Math.sqrt(qdist) / LINK_DIST) * 0.08;
+                ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
+                ctx.lineWidth = 0.6;
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(q.x, q.y);
+                ctx.stroke();
+              }
+            }
           }
         }
       }

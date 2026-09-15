@@ -3029,7 +3029,7 @@ body.loader-active {
   z-index: 4;
 }
 
-/* --- Welcome / Enter control (interactive) --- */
+/* --- Let's Go / Enter control (interactive) --- */
 .loader-skip {
   position: relative;
   margin-top: clamp(22px, 4vh, 36px);
@@ -3050,7 +3050,29 @@ body.loader-active {
   z-index: 5;
   opacity: 0;
   box-shadow: 0 0 24px rgba(56, 189, 248, 0.45);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, background 0.28s ease, color 0.28s ease, opacity 0.6s ease;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, opacity 0.6s ease;
+}
+
+/* Shimmer sweep on hover */
+.loader-skip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.22) 48%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.22) 52%, transparent 70%);
+  transform: translateX(-100%);
+  transition: none;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.loader-skip:hover::before {
+  animation: shimmerSweep 0.65s ease forwards;
+}
+
+@keyframes shimmerSweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .loader-screen.is-ready .loader-skip {
@@ -3059,25 +3081,25 @@ body.loader-active {
 
 .loader-skip:hover,
 .loader-skip:focus-visible {
-  transform: translateY(-3px) scale(1.07);
-  box-shadow: 0 0 40px rgba(56, 189, 248, 0.75), 0 8px 24px rgba(0, 0, 0, 0.45);
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 0 44px rgba(56, 189, 248, 0.8), 0 10px 28px rgba(0, 0, 0, 0.4);
   background: linear-gradient(100deg, var(--accent-purple), var(--accent-cyan));
   outline: none;
 }
 
 .loader-skip:active {
-  transform: translateY(0) scale(0.96);
+  transform: translateY(0) scale(0.95);
   box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
 }
 
 .loader-skip i {
   font-size: 0.8rem;
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .loader-skip:hover i,
 .loader-skip:focus-visible i {
-  transform: translateX(5px);
+  transform: translateX(7px);
 }
 
 /* --- Loader on small screens --- */
