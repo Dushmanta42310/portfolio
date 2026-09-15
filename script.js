@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas ? canvas.getContext('2d') : null;
     let particles = [];
     let mouse = { x: -9999, y: -9999 };
-    const PARTICLE_COUNT = 700;
+    const PARTICLE_COUNT = 1200;
 
     function resizeCanvas() {
       if (!canvas) return;
