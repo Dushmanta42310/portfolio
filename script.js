@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let prevMouse = { x: -9999, y: -9999 };
     let flowX = 0;
     let flowY = 0; // smoothed cursor velocity, drives the interactive follow
-    const PARTICLE_COUNT = 700;
+    const PARTICLE_COUNT = 2500;
 
     function resizeCanvas() {
       if (!canvas) return;
@@ -1154,6 +1154,455 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && certModal.classList.contains('is-open')) closeModal();
     });
+  }
+
+  // ============================================================
+  // 7. APK-style App Shell: Theme meta, bottom nav, action sheet
+  // ============================================================
+
+  // 7.0 Keep <meta theme-color> in sync with the active theme
+  const metaThemeColor = document.getElementById('meta-theme-color');
+  function syncMetaTheme() {
+    const isLight = htmlRoot.getAttribute('data-theme') === 'light';
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', isLight ? '#ffffff' : '#000000');
+    }
+  }
+  syncMetaTheme();
+
+  // Sync after every theme toggle (button + realistic bulb)
+  if (themeToggleBtn) themeToggleBtn.addEventListener('click', syncMetaTheme);
+  if (realisticBulb) realisticBulb.addEventListener('click', syncMetaTheme);
+
+  // 7.1 Bottom navigation ("tab bar")
+  document.body.classList.add('has-tabbar');
+
+  const tabbar = document.getElementById('app-tabbar');
+  const appTabs = document.querySelectorAll('.app-tab');
+  const indicator = document.getElementById('app-tab-indicator');
+
+  const TAB_TARGETS = {
+    '#hero': true,
+    '#about': true,
+    '#skills': true,
+    '#projects': true,
+    '#resume-certificates': 'more',
+    '#contact': 'more'
+  };
+
+  function setActiveTab(activeKey) {
+    let activeTabKey = activeKey;
+    if (activeKey && TAB_TARGETS[activeKey] === 'more') activeTabKey = 'more';
+    if (!activeKey) activeTabKey = 'home';
+
+    appTabs.forEach(tab => {
+      const key = tab.getAttribute('data-tab');
+      tab.classList.toggle('is-active', key === activeTabKey);
+    });
+
+    // Slide the indicator pill to the active tab.
+    // Anchor pill to the REAL first-tab geometry (tabs vary with flex layout),
+    // then animate movement via transform only.
+    if (indicator && appTabs.length) {
+      const active = Array.from(appTabs).find(t => t.getAttribute('data-tab') === activeTabKey);
+      const first = appTabs[0];
+      const last = appTabs[appTabs.length - 1];
+      if (first && last && active) {
+        const dx = active.offsetLeft - first.offsetLeft;
+        // Keep total span within the bar (last tab right edge minus pill width)
+        const barRight = last.offsetLeft + last.offsetWidth - first.offsetWidth;
+        indicator.style.left = first.offsetLeft + 'px';
+        indicator.style.width = first.offsetWidth + 'px';
+        indicator.style.transform = 'translateX(' + Math.min(dx, barRight - first.offsetLeft) + 'px)';
+        indicator.style.opacity = '1';
+      }
+    }
+  }
+
+  // Re-anchor the indicator whenever layout may have changed
+  window.addEventListener('resize', () => {
+    setTimeout(() => {
+      const currentActive = Array.from(appTabs).find(t => t.classList.contains('is-active'));
+      setActiveTab(currentActive ? currentActive.getAttribute('data-tab') : '');
+    }, 120);
+  });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      const currentActive = Array.from(appTabs).find(t => t.classList.contains('is-active'));
+      setActiveTab(currentActive ? currentActive.getAttribute('data-tab') : '');
+    });
+  }
+
+  // Scroll-spy: light up the tab matching the section in view
+  window.addEventListener('scroll', () => {
+    let currentId = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop - 140;
+      const sectionHeight = section.offsetHeight;
+      if (window.scrollY >= sectionTop && window.scrollY < sectionTop + sectionHeight) {
+        currentId = section.getAttribute('id');
+      }
+    });
+    setActiveTab('#' + currentId);
+  }, { passive: true });
+
+  // Click a tab → smooth-scroll to its section (+ open the sheet for "More")
+  appTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-tab');
+      if (target === 'more') {
+        openAppSheet();
+        return;
+      }
+      const el = document.querySelector(target);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.remove('app-tab-target');
+        void el.offsetWidth;
+        el.classList.add('app-tab-target');
+        setActiveTab(target);
+      }
+    });
+  });
+
+  // 7.2 Action sheet (the "More" menu)
+  const sheet = document.getElementById('app-sheet');
+  const sheetBackdrop = document.getElementById('app-sheet-backdrop');
+  const sheetClose = document.getElementById('app-sheet-close');
+
+  function openAppSheet() {
+    if (!sheet || !sheetBackdrop) return;
+    sheet.classList.add('is-open');
+    sheetBackdrop.classList.add('is-open');
+    sheetBackdrop.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAppSheet() {
+    if (!sheet || !sheetBackdrop) return;
+    sheet.classList.remove('is-open');
+    sheetBackdrop.classList.remove('is-open');
+    sheetBackdrop.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    setActiveTab('');
+  }
+
+  if (sheetBackdrop) sheetBackdrop.addEventListener('click', closeAppSheet);
+  if (sheetClose) sheetClose.addEventListener('click', closeAppSheet);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && sheet && sheet.classList.contains('is-open')) closeAppSheet();
+  });
+  document.querySelectorAll('[data-sheet-link]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const href = link.getAttribute('href');
+      const targetEl = document.querySelector(href);
+      sheet.classList.remove('is-open');
+      sheetBackdrop.classList.remove('is-open');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 120);
+      setActiveTab('');
+    });
+  });
+
+  // 7.3 PWA install prompt
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('app-install-btn');
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.hidden = false;
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.hidden = true;
+      }
+      deferredPrompt = null;
+    });
+  }
+
+  if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) {
+    if (installBtn) installBtn.hidden = true;
+  }
+
+  // Initial tab + indicator position after the layout settles
+  setTimeout(() => setActiveTab(''), 250);
+
+  // Track the active tab for swipe navigation
+  let appActiveTabKey = 'home';
+  const _origSetActiveTab = setActiveTab;
+  setActiveTab = function (key) {
+    _origSetActiveTab(key);
+    appActiveTabKey = key || 'home';
+  };
+
+  // Re-anchor indicator once the loader finishes and the tabbar becomes visible
+  window.addEventListener('portfolio:loaded', () => {
+    setTimeout(() => {
+      const currentActive = document.querySelector('.app-tab.is-active');
+      setActiveTab(currentActive ? currentActive.getAttribute('data-tab') : '#hero');
+    }, 100);
+  });
+
+  // ============================================================
+  // 8. App-gesture layer: toasts, status, pull-to-refresh, haptics, swipes
+  // ============================================================
+
+  // 8.1 Haptic feedback (native tap buzz where supported)
+  const canVibrate = typeof navigator !== 'undefined' && 'vibrate' in navigator;
+  function haptic(pattern) {
+    if (canVibrate) { try { navigator.vibrate(pattern); } catch (e) {} }
+  }
+
+  // 8.2 Toast notifications (app-style)
+  const toastContainer = document.getElementById('app-toast-container');
+  function showAppToast(message, type = 'info', duration = 2800) {
+    if (!toastContainer || !message) return;
+    const icons = {
+      info: 'fa-circle-info',
+      success: 'fa-circle-check',
+      error: 'fa-circle-exclamation',
+      warn: 'fa-triangle-exclamation'
+    };
+    const toast = document.createElement('div');
+    toast.className = 'app-toast toast-' + type;
+    toast.innerHTML =
+      '<i class="fa-solid ' + (icons[type] || icons.info) + '"></i><span>' + message + '</span>';
+    toastContainer.appendChild(toast);
+    haptic(12);
+
+    const timer = setTimeout(dismiss, duration);
+    function dismiss() {
+      toast.classList.add('is-leaving');
+      setTimeout(() => toast.remove(), 300);
+    }
+    toast.addEventListener('click', () => { clearTimeout(timer); dismiss(); });
+  }
+  window.showAppToast = showAppToast;
+
+  // 8.3 Online / Offline status banner
+  const statusBanner = document.getElementById('app-status-banner');
+  const statusText = document.getElementById('app-status-text');
+  const statusIcon = document.getElementById('app-status-icon');
+
+  let offlineTimer = null;
+  function setOnlineUI(isOnline) {
+    if (!statusBanner || !statusText || !statusIcon) return;
+    clearTimeout(offlineTimer);
+    if (isOnline) {
+      statusBanner.classList.add('is-online');
+      statusText.textContent = 'Back online';
+      statusIcon.className = 'fa-solid fa-wifi';
+      statusBanner.classList.add('is-visible');
+      offlineTimer = setTimeout(() => statusBanner.classList.remove('is-visible'), 2400);
+    } else {
+      statusBanner.classList.remove('is-online');
+      statusText.textContent = 'Offline — showing saved content';
+      statusIcon.className = 'fa-solid fa-wifi';
+      statusBanner.classList.add('is-visible');
+      showAppToast('You are offline', 'warn');
+    }
+  }
+
+  window.addEventListener('online', () => setOnlineUI(true));
+  window.addEventListener('offline', () => setOnlineUI(false));
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) setOnlineUI(false);
+
+  // 8.4 Pull-to-refresh (touch-only; only when scrolled to the top)
+  const pullIndicatorEl = document.getElementById('app-pull-indicator');
+  const pullIcon = document.getElementById('app-pull-icon');
+  const pullTextEl = document.getElementById('app-pull-text');
+  let ptr = { active: false, startY: 0, pull: 0, touchId: null };
+  const PTR_THRESHOLD = 92;
+  const PTR_MAX = 118;
+
+  function isTouchDevice() {
+    return window.matchMedia('(hover: none) and (pointer: coarse)').matches ||
+           ('ontouchstart' in window);
+  }
+
+  if (isTouchDevice() && pullIndicatorEl) {
+    document.addEventListener('touchstart', (e) => {
+      if (ptr.active || window.scrollY > 2) return;
+      if (e.target.closest('.app-sheet') || e.target.closest('.app-tabbar')) return;
+      ptr.active = true;
+      ptr.startY = e.touches[0].clientY;
+      ptr.pull = 0;
+      document.body.classList.add('is-ptr');
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!ptr.active) return;
+      const y = e.touches[0].clientY;
+      const delta = y - ptr.startY;
+      if (delta < 2 || window.scrollY > 2) return;
+      ptr.pull = Math.min(PTR_MAX, delta * 0.5);
+      if (ptr.pull > 0) e.preventDefault();
+      pullIndicatorEl.style.transform =
+        'translateX(-50%) translateY(' + (ptr.pull - 100) + 'px)';
+      pullIndicatorEl.style.transition = 'none';
+      document.documentElement.style.overscrollBehaviorY = 'none';
+
+      const ready = ptr.pull >= PTR_THRESHOLD;
+      pullIndicatorEl.classList.toggle('is-ready', ready);
+      if (pullTextEl) pullTextEl.textContent = ready ? 'Release to refresh' : 'Pull to refresh';
+      if (pullIcon) {
+        pullIcon.style.transform = 'rotate(' + (ptr.pull * 2) + 'deg)';
+      }
+    }, { passive: false });
+
+    function endPtr() {
+      if (!ptr.active) return;
+      const shouldReload = ptr.pull >= PTR_THRESHOLD;
+      ptr.active = false;
+      document.body.classList.remove('is-ptr');
+      document.documentElement.style.overscrollBehaviorY = '';
+
+      if (shouldReload) {
+        haptic([30, 30, 30]);
+        pullIndicatorEl.classList.remove('is-ready');
+        pullIndicatorEl.classList.add('is-spinning');
+        pullIndicatorEl.style.transform = 'translateX(-50%) translateY(0)';
+        pullIndicatorEl.style.transition = 'transform 0.3s ease';
+        if (pullTextEl) pullTextEl.textContent = 'Refreshing...';
+        setTimeout(() => window.location.reload(), 650);
+      } else {
+        pullIndicatorEl.style.transition = 'transform 0.3s cubic-bezier(0.16,1,0.3,1)';
+        pullIndicatorEl.style.transform = 'translateX(-50%) translateY(-100%)';
+        if (pullIcon) pullIcon.style.transform = '';
+      }
+    }
+
+    document.addEventListener('touchend', endPtr, { passive: true });
+    document.addEventListener('touchcancel', endPtr, { passive: true });
+  }
+
+  // 8.5 Edge-swipe navigation between app tabs (Android-style gesture nav)
+  const TAB_ORDER = ['home', 'about', 'skills', 'projects', 'more'];
+  const TAB_SELECTOR = {
+    home: '#hero',
+    about: '#about',
+    skills: '#skills',
+    projects: '#projects'
+  };
+  let edgeSwipe = null;
+
+  function switchAppTab(direction) {
+    if (!appActiveTabKey) appActiveTabKey = 'home';
+    let idx = TAB_ORDER.indexOf(appActiveTabKey);
+    if (idx === -1) idx = 0;
+    idx += direction;
+    idx = Math.max(0, Math.min(TAB_ORDER.length - 1, idx));
+    const target = TAB_ORDER[idx];
+    haptic(15);
+    if (target === 'more') { openAppSheet(); return; }
+    const el = document.querySelector(TAB_SELECTOR[target]);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      el.classList.remove('app-tab-target');
+      void el.offsetWidth;
+      el.classList.add('app-tab-target');
+    }
+  }
+
+  if (isTouchDevice()) {
+    document.addEventListener('touchstart', (e) => {
+      if (!e.touches.length) return;
+      const x = e.touches[0].clientX;
+      // Only react to swipes that start near the left/right screen edge
+      if (x > 52 && x < window.innerWidth - 52) return;
+      if (e.target.closest('.app-sheet') || e.target.closest('.app-tabbar')) return;
+      edgeSwipe = { startX: x, startY: e.touches[0].clientY };
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (!edgeSwipe) return;
+      const t = e.changedTouches && e.changedTouches[0];
+      if (!t) { edgeSwipe = null; return; }
+      const dx = t.clientX - edgeSwipe.startX;
+      const dy = t.clientY - edgeSwipe.startY;
+      edgeSwipe = null;
+      if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+        switchAppTab(dx < 0 ? 1 : -1);
+      }
+    }, { passive: true });
+  }
+
+  // 8.6 Drag down to close the action sheet (app feel)
+  let sheetDrag = null;
+  if (sheet && isTouchDevice()) {
+    sheet.addEventListener('touchstart', (e) => {
+      if (!sheet.classList.contains('is-open')) return;
+      sheetDrag = { startY: e.touches[0].clientY, dy: 0 };
+    }, { passive: true });
+
+    sheet.addEventListener('touchmove', (e) => {
+      if (!sheetDrag) return;
+      sheetDrag.dy = e.touches[0].clientY - sheetDrag.startY;
+      if (sheetDrag.dy < 0) return; // ignore upward drags inside the sheet
+      const shift = Math.min(sheetDrag.dy, 200);
+      sheet.style.transition = 'none';
+      sheet.style.transform = 'translate(-50%, ' + shift + 'px)';
+      sheetBackdrop.style.opacity = String(Math.max(0, 1 - shift / 300));
+    }, { passive: true });
+
+    function endSheetDrag() {
+      if (!sheetDrag) return;
+      const dy = sheetDrag.dy;
+      sheetDrag = null;
+      if (dy > 90) {
+        closeAppSheet();
+      } else {
+        sheet.style.transition = '';
+        sheet.style.transform = '';
+        sheetBackdrop.style.opacity = '';
+        haptic(14);
+      }
+    }
+    sheet.addEventListener('touchend', endSheetDrag, { passive: true });
+    sheet.addEventListener('touchcancel', endSheetDrag, { passive: true });
+  }
+
+  // 8.7 Swipe up on the tab bar to open the "More" sheet
+  if (tabbar && isTouchDevice()) {
+    let upSwipe = null;
+    tabbar.addEventListener('touchstart', (e) => {
+      upSwipe = { startY: e.touches[0].clientY, fired: false };
+    }, { passive: true });
+
+    tabbar.addEventListener('touchmove', (e) => {
+      if (!upSwipe || upSwipe.fired) return;
+      const dy = e.touches[0].clientY - upSwipe.startY;
+      if (dy < -42) {
+        upSwipe.fired = true;
+        openAppSheet();
+        haptic(20);
+      }
+    }, { passive: true });
+
+    tabbar.addEventListener('touchend', () => { upSwipe = null; }, { passive: true });
+  }
+
+  // 8.8 Wire haptic feedback into existing taps (app feel, web + installed)
+  document.addEventListener('pointerdown', (e) => {
+    const tapEl = e.target.closest('button, .app-tab, .btn, .social-pill, .direct-card, .cert-card');
+    if (tapEl) haptic(14);
+  });
+
+  // Toast welcome back tip when the app is opened installed (standalone)
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    setTimeout(() =>
+      showAppToast('Welcome back to Dushmanta.dev app', 'info', 3200), 1800);
   }
 });
 

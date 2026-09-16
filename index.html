@@ -2,9 +2,21 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Dushmanta Das | DBA · Web Developer · Data Analytics · AI/ML · Cloud Engineer</title>
   <meta name="description" content="Portfolio of Dushmanta Das - DBA, Web Developer, Data Analytics, AI/ML, and Cloud Engineer skilled in SQL, PL/SQL, Python, Power BI, and modern web applications.">
+  
+  <!-- PWA / App-like Meta Tags -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000000" id="meta-theme-color" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Dushmanta.dev" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
+  
   <link rel="stylesheet" href="style.css?v=3.3" />
   
   <!-- Modern Google Fonts -->
@@ -20,6 +32,25 @@
 </head>
 
 <body class="loader-active">
+  <!-- App-style Toast Notifications -->
+  <div class="app-toast-container" id="app-toast-container" aria-live="polite" aria-label="Notifications"></div>
+
+  <!-- Offline / Back-online Status Banner -->
+  <div class="app-status-banner" id="app-status-banner" hidden>
+    <div class="app-status-banner-inner">
+      <i class="fa-solid fa-wifi" id="app-status-icon"></i>
+      <span id="app-status-text">You are offline</span>
+    </div>
+  </div>
+
+  <!-- Pull-to-Refresh Indicator (native app gesture) -->
+  <div class="app-pull-indicator" id="app-pull-indicator" aria-hidden="true">
+    <div class="app-pull-icon" id="app-pull-icon">
+      <i class="fa-solid fa-arrows-down-to-line"></i>
+    </div>
+    <span id="app-pull-text">Pull to refresh</span>
+  </div>
+
   <!-- Interactive Intro Loader: particles, cursor glow, terminal typing, bouncing dot -->
   <div class="loader-screen" id="loader-screen" role="status" aria-live="polite" aria-label="Loading Dushmanta portfolio">
     <!-- Mouse-reactive particle canvas -->
@@ -794,9 +825,96 @@
     </div>
   </footer>
 
+  <!-- APK-style Bottom Navigation Bar -->
+  <nav class="app-tabbar" id="app-tabbar" aria-label="App navigation">
+    <button class="app-tab is-active" data-tab="#hero" type="button">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </button>
+    <button class="app-tab" data-tab="#about" type="button">
+      <i class="fa-solid fa-user"></i>
+      <span>About</span>
+    </button>
+    <button class="app-tab" data-tab="#skills" type="button">
+      <i class="fa-solid fa-layer-group"></i>
+      <span>Skills</span>
+    </button>
+    <button class="app-tab" data-tab="#projects" type="button">
+      <i class="fa-solid fa-code"></i>
+      <span>Projects</span>
+    </button>
+    <button class="app-tab" data-tab="more" type="button">
+      <i class="fa-solid fa-ellipsis"></i>
+      <span>More</span>
+    </button>
+    <div class="app-tab-indicator" id="app-tab-indicator" aria-hidden="true"></div>
+  </nav>
+
+  <!-- App-style Action Sheet (More menu) -->
+  <div class="app-sheet-backdrop" id="app-sheet-backdrop" aria-hidden="true"></div>
+  <div class="app-sheet" id="app-sheet" role="dialog" aria-modal="true" aria-label="More options">
+    <div class="app-sheet-handle" aria-hidden="true"></div>
+    <div class="app-sheet-header">
+      <h4 class="app-sheet-title">Explore</h4>
+      <button type="button" class="app-sheet-close" id="app-sheet-close" aria-label="Close menu">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="app-sheet-list">
+      <a href="#resume-certificates" class="app-sheet-item" data-sheet-link>
+        <i class="fa-solid fa-file-lines"></i>
+        <span>
+          <strong>Resume & Certs</strong>
+          <small>Credentials & curriculum vitae</small>
+        </span>
+      </a>
+      <a href="#contact" class="app-sheet-item" data-sheet-link>
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>
+          <strong>Get in Touch</strong>
+          <small>Let's connect & collaborate</small>
+        </span>
+      </a>
+      <a href="https://github.com/Dushmanta42310" target="_blank" rel="noopener noreferrer" class="app-sheet-item">
+        <i class="fa-brands fa-github"></i>
+        <span>
+          <strong>GitHub</strong>
+          <small>Explore source codes</small>
+        </span>
+      </a>
+      <a href="https://www.linkedin.com/in/dushmanta-das-3455a2327/" target="_blank" rel="noopener noreferrer" class="app-sheet-item">
+        <i class="fa-brands fa-linkedin-in"></i>
+        <span>
+          <strong>LinkedIn</strong>
+          <small>Connect with me</small>
+        </span>
+      </a>
+      <a href="https://wa.me/917008233179" target="_blank" rel="noopener noreferrer" class="app-sheet-item">
+        <i class="fa-brands fa-whatsapp"></i>
+        <span>
+          <strong>WhatsApp</strong>
+          <small>Fast response</small>
+        </span>
+      </a>
+    </div>
+    <button type="button" class="app-install-section" id="app-install-btn" hidden>
+      <i class="fa-solid fa-download"></i>
+      <span>Install App</span>
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <script src="script.js?v=2.2"></script>
+  <script>
+    // Register the service worker for offline / installable PWA support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

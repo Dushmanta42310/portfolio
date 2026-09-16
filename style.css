@@ -86,6 +86,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -3161,4 +3162,539 @@ body.loader-active {
     animation-delay: 0ms;
     opacity: 1;
   }
+}
+
+/* ==========================================================================
+   APK-STYLE APP SHELL (Bottom Navigation, Sheets, Safe Areas)
+   ========================================================================== */
+
+/* Content leaves breathing room above the fixed bottom tab bar */
+body.has-tabbar main,
+body.has-tabbar .hero-section,
+body.has-tabbar .about-section,
+body.has-tabbar .skills-section,
+body.has-tabbar .projects-section,
+body.has-tabbar .resume-cert-section,
+body.has-tabbar .contact-section,
+body.has-tabbar footer {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+/* --- Floating App Bottom Tab Bar --- */
+.app-tabbar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  transform: translateX(-50%);
+  width: min(430px, calc(100% - 24px));
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: rgba(10, 10, 14, 0.82);
+  border: 1px solid var(--border-color-hover);
+  border-radius: 24px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(56, 189, 248, 0.08);
+  z-index: 950;
+  padding: 6px;
+}
+
+[data-theme="light"] .app-tabbar {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.14), 0 0 0 1px rgba(2, 132, 199, 0.1);
+}
+
+.app-tab {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 62px;
+  height: 54px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.app-tab i {
+  font-size: 1.15rem;
+  transition: transform var(--transition-smooth), color var(--transition-fast);
+}
+
+.app-tab span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.app-tab.is-active {
+  color: var(--accent-cyan);
+}
+
+.app-tab.is-active i {
+  transform: translateY(-1px);
+}
+
+/* ---- App-style sliding indicator pill behind active tab ---- */
+.app-tab-indicator {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  width: 62px;
+  height: 42px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(56, 189, 248, 0.18), rgba(168, 85, 247, 0.14));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.18);
+  transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+  z-index: 1;
+  pointer-events: none;
+  will-change: transform;
+  opacity: 0;
+}
+
+[data-theme="light"] .app-tab-indicator {
+  background: linear-gradient(160deg, rgba(2, 132, 199, 0.14), rgba(147, 51, 234, 0.12));
+}
+
+/* Active tab press feedback (native tap feel) */
+.app-tab:active {
+  transform: scale(0.92);
+}
+
+.app-tab:active i {
+  transform: scale(0.9);
+}
+
+/* --- Action Sheet backdrop & panel --- */
+.app-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 990;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.app-sheet-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.app-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 110%);
+  width: min(460px, 100%);
+  z-index: 995;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-hover);
+  border-bottom: none;
+  border-radius: 26px 26px 0 0;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  box-shadow: 0 -12px 44px rgba(0, 0, 0, 0.6);
+  padding: 10px 18px calc(20px + env(safe-area-inset-bottom, 0px));
+  transition: transform 0.42s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+  max-height: 78vh;
+}
+
+.app-sheet.is-open {
+  transform: translate(-50%, 0);
+}
+
+[data-theme="light"] .app-sheet {
+  background: var(--bg-card);
+  box-shadow: 0 -12px 44px rgba(0, 0, 0, 0.16);
+}
+
+.app-sheet-handle {
+  width: 44px;
+  height: 5px;
+  border-radius: 100px;
+  background: var(--text-muted);
+  opacity: 0.4;
+  margin: 4px auto 12px;
+}
+
+.app-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.app-sheet-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.app-sheet-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--badge-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.app-sheet-close:hover {
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.app-sheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.app-sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 16px;
+  border-radius: 16px;
+  background: var(--badge-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.app-sheet-item:hover {
+  border-color: var(--accent-cyan);
+  transform: translateY(-2px);
+  box-shadow: var(--glow-cyan);
+}
+
+.app-sheet-item > i {
+  font-size: 1.15rem;
+  color: var(--accent-cyan);
+  width: 26px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.app-sheet-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-sheet-item strong {
+  font-size: 0.92rem;
+}
+
+.app-sheet-item small {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+}
+
+/* Install App row shown inside the sheet when the PWA is installable */
+.app-install-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: linear-gradient(160deg, rgba(56, 189, 248, 0.14), rgba(168, 85, 247, 0.1));
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.app-install-section > i:first-child {
+  color: var(--accent-cyan);
+  font-size: 1.2rem;
+}
+
+.app-install-section > i:last-child {
+  margin-left: auto;
+  color: var(--text-muted);
+}
+
+.app-install-section[hidden] {
+  display: none;
+}
+
+.app-install-section:hover {
+  border-color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+  transform: translateY(-2px);
+}
+
+/* --- Desktop: keep the bar out of the way but still usable --- */
+@media (min-width: 900px) {
+  .app-tab span {
+    font-size: 0.62rem;
+  }
+}
+
+/* --- Hide the tab bar ONLY while the intro loader is showing --- */
+body.loader-active .app-tabbar,
+body.loader-active .app-sheet-backdrop,
+body.loader-active .app-sheet {
+  display: none;
+}
+
+/* --- App-like page soft transition on tab switching --- */
+@keyframes appPageIn {
+  from { opacity: 0.4; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.app-tab-target {
+  animation: appPageIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Keep scrollbar styling consistent with the floating bar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 100px;
+}
+
+/* ==========================================================================
+   APP-INTERACTION LAYER (Toasts, Status banner, Pull-to-refresh)
+   ========================================================================== */
+
+/* Hide interactive overlays while the intro loader is active */
+body.loader-active .app-toast-container,
+body.loader-active .app-status-banner,
+body.loader-active .app-pull-indicator {
+  display: none;
+}
+
+/* --- Toast Notifications (native app style) --- */
+.app-toast-container {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(360px, calc(100% - 32px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 1200;
+  pointer-events: none;
+}
+
+.app-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 11px 16px;
+  border-radius: 14px;
+  background: rgba(20, 20, 26, 0.92);
+  border: 1px solid var(--border-color-hover);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(56, 189, 248, 0.1);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+[data-theme="light"] .app-toast {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(2, 132, 199, 0.1);
+}
+
+.app-toast.is-leaving {
+  animation: toastOut 0.28s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.app-toast i {
+  color: var(--accent-cyan);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.app-toast.toast-success i { color: var(--accent-emerald); }
+.app-toast.toast-error i { color: #ef4444; }
+.app-toast.toast-warn i { color: #f59e0b; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-14px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-10px) scale(0.95); }
+}
+
+/* --- Online / Offline Status Banner --- */
+.app-status-banner {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  z-index: 1150;
+  background: linear-gradient(120deg, #7f1d1d, #b91c1c);
+  color: #ffffff;
+  font-family: var(--font-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  transform: translateY(-100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.app-status-banner.is-visible {
+  transform: translateY(0);
+}
+
+.app-status-banner.is-online {
+  background: linear-gradient(120deg, #065f46, #059669);
+}
+
+.app-status-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 16px calc(11px + env(safe-area-inset-top, 0px));
+}
+
+.app-status-banner-inner i {
+  font-size: 1rem;
+}
+
+/* Preview pull during gesture: prevent browser bounce / native refresh */
+body.is-ptr,
+body.is-ptr * {
+  overscroll-behavior-y: contain;
+}
+
+/* --- Pull-to-Refresh Indicator --- */
+.app-pull-indicator {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-110%);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 22px calc(14px + env(safe-area-inset-top, 0px));
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 0.74rem;
+  font-weight: 600;
+  border-radius: 0 0 18px 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-hover);
+  border-top: none;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease-out;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.app-pull-indicator.is-ready {
+  color: var(--accent-cyan);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.app-pull-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-size: 0.95rem;
+  transition: transform 0.2s ease;
+}
+
+.app-pull-indicator.is-spinning .app-pull-icon {
+  border-style: dashed;
+}
+
+.app-pull-indicator.is-spinning .app-pull-icon i {
+  display: none;
+}
+
+.app-pull-indicator.is-spinning .app-pull-icon {
+  animation: pullSpin 0.7s linear infinite;
+}
+
+.app-pull-indicator.is-spinning {
+  color: var(--accent-cyan);
+}
+
+@keyframes pullSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Edge-swipe hint pill (subtle affordance for section swipes) */
+.app-edge-hint {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 960;
+  width: 40px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color-hover);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  color: var(--accent-cyan);
+  font-size: 0.9rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.app-edge-hint.left { left: 8px; }
+.app-edge-hint.right { right: 8px; }
+
+.app-edge-hint.is-visible {
+  opacity: 0.9;
+  transform: translateY(-50%) scale(1.05);
 }
