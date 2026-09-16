@@ -46,7 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let prevMouse = { x: -9999, y: -9999 };
     let flowX = 0;
     let flowY = 0; // smoothed cursor velocity, drives the interactive follow
-    const PARTICLE_COUNT = 3000;
+    // Desktop/web gets the full particle field; phones and the installed app (APK/PWA) get fewer for smoother, cleaner visuals
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    const isSmallScreen = window.innerWidth < 768;
+    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 900 : 7000;
 
     function resizeCanvas() {
       if (!canvas) return;
