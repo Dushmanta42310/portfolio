@@ -1219,6 +1219,24 @@ document.addEventListener('DOMContentLoaded', () => {
     '#contact': 'more'
   };
 
+  // Slide the indicator pill to whichever tab has the given key.
+  // Anchor pill to the REAL first-tab geometry (tabs vary with flex layout),
+  // then animate movement via transform only.
+  function slidePillTo(activeKey) {
+    if (!indicator || !appTabs.length) return;
+    const active = Array.from(appTabs).find(t => t.getAttribute('data-tab') === activeKey);
+    const first = appTabs[0];
+    const last = appTabs[appTabs.length - 1];
+    if (!first || !last || !active) return;
+    const dx = active.offsetLeft - first.offsetLeft;
+    // Keep total span within the bar (last tab right edge minus pill width)
+    const barRight = last.offsetLeft + last.offsetWidth - first.offsetWidth;
+    indicator.style.left = first.offsetLeft + 'px';
+    indicator.style.width = first.offsetWidth + 'px';
+    indicator.style.transform = 'translateX(' + Math.min(dx, barRight - first.offsetLeft) + 'px)';
+    indicator.style.opacity = '1';
+  }
+
   function setActiveTab(activeKey) {
     let activeTabKey = activeKey;
     if (activeKey && TAB_TARGETS[activeKey] === 'more') activeTabKey = 'more';
@@ -1229,23 +1247,7 @@ document.addEventListener('DOMContentLoaded', () => {
       tab.classList.toggle('is-active', key === activeTabKey);
     });
 
-    // Slide the indicator pill to the active tab.
-    // Anchor pill to the REAL first-tab geometry (tabs vary with flex layout),
-    // then animate movement via transform only.
-    if (indicator && appTabs.length) {
-      const active = Array.from(appTabs).find(t => t.getAttribute('data-tab') === activeTabKey);
-      const first = appTabs[0];
-      const last = appTabs[appTabs.length - 1];
-      if (first && last && active) {
-        const dx = active.offsetLeft - first.offsetLeft;
-        // Keep total span within the bar (last tab right edge minus pill width)
-        const barRight = last.offsetLeft + last.offsetWidth - first.offsetWidth;
-        indicator.style.left = first.offsetLeft + 'px';
-        indicator.style.width = first.offsetWidth + 'px';
-        indicator.style.transform = 'translateX(' + Math.min(dx, barRight - first.offsetLeft) + 'px)';
-        indicator.style.opacity = '1';
-      }
-    }
+    slidePillTo(activeTabKey);
   }
 
   // Re-anchor the indicator whenever layout may have changed
@@ -1293,6 +1295,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Desktop hover preview: the pill glides toward the hovered tab, then
+  // springs back to the active tab when the pointer leaves. Touch users get
+  // the same glide when they tap (via setActiveTab) — no hover jank on phones.
+  if (window.matchMedia('(hover: hover)').matches) {
+    appTabs.forEach(tab => {
+      const key = tab.getAttribute('data-tab');
+      tab.addEventListener('pointerenter', () => slidePillTo(key));
+      tab.addEventListener('pointerleave', () => {
+        const current = Array.from(appTabs).find(t => t.classList.contains('is-active'));
+        slidePillTo(current ? current.getAttribute('data-tab') : '#hero');
+      });
+    });
+  }
 
   // 7.2 Action sheet (the "More" menu)
   const sheet = document.getElementById('app-sheet');
