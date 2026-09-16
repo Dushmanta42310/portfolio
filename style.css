@@ -2803,17 +2803,11 @@ body.loader-active {
   color: #ffffff;
   opacity: 0;
   transform: translateY(18px);
-  filter: blur(6px);
-  animation: ltrIn 0.8s ease-out forwards;
+  animation: ltrInMobile 0.8s ease-out forwards;
   animation-delay: calc(0.2s + var(--i) * 90ms);
 }
 
-@keyframes ltrIn {
-  from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
-  to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
-}
-
-/* Blur-free variant for small screens where filter animation makes it janky */
+/* Bright, crisp letter drop-in (no blur filter — blur looked smeared on desktop) */
 @keyframes ltrInMobile {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
