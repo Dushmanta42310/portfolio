@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let prevMouse = { x: -9999, y: -9999 };
     let flowX = 0;
     let flowY = 0; // smoothed cursor velocity, drives the interactive follow
-    const PARTICLE_COUNT = 2500;
+    const PARTICLE_COUNT = 3000;
 
     function resizeCanvas() {
       if (!canvas) return;
