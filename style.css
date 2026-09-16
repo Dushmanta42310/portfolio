@@ -2791,10 +2791,12 @@ body.loader-active {
 }
 
 /* Gentle letter drop-in: smooth, no flash. */
+/* Font size is width-aware so "DUSHMANTA.DEV" always fits every screen
+   (13 glyphs ~= 10.4vw + a few px), while huge monitors keep the big look. */
 .loader-word .ltr {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(2.5rem, 12vw, 7rem);
+  font-size: clamp(2rem, min(12vw, calc(10.4vw - 4px)), 7rem);
   line-height: 1;
   letter-spacing: -0.03em;
   color: #ffffff;
@@ -2815,7 +2817,7 @@ body.loader-active {
 .loader-word .dev-ltr {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(2.5rem, 12vw, 7rem);
+  font-size: clamp(2rem, min(12vw, calc(10.4vw - 4px)), 7rem);
   line-height: 1;
   letter-spacing: -0.03em;
   color: #ffffff;
@@ -3108,7 +3110,7 @@ body.loader-active {
   .loader-word .ltr,
   .loader-word .dev-dot,
   .loader-word .dev-ltr {
-    font-size: clamp(2.15rem, 13.5vw, 4.2rem);
+    font-size: clamp(1.75rem, min(12vw, calc(10.4vw - 4px)), 4.2rem);
   }
 
   .loader-hopper {

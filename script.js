@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     const isSmallScreen = window.innerWidth < 768;
     const showLinks = !isSmallScreen && !isStandalone;
-    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 450 : 7000;
+    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 400 : 7000;
 
     function resizeCanvas() {
       if (!canvas) return;
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
           homeY: y,
           vx: 0,
           vy: 0,
-          r: Math.random() * 2 + 0.6,
+          r: Math.random() * (isSmallScreen ? 1.4 : 2) + (isSmallScreen ? 0.45 : 0.6),
           baseR: 0,
           hue: Math.random() < 0.6 ? 199 : 262,
           pulse: Math.random() * Math.PI * 2,
