@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     const isSmallScreen = window.innerWidth < 768;
     const showLinks = !isSmallScreen && !isStandalone;
-    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 400 : 7000;
+    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 400 : 3000;
 
     function resizeCanvas() {
       if (!canvas) return;
