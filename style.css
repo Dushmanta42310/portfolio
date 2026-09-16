@@ -2812,6 +2812,12 @@ body.loader-active {
   to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
 }
 
+/* Blur-free variant for small screens where filter animation makes it janky */
+@keyframes ltrInMobile {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ".dev" extension stays hidden until the hopping dot lands on it */
 .loader-word .dev-dot,
 .loader-word .dev-ltr {
@@ -3110,7 +3116,16 @@ body.loader-active {
   .loader-word .ltr,
   .loader-word .dev-dot,
   .loader-word .dev-ltr {
-    font-size: clamp(1.75rem, min(12vw, calc(10.4vw - 4px)), 4.2rem);
+    font-size: clamp(1.5rem, min(12vw, calc(9.3vw - 2px)), 4.2rem);
+  }
+
+  .loader-word .ltr {
+    animation-name: ltrInMobile;
+  }
+
+  /* Keep the screen clean and fast: no hazy blend orb on phones */
+  .loader-cursor-glow {
+    display: none;
   }
 
   .loader-hopper {
@@ -3129,11 +3144,6 @@ body.loader-active {
   .loader-avatar-ring {
     width: 52px;
     height: 52px;
-  }
-
-  .loader-cursor-glow {
-    width: 60px;
-    height: 60px;
   }
 }
 

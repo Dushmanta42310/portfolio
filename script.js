@@ -49,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Desktop/web gets the full particle field; phones and the installed app (APK/PWA) get fewer for smoother, cleaner visuals
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     const isSmallScreen = window.innerWidth < 768;
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
     const showLinks = !isSmallScreen && !isStandalone;
-    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 400 : 3000;
+    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 250 : 3000;
 
     function resizeCanvas() {
       if (!canvas) return;
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Pulsing brightness
         p.pulse += 0.03;
-        const alpha = 0.3 + Math.sin(p.pulse) * 0.2 + 0.15;
+        const alpha = (0.3 + Math.sin(p.pulse) * 0.2 + 0.15) * (isSmallScreen ? 0.6 : 1);
 
         ctx.beginPath();
         ctx.fillStyle = 'hsla(' + p.hue + ', 90%, 65%, ' + Math.max(0.05, alpha) + ')';
@@ -449,7 +450,12 @@ document.addEventListener('DOMContentLoaded', () => {
     resizeCanvas();
     spawnParticles();
     requestAnimationFrame(drawParticles);
-    requestAnimationFrame(tickCursorGlow);
+    // Glow orb is pointless (and hazy) on touch-only devices
+    if (isTouchDevice) {
+      if (cursorGlow) cursorGlow.style.display = 'none';
+    } else {
+      requestAnimationFrame(tickCursorGlow);
+    }
     runTerminal();
 
     // Loader stays on screen until the user clicks "Let's Go" — no auto-dismiss.
