@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isSmallScreen = window.innerWidth < 768;
     const isTouchDevice = window.matchMedia('(hover: none)').matches;
     const showLinks = !isSmallScreen && !isStandalone;
-    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 250 : 3000;
+    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 250 : 1000;
 
     function resizeCanvas() {
       if (!canvas) return;
