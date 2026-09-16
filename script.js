@@ -49,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Desktop/web gets the full particle field; phones and the installed app (APK/PWA) get fewer for smoother, cleaner visuals
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     const isSmallScreen = window.innerWidth < 768;
-    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 900 : 7000;
+    const showLinks = !isSmallScreen && !isStandalone;
+    const PARTICLE_COUNT = (isSmallScreen || isStandalone) ? 450 : 7000;
 
     function resizeCanvas() {
       if (!canvas) return;
@@ -147,26 +148,29 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Connect nearby particles with faint lines (constellation feel)
-        const cx = Math.floor(p.x / CELL);
-        const cy = Math.floor(p.y / CELL);
-        for (let gx = cx - 1; gx <= cx + 1; gx++) {
-          for (let gy = cy - 1; gy <= cy + 1; gy++) {
-            const bucket = grid.get(cellKey(gx, gy));
-            if (!bucket) continue;
-            for (const q of bucket) {
-              if (q === p) continue;
-              const qdx = p.x - q.x;
-              const qdy = p.y - q.y;
-              const qdist = qdx * qdx + qdy * qdy;
-              if (qdist < LINK_DIST * LINK_DIST) {
-                const a = (1 - Math.sqrt(qdist) / LINK_DIST) * 0.08;
-                ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
-                ctx.lineWidth = 0.6;
-                ctx.beginPath();
-                ctx.moveTo(p.x, p.y);
-                ctx.lineTo(q.x, q.y);
-                ctx.stroke();
+        // Connect nearby particles with faint lines (constellation feel).
+        // Skipped on phones/installed app where it only adds visual fog.
+        if (showLinks) {
+          const cx = Math.floor(p.x / CELL);
+          const cy = Math.floor(p.y / CELL);
+          for (let gx = cx - 1; gx <= cx + 1; gx++) {
+            for (let gy = cy - 1; gy <= cy + 1; gy++) {
+              const bucket = grid.get(cellKey(gx, gy));
+              if (!bucket) continue;
+              for (const q of bucket) {
+                if (q === p) continue;
+                const qdx = p.x - q.x;
+                const qdy = p.y - q.y;
+                const qdist = qdx * qdx + qdy * qdy;
+                if (qdist < LINK_DIST * LINK_DIST) {
+                  const a = (1 - Math.sqrt(qdist) / LINK_DIST) * 0.08;
+                  ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
+                  ctx.lineWidth = 0.6;
+                  ctx.beginPath();
+                  ctx.moveTo(p.x, p.y);
+                  ctx.lineTo(q.x, q.y);
+                  ctx.stroke();
+                }
               }
             }
           }
