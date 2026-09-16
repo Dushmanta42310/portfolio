@@ -1,5 +1,5 @@
 /* Dushmanta Das Portfolio - Service Worker (PWA offline support) */
-const CACHE_NAME = 'dushmanta-portfolio-v2';
+const CACHE_NAME = 'dushmanta-portfolio-v3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -23,13 +23,20 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+    caches.keys()
+      .then((keys) =>
+        Promise.all(
+          keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        )
       )
-    )
+      .then(() => self.clients.claim())
+      // Tell any open pages that a new build is live so they reload.
+      .then(() =>
+        self.clients.matchAll({ type: 'window' }).then((clients) => {
+          clients.forEach((client) => client.postMessage({ type: 'NEW_VERSION' }));
+        })
+      )
   );
-  self.clients.claim();
 });
 
 // NETWORK-FIRST: always show the latest content when online (fixes the "phone

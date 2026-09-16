@@ -914,6 +914,14 @@
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(() => {});
       });
+      // Auto-reload when the service worker serves a new build
+      let swReloading = false;
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'NEW_VERSION' && !swReloading) {
+          swReloading = true;
+          window.location.reload();
+        }
+      });
     }
   </script>
 </body>
