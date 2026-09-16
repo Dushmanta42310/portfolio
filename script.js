@@ -114,12 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = 250;
+        const influence = isSmallScreen ? 340 : 250;
 
         if (dist < influence && dist > 0.01) {
           // EXACT original follow force — just scaled by cursor speed:
           // still cursor = gentle, fast cursor = dots chase faster.
-          const pull = (1 - dist / influence) * (0.3 + flowMag * 0.42);
+          const pull = (1 - dist / influence) * (0.3 + flowMag * (isSmallScreen ? 0.62 : 0.42));
           p.vx += (dx / dist) * pull;
           p.vy += (dy / dist) * pull;
         }
@@ -446,6 +446,22 @@ document.addEventListener('DOMContentLoaded', () => {
       resizeCanvas();
       spawnParticles();
     });
+
+    // Guarantee "DUSHMANTA.DEV" always fits the screen: measure and scale down via a CSS var.
+    function fitLoaderWord() {
+      if (!wordEl || !loader) return;
+      const ltr = wordEl.querySelector('.ltr');
+      if (!ltr) return;
+      const fs = parseFloat(getComputedStyle(ltr).fontSize);
+      const wordWidth = wordEl.scrollWidth;
+      const avail = loader.clientWidth - 8;
+      if (wordWidth > avail && wordWidth > 0) {
+        wordEl.style.setProperty('--loader-fs', (fs * avail / wordWidth).toFixed(2) + 'px');
+      }
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitLoaderWord);
+    window.addEventListener('resize', fitLoaderWord);
+    fitLoaderWord();
 
     resizeCanvas();
     spawnParticles();

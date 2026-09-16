@@ -2714,6 +2714,7 @@ body.loader-active {
   overflow: hidden;
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s ease;
   cursor: crosshair;
+  touch-action: none;
 }
 
 .loader-screen.is-hidden {
@@ -2796,7 +2797,7 @@ body.loader-active {
 .loader-word .ltr {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(2rem, min(12vw, calc(10.4vw - 4px)), 7rem);
+  font-size: var(--loader-fs, clamp(2rem, min(12vw, calc(10.4vw - 4px)), 7rem));
   line-height: 1;
   letter-spacing: -0.03em;
   color: #ffffff;
@@ -2823,7 +2824,7 @@ body.loader-active {
 .loader-word .dev-ltr {
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: clamp(2rem, min(12vw, calc(10.4vw - 4px)), 7rem);
+  font-size: var(--loader-fs, clamp(2rem, min(12vw, calc(10.4vw - 4px)), 7rem));
   line-height: 1;
   letter-spacing: -0.03em;
   color: #ffffff;
@@ -3116,7 +3117,7 @@ body.loader-active {
   .loader-word .ltr,
   .loader-word .dev-dot,
   .loader-word .dev-ltr {
-    font-size: clamp(1.5rem, min(12vw, calc(9.3vw - 2px)), 4.2rem);
+    font-size: var(--loader-fs, clamp(1.5rem, min(12vw, calc(9.3vw - 2px)), 4.2rem));
   }
 
   .loader-word .ltr {
