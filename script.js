@@ -978,15 +978,37 @@ document.addEventListener('DOMContentLoaded', () => {
   if (contactForm) {
     contactForm.addEventListener('submit', function (event) {
       event.preventDefault();
+
       const submitBtn = contactForm.querySelector('button[type="submit"]');
       const originalText = submitBtn ? submitBtn.innerHTML : 'Send Message';
+
+      if (typeof emailjs === 'undefined') {
+        console.error('EmailJS SDK failed to load (CDN blocked or offline).');
+        showStatusMessage('❌ Failed to load the mail service. Please connect directly via WhatsApp or LinkedIn.', false);
+        return;
+      }
 
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
       }
 
-      emailjs.sendForm('service_e7k1egn', 'template_3mx4ug8', this)
+      const value = (fieldName) => {
+        const input = contactForm.querySelector('[name="' + fieldName + '"]');
+        return input ? input.value.trim() : '';
+      };
+
+      const payload = {
+        name: value('name'),
+        email: value('email'),
+        reply_to: value('email'),
+        from_email: value('email'),
+        from_name: value('name'),
+        to_name: 'Dushmanta',
+        message: value('message')
+      };
+
+      emailjs.send('service_e7k1egn', 'template_3mx4ug8', payload)
         .then(() => {
           showStatusMessage('✅ Message sent successfully! I will get back to you soon.', true);
           contactForm.reset();
