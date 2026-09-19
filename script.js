@@ -1015,7 +1015,8 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
           console.error('Email send error:', error);
-          showStatusMessage('❌ Failed to send message. Please connect directly via WhatsApp or LinkedIn.', false);
+          const reason = (error && (error.text || error.message || error)) || 'Unknown error';
+          showStatusMessage('❌ Failed to send message (' + (error && error.status ? error.status + ': ' : '') + reason + '). Please connect via WhatsApp or LinkedIn.', false);
         })
         .finally(() => {
           if (submitBtn) {
