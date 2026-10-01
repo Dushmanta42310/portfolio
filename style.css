@@ -2566,32 +2566,53 @@ footer {
     gap: 12px;
   }
 
+  /* Phones: there is no free gap in the navbar for the bulb, so it shrinks and
+     docks just under the navbar at the right edge - clear of the "Dushmanta.dev"
+     wordmark on the left and of the theme/hamburger buttons on the right. */
+  .bulb-stage {
+    top: 76px;
+    left: auto;
+    right: 6px;
+    transform: none;
+    width: 120px;
+    height: 120px;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Get out of the way while the full-screen mobile menu is open */
+  body:has(.nav-menu.open) .bulb-stage {
+    opacity: 0;
+  }
+
+  /* Decorative only on phones: never steal taps from page content */
   .realistic-bulb-wrapper {
-    width: 62px;
+    width: 46px;
+    pointer-events: none;
+    cursor: default;
   }
 
   .bulb-img {
-    width: 34px;
+    width: 26px;
   }
 
   /* Thin the pull chain on phones */
   .bulb-cord {
     width: 1px;
+    height: 16px;
   }
 
-  /* Shrunken swing arena on phones so the bulb stays near the navbar gap */
-  .bulb-stage {
-    width: 230px;
-    height: 250px;
-  }
-
+  /* Tight swing arena so the bulb stays docked at the right edge */
   .bulb-move-area {
-    width: 86%;
-    height: 74%;
+    width: 88%;
+    height: 70%;
   }
 
+  /* Re-anchor the warm light cone under the relocated bulb */
   .bulb-light-cone {
-    width: 100vw;
+    left: calc(100% - 66px);
+    width: 300px;
+    height: 70vh;
+    background: radial-gradient(ellipse 60% 70% at 50% 0%, rgba(255, 230, 110, 0.26) 0%, rgba(255, 240, 160, 0.12) 42%, transparent 76%);
   }
 
   .skills-section {

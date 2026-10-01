@@ -532,21 +532,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const cone = document.getElementById('bulb-light-cone');
 
     // Physical constants (pixel space, seconds)
-    const WIRE_BASE = 18;          // anchor -> top of metal socket
-    const TO_GLASS = 70;           // socket top -> bulb glass centre inside the SVG
-    const L0 = WIRE_BASE + TO_GLASS; // natural cable length
-    const R_MIN = L0 * 0.3;
-    const R_MAX = L0 * 2.05;
-    const G = 940;                 // gravity px/s^2
-    const KS = 120;                // radial spring (bungee-cable) stiffness
-    const DR = 2.0;                // radial damping
     const DA = 1.15;               // angular (pendulum) damping
+    const bulbImgEl = wrapper.querySelector('.bulb-img');
+
+    let SCALE = 1, WIRE_BASE = 18, TO_GLASS = 70, L0 = 88, R_MIN = 0, R_MAX = 0;
+    let G = 940, KS = 120, DR = 2.0;
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    // Cable geometry follows the rendered bulb size, so the shrunk phone bulb
+    // hangs on a proportionally shorter cable instead of a full-size one.
+    function syncScale() {
+      const renderedW = bulbImgEl ? bulbImgEl.getBoundingClientRect().width : 40;
+      SCALE = clamp(renderedW / 40, 0.45, 1.2);
+      WIRE_BASE = 18 * SCALE;      // anchor -> top of metal socket
+      TO_GLASS = 70 * SCALE;       // socket top -> bulb glass centre inside the SVG
+      L0 = WIRE_BASE + TO_GLASS;   // natural cable length
+      R_MIN = L0 * 0.3;
+      R_MAX = L0 * 2.05;
+      G = 940 * SCALE;             // gravity px/s^2 (keeps the swing rhythm)
+      KS = 120 * SCALE;            // radial spring (bungee-cable) stiffness
+      DR = 2.0 * SCALE;            // radial damping
+    }
+    syncScale();
 
     let r = L0, vR = 0;
     let theta = 0, vTheta = 0;
     let raf = 0, lastTime = 0;
-
-    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
     function arena() {
       return {
@@ -621,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Pluck the pull chain for a quick downward bounce.
     function pluck() {
-      vR += 150;
+      vR += 150 * SCALE;
       vTheta *= 0.4;
       vTheta += (Math.random() < 0.5 ? -1 : 1) * 0.5;
     }
@@ -637,6 +649,16 @@ document.addEventListener('DOMContentLoaded', () => {
       vR += Math.max(40, Math.min(180, L0 * 0.8));
       vTheta += (Math.random() < 0.5 ? -1 : 1) * (1.4 + Math.random() * 0.9);
     };
+
+    // Orientation / breakpoint changes resize the bulb, so re-fit the cable.
+    let resizeTimer = 0;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        syncScale();
+        r = clamp(r, R_MIN, R_MAX);
+      }, 150);
+    });
   }
 
   if (realisticBulb) initBulbPhysics(realisticBulb);
