@@ -284,6 +284,11 @@ body {
   transform: translate(-50%, 2px);
 }
 
+/* Pull thread that stands in for the bulb while it is stowed (phones only) */
+.bulb-thread {
+  display: none;
+}
+
 /* Swing is now CPU-driven by the real physics engine (no CSS keyframes needed) */
 
 @keyframes floatOrb {
@@ -2582,6 +2587,8 @@ footer {
   /* Get out of the way while the full-screen mobile menu is open */
   body:has(.nav-menu.open) .bulb-stage {
     opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
   /* Decorative only on phones: never steal taps from page content */
@@ -2589,6 +2596,84 @@ footer {
     width: 46px;
     pointer-events: none;
     cursor: default;
+    transition: opacity 0.4s ease;
+  }
+
+  /* Phone pull thread: the only bulb part visible while the bulb is stowed */
+  .bulb-thread {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 28px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    transform: translateX(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .bulb-thread::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1.5px;
+    height: 100%;
+    transform: translateX(-50%);
+    background-color: rgba(113, 113, 122, 0.9);
+    background-image: repeating-linear-gradient(180deg, #c9c9ce 0 3px, transparent 3px 6px);
+  }
+
+  .bulb-thread::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    width: 9px;
+    height: 11px;
+    border-radius: 3px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, #f4f4f5 0%, #a1a1aa 45%, #3f3f46 100%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+    transition: transform 0.15s ease;
+  }
+
+  .bulb-thread:active::after {
+    transform: translateX(-50%) translateY(3px);
+  }
+
+  /* Stowed: thread only, bulb retracted into the ceiling */
+  .bulb-stage[data-bulb-state="up"] .bulb-thread {
+    opacity: 1;
+  }
+
+  .bulb-stage[data-bulb-state="up"] .realistic-bulb-wrapper {
+    opacity: 0;
+  }
+
+  .bulb-stage[data-bulb-state="up"] .bulb-assembly {
+    transform: translateX(-50%) translateY(-72px);
+    transition: transform 0.55s cubic-bezier(0.5, 0, 0.75, 0);
+  }
+
+  /* Lowered: bulb is visible and tappable to toggle the theme */
+  .bulb-stage[data-bulb-state="down"] .realistic-bulb-wrapper {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  .bulb-stage[data-bulb-state="down"] .bulb-assembly {
+    transform: translateX(-50%) translateY(0);
+    transition: transform 0.6s cubic-bezier(0.22, 1.3, 0.5, 1);
   }
 
   .bulb-img {

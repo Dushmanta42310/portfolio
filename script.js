@@ -518,12 +518,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (realisticBulb) {
     realisticBulb.addEventListener('click', () => {
+      if (!bulbIsLowered()) return; // stowed on phones: the thread must be pulled first
       toggleThemeWithBulbEffect();
+      setBulbState('down'); // every tap restarts the auto-retract countdown
     });
   }
 
   // 1.2 Interactive Real-Physics Bulb: spring-pendulum inside a bounded move arena
   const bulbStage = document.getElementById('bulb-stage');
+
+  // 1.3 Phone behaviour: the bulb hangs stowed (thread only), is pulled down by
+  // tapping the thread, toggles the theme on tap, and slides back up on its own
+  // after 2 minutes without a tap.
+  const bulbThread = document.getElementById('bulb-thread');
+  const phoneViewport = window.matchMedia('(max-width: 768px)');
+  const BULB_IDLE_MS = 2 * 60 * 1000;
+  let bulbIdleTimer = 0;
+
+  function setBulbState(state) {
+    if (!bulbStage) return;
+    bulbStage.dataset.bulbState = state;
+    clearTimeout(bulbIdleTimer);
+    if (state === 'down') {
+      bulbIdleTimer = setTimeout(() => setBulbState('up'), BULB_IDLE_MS);
+    }
+  }
+
+  function bulbIsLowered() {
+    return !phoneViewport.matches || bulbStage?.dataset.bulbState === 'down';
+  }
+
+  function syncBulbStateToViewport() {
+    if (!bulbStage) return;
+    // Entering the phone layout always stows the bulb back up to its thread.
+    if (phoneViewport.matches) {
+      setBulbState('up');
+    } else {
+      clearTimeout(bulbIdleTimer);
+      bulbStage.dataset.bulbState = 'down';
+    }
+  }
+
+  if (bulbThread) {
+    bulbThread.addEventListener('click', () => {
+      if (!phoneViewport.matches) return;
+      setBulbState('down');
+      if (typeof dropBulb === 'function') dropBulb();
+    });
+  }
+
+  syncBulbStateToViewport();
+  phoneViewport.addEventListener('change', syncBulbStateToViewport);
 
   function initBulbPhysics(wrapper) {
     const stage = bulbStage || wrapper.parentElement || document.body;
@@ -648,6 +693,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.kickBulb = function () {
       vR += Math.max(40, Math.min(180, L0 * 0.8));
       vTheta += (Math.random() < 0.5 ? -1 : 1) * (1.4 + Math.random() * 0.9);
+    };
+
+    // Small drop so the bulb unfurls when the pull thread is tapped.
+    window.dropBulb = function () {
+      vR += 70 * SCALE;
+      vTheta *= 0.3;
     };
 
     // Orientation / breakpoint changes resize the bulb, so re-fit the cable.

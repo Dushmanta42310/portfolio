@@ -121,8 +121,11 @@
   <div class="bulb-light-cone" id="bulb-light-cone"></div>
 
   <!-- Bounded interactive light bulb: real spring-pendulum physics inside a defined move arena -->
-  <div class="bulb-stage" id="bulb-stage">
+  <div class="bulb-stage" id="bulb-stage" data-bulb-state="up">
     <div class="bulb-move-area" aria-hidden="true"></div>
+
+    <!-- Phone only: pull thread shown while the bulb is stowed, tap it to lower the bulb -->
+    <button class="bulb-thread" id="bulb-thread" type="button" aria-label="Pull the light bulb down"></button>
 
     <div class="realistic-bulb-wrapper" id="realistic-bulb" title="Click to turn the light on/off">
       <div class="bulb-wire"></div>
