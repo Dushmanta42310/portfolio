@@ -2571,14 +2571,13 @@ footer {
     gap: 12px;
   }
 
-  /* Phones: there is no free gap in the navbar for the bulb, so it shrinks and
-     docks just under the navbar at the right edge - clear of the "Dushmanta.dev"
-     wordmark on the left and of the theme/hamburger buttons on the right. */
+  /* Phones: the bulb shrinks and hangs centred just under the navbar - below
+     the "Dushmanta.dev" wordmark row and clear of the theme/hamburger buttons. */
   .bulb-stage {
     top: 76px;
-    left: auto;
-    right: 6px;
-    transform: none;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     width: 120px;
     height: 120px;
     transition: opacity 0.3s ease;
@@ -2692,9 +2691,9 @@ footer {
     height: 70%;
   }
 
-  /* Re-anchor the warm light cone under the relocated bulb */
+  /* Re-anchor the warm light cone under the centred bulb */
   .bulb-light-cone {
-    left: calc(100% - 66px);
+    left: 50%;
     width: 300px;
     height: 70vh;
     background: radial-gradient(ellipse 60% 70% at 50% 0%, rgba(255, 230, 110, 0.26) 0%, rgba(255, 240, 160, 0.12) 42%, transparent 76%);

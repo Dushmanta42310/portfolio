@@ -1,5 +1,5 @@
 /* Dushmanta Das Portfolio - Service Worker (PWA offline support) */
-const CACHE_NAME = 'dushmanta-portfolio-v3';
+const CACHE_NAME = 'dushmanta-portfolio-v4';
 const APP_SHELL = [
   './',
   './index.html',
