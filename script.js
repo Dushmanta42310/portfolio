@@ -114,25 +114,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = isSmallScreen ? 340 : 250;
+        const influence = isSmallScreen ? 340 : 320;
 
         if (dist < influence && dist > 0.01) {
-          // EXACT original follow force — just scaled by cursor speed:
-          // still cursor = gentle, fast cursor = dots chase faster.
-          const pull = (1 - dist / influence) * (0.3 + flowMag * (isSmallScreen ? 0.62 : 0.42));
+          // Reduced follow force for more uniform distribution
+          const pull = (1 - dist / influence) * (0.12 + flowMag * (isSmallScreen ? 0.3 : 0.18));
           p.vx += (dx / dist) * pull;
           p.vy += (dy / dist) * pull;
         }
 
-        // Original home spring, damping raised for a smoother, softer glide
-        p.vx += (p.homeX - p.x) * 0.02;
-        p.vy += (p.homeY - p.y) * 0.02;
+        // Stronger home spring for more uniform/anchored placement
+        p.vx += (p.homeX - p.x) * 0.04;
+        p.vy += (p.homeY - p.y) * 0.04;
 
         p.x += p.vx;
         p.y += p.vy;
 
-        p.vx *= 0.94;
-        p.vy *= 0.94;
+        p.vx *= 0.91;
+        p.vy *= 0.91;
 
         // Wrap around edges
         if (p.x < -20) p.x = canvas.width + 20;
