@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isSmallScreen = window.innerWidth < 768;
     const isTouchDevice = window.matchMedia('(hover: none)').matches;
     const showLinks = !isSmallScreen && !isStandalone;
-    const PARTICLE_COUNT = 1000;
+    const PARTICLE_TARGET = isSmallScreen || isStandalone ? 340 : 850;
 
     function resizeCanvas() {
       if (!canvas) return;
@@ -59,25 +59,49 @@ document.addEventListener('DOMContentLoaded', () => {
       canvas.height = window.innerHeight;
     }
 
+    // Stratified jittered grid sampling: guarantees completely uniform dot density
+    // across all quadrants without Poisson clumping or sparse dead zones.
     function spawnParticles() {
       if (!canvas) return;
       particles = [];
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        particles.push({
-          x: x,
-          y: y,
-          homeX: x,
-          homeY: y,
-          vx: 0,
-          vy: 0,
-          r: Math.random() * (isSmallScreen ? 1.4 : 2) + (isSmallScreen ? 0.45 : 0.6),
-          baseR: 0,
-          hue: Math.random() < 0.6 ? 199 : 262,
-          pulse: Math.random() * Math.PI * 2,
-          active: true
-        });
+      const w = canvas.width;
+      const h = canvas.height;
+      if (!w || !h) return;
+
+      const aspect = w / h;
+      const cols = Math.max(12, Math.round(Math.sqrt(PARTICLE_TARGET * aspect)));
+      const rows = Math.max(8, Math.round(PARTICLE_TARGET / cols));
+      const cellW = w / cols;
+      const cellH = h / rows;
+
+      let id = 0;
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          // Organic jitter within cell prevents rigid grid look while maintaining uniform spacing
+          const jx = (Math.random() - 0.5) * cellW * 0.72;
+          const jy = (Math.random() - 0.5) * cellH * 0.72;
+          const x = (c + 0.5) * cellW + jx;
+          const y = (r + 0.5) * cellH + jy;
+
+          const isCyan = Math.random() < 0.65;
+          const baseRadius = Math.random() * (isSmallScreen ? 1.3 : 1.7) + (isSmallScreen ? 0.5 : 0.65);
+
+          particles.push({
+            id: id++,
+            x: x,
+            y: y,
+            homeX: x,
+            homeY: y,
+            vx: 0,
+            vy: 0,
+            r: baseRadius,
+            baseR: baseRadius,
+            hue: isCyan ? 199 : 265,
+            pulse: Math.random() * Math.PI * 2,
+            pulseSpeed: 0.02 + Math.random() * 0.025,
+            glow: 0
+          });
+        }
       }
     }
 
@@ -88,18 +112,18 @@ document.addEventListener('DOMContentLoaded', () => {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduce) return;
 
-      // Smoothed cursor speed -> a 0..1 "intensity" factor (0 = still, 1 = fast flick)
+      // Smoothed cursor speed -> a 0..1 "intensity" factor
       const rawVX = mouse.x - prevMouse.x;
       const rawVY = mouse.y - prevMouse.y;
       prevMouse.x = mouse.x;
       prevMouse.y = mouse.y;
 
-      flowX += (rawVX - flowX) * 0.12;
-      flowY += (rawVY - flowY) * 0.12;
-      const flowMag = Math.min(1, Math.hypot(flowX, flowY) / 24);
+      flowX += (rawVX - flowX) * 0.15;
+      flowY += (rawVY - flowY) * 0.15;
+      const flowMag = Math.min(1, Math.hypot(flowX, flowY) / 22);
 
-      // Spatial grid keeps line-linking fast (avoids O(n^2) lag)
-      const LINK_DIST = 110;
+      // Spatial grid keeps line-linking fast and avoids O(n^2) lag
+      const LINK_DIST = 105;
       const CELL = LINK_DIST;
       const grid = new Map();
       const cellKey = (cx, cy) => cx + ',' + cy;
@@ -110,46 +134,70 @@ document.addEventListener('DOMContentLoaded', () => {
         bucket.push(p);
       }
 
+      const influence = isSmallScreen ? 250 : 310;
+      const CORE_RADIUS = 48; // Gentle repulsion cushion around follow dot to prevent clump collapse
+
       for (const p of particles) {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
-        const influence = isSmallScreen ? 340 : 320;
 
         if (dist < influence && dist > 0.01) {
-          // Reduced follow force for more uniform distribution
-          const pull = (1 - dist / influence) * (0.12 + flowMag * (isSmallScreen ? 0.3 : 0.18));
-          p.vx += (dx / dist) * pull;
-          p.vy += (dy / dist) * pull;
+          const normDist = dist / influence;
+
+          if (dist < CORE_RADIUS) {
+            // Soft core repulsion keeps the follow dot distinct and forms a cosmic orbit halo
+            const push = (1 - dist / CORE_RADIUS) * 0.42;
+            p.vx -= (dx / dist) * push;
+            p.vy -= (dy / dist) * push;
+          } else {
+            // Smooth bell-curve follow attraction peaking in the mid-range
+            const pull = Math.sin(normDist * Math.PI) * (0.3 + flowMag * (isSmallScreen ? 0.42 : 0.36));
+            p.vx += (dx / dist) * pull;
+            p.vy += (dy / dist) * pull;
+          }
+
+          // Liquid tangential swirl following cursor momentum
+          if (flowMag > 0.04) {
+            const cross = (dx * flowY - dy * flowX) / (dist * dist + 120);
+            p.vx += -dy * cross * 0.16;
+            p.vy += dx * cross * 0.16;
+          }
+
+          p.glow = 1 - normDist;
+        } else {
+          p.glow = 0;
         }
 
-        // Stronger home spring for more uniform/anchored placement
-        p.vx += (p.homeX - p.x) * 0.04;
-        p.vy += (p.homeY - p.y) * 0.04;
+        // Uniform spring anchoring back to home coordinates
+        p.vx += (p.homeX - p.x) * 0.038;
+        p.vy += (p.homeY - p.y) * 0.038;
+
+        // Silky damping
+        p.vx *= 0.89;
+        p.vy *= 0.89;
 
         p.x += p.vx;
         p.y += p.vy;
 
-        p.vx *= 0.91;
-        p.vy *= 0.91;
-
-        // Wrap around edges
+        // Wrap around edges gracefully
         if (p.x < -20) p.x = canvas.width + 20;
         if (p.x > canvas.width + 20) p.x = -20;
         if (p.y < -20) p.y = canvas.height + 20;
         if (p.y > canvas.height + 20) p.y = -20;
 
-        // Pulsing brightness
-        p.pulse += 0.03;
-        const alpha = (0.3 + Math.sin(p.pulse) * 0.2 + 0.15) * (isSmallScreen ? 0.6 : 1);
+        // Pulsing brightness + interactive proximity glow
+        p.pulse += p.pulseSpeed;
+        const baseAlpha = 0.28 + Math.sin(p.pulse) * 0.18 + 0.12;
+        const currentAlpha = Math.min(1, (baseAlpha + p.glow * 0.45) * (isSmallScreen ? 0.75 : 1));
+        const currentRadius = p.baseR * (1 + p.glow * 0.35);
 
         ctx.beginPath();
-        ctx.fillStyle = 'hsla(' + p.hue + ', 90%, 65%, ' + Math.max(0.05, alpha) + ')';
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'hsla(' + p.hue + ', 92%, ' + (65 + p.glow * 15) + '%, ' + Math.max(0.06, currentAlpha) + ')';
+        ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Connect nearby particles with faint lines (constellation feel).
-        // Skipped on phones/installed app where it only adds visual fog.
+        // Connect nearby particles with faint constellation lines (single-pass check)
         if (showLinks) {
           const cx = Math.floor(p.x / CELL);
           const cy = Math.floor(p.y / CELL);
@@ -158,14 +206,18 @@ document.addEventListener('DOMContentLoaded', () => {
               const bucket = grid.get(cellKey(gx, gy));
               if (!bucket) continue;
               for (const q of bucket) {
-                if (q === p) continue;
+                if (q.id <= p.id) continue;
                 const qdx = p.x - q.x;
                 const qdy = p.y - q.y;
                 const qdist = qdx * qdx + qdy * qdy;
                 if (qdist < LINK_DIST * LINK_DIST) {
-                  const a = (1 - Math.sqrt(qdist) / LINK_DIST) * 0.08;
-                  ctx.strokeStyle = 'hsla(199, 90%, 65%, ' + a + ')';
-                  ctx.lineWidth = 0.6;
+                  const lineDist = Math.sqrt(qdist);
+                  const isNearCursor = dist < 160 || Math.hypot(mouse.x - q.x, mouse.y - q.y) < 160;
+                  const lineAlpha = (1 - lineDist / LINK_DIST) * (isNearCursor ? 0.16 : 0.07);
+                  ctx.strokeStyle = isNearCursor
+                    ? 'hsla(199, 95%, 72%, ' + lineAlpha + ')'
+                    : 'hsla(220, 85%, 65%, ' + lineAlpha + ')';
+                  ctx.lineWidth = isNearCursor ? 0.8 : 0.55;
                   ctx.beginPath();
                   ctx.moveTo(p.x, p.y);
                   ctx.lineTo(q.x, q.y);
@@ -179,22 +231,68 @@ document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(drawParticles);
     }
 
-    // ============ B) Cursor glow orb (smooth lerp follow) ============
+    // ============ B) Cursor follow dot (smooth lerp & interactive physics) ============
     let glowX = window.innerWidth / 2;
     let glowY = window.innerHeight / 2;
     let targetX = glowX;
     let targetY = glowY;
+    let isClicking = false;
+    let isHovering = false;
+
+    function updateHoverState(target) {
+      if (!cursorGlow) return;
+      if (!target) {
+        if (isHovering) {
+          isHovering = false;
+          cursorGlow.classList.remove('is-hovering');
+        }
+        return;
+      }
+      const interactive = target.closest('button, a, .loader-avatar-ring, .loader-terminal, .loader-skip');
+      const shouldHover = !!interactive;
+      if (shouldHover !== isHovering) {
+        isHovering = shouldHover;
+        if (isHovering) cursorGlow.classList.add('is-hovering');
+        else cursorGlow.classList.remove('is-hovering');
+      }
+    }
 
     function tickCursorGlow() {
       if (!cursorGlow || done) return;
-      glowX += (targetX - glowX) * 0.16;
-      glowY += (targetY - glowY) * 0.16;
+
+      const lerpSpeed = isSmallScreen ? 0.22 : 0.18;
+      glowX += (targetX - glowX) * lerpSpeed;
+      glowY += (targetY - glowY) * lerpSpeed;
+
+      const vx = targetX - glowX;
+      const vy = targetY - glowY;
+      const speed = Math.hypot(vx, vy);
+      const angle = Math.atan2(vy, vx);
+      const stretch = Math.min(0.24, speed * 0.007);
+
       cursorGlow.style.transform =
-        'translate(' + (glowX - 40).toFixed(1) + 'px,' + (glowY - 40).toFixed(1) + 'px)';
+        'translate3d(' + (glowX - 32).toFixed(1) + 'px,' + (glowY - 32).toFixed(1) + 'px, 0) ' +
+        'rotate(' + angle.toFixed(2) + 'rad) ' +
+        'scale(' + (1 + stretch).toFixed(3) + ',' + (1 - stretch * 0.5).toFixed(3) + ')';
+
       requestAnimationFrame(tickCursorGlow);
     }
 
-    // ============ C) Click ripple rings ============
+    // ============ C) Click ripple rings & interactive shockwave ============
+    function triggerShockwave(x, y) {
+      const radius = isSmallScreen ? 220 : 300;
+      for (const p of particles) {
+        const dx = p.x - x;
+        const dy = p.y - y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < radius && dist > 1) {
+          const force = (1 - dist / radius) * 8.2;
+          p.vx += (dx / dist) * force;
+          p.vy += (dy / dist) * force;
+        }
+      }
+    }
+
     function spawnClickRing(clientX, clientY) {
       if (!clickRings) return;
       const ring = document.createElement('span');
@@ -357,6 +455,8 @@ document.addEventListener('DOMContentLoaded', () => {
           // Landed: squash the dot (Pixar stomp), reveal ".dev", fade ball out smoothly.
           periodEl.classList.add('is-squashed');
           hopper.classList.add('is-landed');
+          triggerShockwave(periodCenter.x, periodCenter.y);
+          spawnClickRing(periodCenter.x, periodCenter.y);
           dotStyle.transition = 'opacity 0.5s ease';
           dotStyle.opacity = '0';
           if (wordEl) wordEl.classList.add('dev-revealed');
@@ -418,20 +518,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------- Interactive listeners ----------
     if (skipBtn) skipBtn.addEventListener('click', skip);
     loader.addEventListener('click', (e) => {
-      if (e.target === loader) spawnClickRing(e.clientX, e.clientY);
+      if (e.target === loader) {
+        spawnClickRing(e.clientX, e.clientY);
+        triggerShockwave(e.clientX, e.clientY);
+      }
     });
 
-    // Any click on the screen during the intro spawns a ripple
+    // Interactive pointer interactions
     document.addEventListener('pointerdown', (e) => {
-      if (!done) spawnClickRing(e.clientX, e.clientY);
+      if (done) return;
+      isClicking = true;
+      if (cursorGlow) cursorGlow.classList.add('is-clicking');
+      spawnClickRing(e.clientX, e.clientY);
+      triggerShockwave(e.clientX, e.clientY);
     });
 
-    // Mouse move -> particles react & glow follows
+    document.addEventListener('pointerup', () => {
+      if (done) return;
+      isClicking = false;
+      if (cursorGlow) cursorGlow.classList.remove('is-clicking');
+    });
+
+    // Mouse move -> particles react & follow dot smoothly tracks
     document.addEventListener('pointermove', (e) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
       targetX = e.clientX;
       targetY = e.clientY;
+      if (cursorGlow) {
+        cursorGlow.style.opacity = '1';
+        updateHoverState(e.target);
+      }
+    });
+
+    document.addEventListener('mouseleave', () => {
+      if (cursorGlow) cursorGlow.style.opacity = '0';
+    });
+
+    document.addEventListener('mouseenter', () => {
+      if (cursorGlow && !isTouchDevice) cursorGlow.style.opacity = '1';
     });
 
     // Keyboard-only users: glow follows a slight idle drift
