@@ -118,12 +118,12 @@ document.addEventListener('DOMContentLoaded', () => {
       prevMouse.x = mouse.x;
       prevMouse.y = mouse.y;
 
-      flowX += (rawVX - flowX) * 0.15;
-      flowY += (rawVY - flowY) * 0.15;
-      const flowMag = Math.min(1, Math.hypot(flowX, flowY) / 22);
+      flowX += (rawVX - flowX) * 0.22;
+      flowY += (rawVY - flowY) * 0.22;
+      const flowMag = Math.min(1, Math.hypot(flowX, flowY) / 16);
 
       // Spatial grid keeps line-linking fast and avoids O(n^2) lag
-      const LINK_DIST = 105;
+      const LINK_DIST = 110;
       const CELL = LINK_DIST;
       const grid = new Map();
       const cellKey = (cx, cy) => cx + ',' + cy;
@@ -134,66 +134,83 @@ document.addEventListener('DOMContentLoaded', () => {
         bucket.push(p);
       }
 
-      const influence = isSmallScreen ? 250 : 310;
-      const CORE_RADIUS = 48; // Gentle repulsion cushion around follow dot to prevent clump collapse
+      const influence = isSmallScreen ? 340 : 460;
 
       for (const p of particles) {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.hypot(dx, dy);
 
+        // Edge falloff: reduce magnetic pull when cursor/particle near screen edges
+        const edgeMargin = isSmallScreen ? 60 : 90;
+        const mx = Math.min(mouse.x, canvas.width - mouse.x);
+        const my = Math.min(mouse.y, canvas.height - mouse.y);
+        const edgeFactor = Math.min(mx, my) / edgeMargin;
+        const nearEdge = edgeFactor < 1 ? edgeFactor : 1;
+        const edgeDampen = nearEdge * nearEdge;
+
         if (dist < influence && dist > 0.01) {
           const normDist = dist / influence;
+          // Magnetic falloff: stronger in the mid-field, curls around cursor
+          const falloff = (1 - normDist) * edgeDampen;
+          const curve = Math.pow(falloff, 1.25);
+          if (curve > 0.001) {
+            const pull = curve * (0.28 + flowMag * (isSmallScreen ? 0.36 : 0.46));
+            const invDist = 1 / dist;
+            const dirX = dx * invDist;
+            const dirY = dy * invDist;
 
-          if (dist < CORE_RADIUS) {
-            // Soft core repulsion keeps the follow dot distinct and forms a cosmic orbit halo
-            const push = (1 - dist / CORE_RADIUS) * 0.42;
-            p.vx -= (dx / dist) * push;
-            p.vy -= (dy / dist) * push;
-          } else {
-            // Smooth bell-curve follow attraction peaking in the mid-range
-            const pull = Math.sin(normDist * Math.PI) * (0.3 + flowMag * (isSmallScreen ? 0.42 : 0.36));
-            p.vx += (dx / dist) * pull;
-            p.vy += (dy / dist) * pull;
+            p.vx += dirX * pull;
+            p.vy += dirY * pull;
+
+            // Tangential swirl driven by cursor velocity (antigravity-like curl)
+            if (flowMag > 0.01) {
+              const swirl = curve * flowMag * (isSmallScreen ? 0.22 : 0.28);
+              p.vx += (-dirY) * swirl;
+              p.vy += (dirX) * swirl;
+            }
           }
 
-          // Liquid tangential swirl following cursor momentum
-          if (flowMag > 0.04) {
-            const cross = (dx * flowY - dy * flowX) / (dist * dist + 120);
-            p.vx += -dy * cross * 0.16;
-            p.vy += dx * cross * 0.16;
-          }
-
-          p.glow = 1 - normDist;
+          p.glow = curve;
         } else {
-          p.glow = 0;
+          p.glow = Math.max(0, p.glow * 0.92);
         }
 
-        // Uniform spring anchoring back to home coordinates
-        p.vx += (p.homeX - p.x) * 0.038;
-        p.vy += (p.homeY - p.y) * 0.038;
+        // Lighter home spring so particles actually trail and follow
+        p.vx += (p.homeX - p.x) * 0.024;
+        p.vy += (p.homeY - p.y) * 0.024;
 
-        // Silky damping
-        p.vx *= 0.89;
-        p.vy *= 0.89;
+        // More inertia, slightly less damping
+        p.vx *= 0.93;
+        p.vy *= 0.93;
+
+        // Higher cap for snappier magnetic chase
+        const maxV = isSmallScreen ? 4.8 : 6.0;
+        const vMag = Math.hypot(p.vx, p.vy);
+        if (vMag > maxV) {
+          const s = maxV / vMag;
+          p.vx *= s;
+          p.vy *= s;
+        }
 
         p.x += p.vx;
         p.y += p.vy;
 
-        // Wrap around edges gracefully
-        if (p.x < -20) p.x = canvas.width + 20;
-        if (p.x > canvas.width + 20) p.x = -20;
-        if (p.y < -20) p.y = canvas.height + 20;
-        if (p.y > canvas.height + 20) p.y = -20;
+        // Soft bounce instead of wrapping - feels more physical near edges
+        const bounce = 0.6;
+        if (p.x < 0) { p.x = 0; p.vx *= -bounce; }
+        if (p.x > canvas.width) { p.x = canvas.width; p.vx *= -bounce; }
+        if (p.y < 0) { p.y = 0; p.vy *= -bounce; }
+        if (p.y > canvas.height) { p.y = canvas.height; p.vy *= -bounce; }
 
         // Pulsing brightness + interactive proximity glow
         p.pulse += p.pulseSpeed;
         const baseAlpha = 0.28 + Math.sin(p.pulse) * 0.18 + 0.12;
-        const currentAlpha = Math.min(1, (baseAlpha + p.glow * 0.45) * (isSmallScreen ? 0.75 : 1));
-        const currentRadius = p.baseR * (1 + p.glow * 0.35);
+        const currentAlpha = Math.min(1, (baseAlpha + p.glow * 0.48) * (isSmallScreen ? 0.76 : 0.98));
+        const currentRadius = p.baseR * (1 + p.glow * 0.32);
 
         ctx.beginPath();
-        ctx.fillStyle = 'hsla(' + p.hue + ', 92%, ' + (65 + p.glow * 15) + '%, ' + Math.max(0.06, currentAlpha) + ')';
+        ctx.fillStyle = 'hsla(' + p.hue + ', 94%, ' + (68 + p.glow * 14) + '%, ' + Math.max(0.06, currentAlpha) + ')';
         ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2);
         ctx.fill();
 
@@ -212,12 +229,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const qdist = qdx * qdx + qdy * qdy;
                 if (qdist < LINK_DIST * LINK_DIST) {
                   const lineDist = Math.sqrt(qdist);
-                  const isNearCursor = dist < 160 || Math.hypot(mouse.x - q.x, mouse.y - q.y) < 160;
-                  const lineAlpha = (1 - lineDist / LINK_DIST) * (isNearCursor ? 0.16 : 0.07);
+                  // Cursor is measured against the link midpoint so the web reacts precisely
+                  const midX = (p.x + q.x) * 0.5;
+                  const midY = (p.y + q.y) * 0.5;
+                  const cursorDist = Math.hypot(midX - mouse.x, midY - mouse.y);
+                  const near = Math.max(0, 1 - cursorDist / 230);
+                  const nearEase = near * near;
+                  const isNearCursor = nearEase > 0.005;
+                  // Cursor speed energizes nearby links for a live, responsive network
+                  const energy = nearEase * (0.16 + flowMag * 0.34);
+                  const lineAlpha = (1 - lineDist / LINK_DIST) * (isNearCursor ? energy : 0.07);
                   ctx.strokeStyle = isNearCursor
-                    ? 'hsla(199, 95%, 72%, ' + lineAlpha + ')'
+                    ? 'hsla(' + (199 + nearEase * 24).toFixed(0) + ', 95%, ' + (64 + nearEase * 18).toFixed(0) + '%, ' + lineAlpha + ')'
                     : 'hsla(220, 85%, 65%, ' + lineAlpha + ')';
-                  ctx.lineWidth = isNearCursor ? 0.8 : 0.55;
+                  ctx.lineWidth = isNearCursor ? 0.6 + nearEase * 1.0 + flowMag * nearEase * 0.5 : 0.55;
                   ctx.beginPath();
                   ctx.moveTo(p.x, p.y);
                   ctx.lineTo(q.x, q.y);
@@ -228,6 +253,28 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       }
+
+      // Cursor web: nearby dots reach back to the pointer for a live, interactive network
+      if (showLinks && mouse.x > -1000) {
+        const CURSOR_LINK = 175;
+        const reach = CURSOR_LINK * (1 + flowMag * 0.35);
+        for (const p of particles) {
+          const cdx = p.x - mouse.x;
+          const cdy = p.y - mouse.y;
+          const cdist = Math.hypot(cdx, cdy);
+          if (cdist > reach || cdist < 1) continue;
+          const fade = 1 - cdist / reach;
+          const alpha = fade * fade * (0.16 + flowMag * 0.18) * (0.7 + p.glow * 0.3);
+          if (alpha < 0.005) continue;
+          ctx.strokeStyle = 'hsla(199, 96%, 74%, ' + alpha + ')';
+          ctx.lineWidth = 0.45 + fade * 0.75;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+        }
+      }
+
       requestAnimationFrame(drawParticles);
     }
 
@@ -280,15 +327,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ============ C) Click ripple rings & interactive shockwave ============
     function triggerShockwave(x, y) {
-      const radius = isSmallScreen ? 220 : 300;
+      const radius = isSmallScreen ? 240 : 340;
       for (const p of particles) {
         const dx = p.x - x;
         const dy = p.y - y;
         const dist = Math.hypot(dx, dy);
         if (dist < radius && dist > 1) {
-          const force = (1 - dist / radius) * 8.2;
+          const force = (1 - dist / radius) * 9.5;
           p.vx += (dx / dist) * force;
           p.vy += (dy / dist) * force;
+          p.vx += (-dy / dist) * force * 0.28;
+          p.vy += (dx / dist) * force * 0.28;
         }
       }
     }
