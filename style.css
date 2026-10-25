@@ -3217,7 +3217,8 @@ body.loader-active {
 /* --- Let's Go / Enter control (interactive) --- */
 .loader-skip {
   position: relative;
-  margin-top: clamp(22px, 4vh, 36px);
+  margin-top: clamp(12px, 2vh, 22px);
+  transform: translateY(-12px);
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -3261,19 +3262,24 @@ body.loader-active {
 }
 
 .loader-screen.is-ready .loader-skip {
-  animation: subFade 0.6s ease forwards;
+  animation: subFadeUp 0.6s ease forwards;
+}
+
+@keyframes subFadeUp {
+  from { opacity: 0; transform: translateY(-4px); letter-spacing: 0.8em; }
+  to   { opacity: 1; transform: translateY(-12px); }
 }
 
 .loader-skip:hover,
 .loader-skip:focus-visible {
-  transform: translateY(-4px) scale(1.1);
+  transform: translateY(-16px) scale(1.1);
   box-shadow: 0 0 44px rgba(56, 189, 248, 0.8), 0 10px 28px rgba(0, 0, 0, 0.4);
   background: linear-gradient(100deg, var(--accent-purple), var(--accent-cyan));
   outline: none;
 }
 
 .loader-skip:active {
-  transform: translateY(0) scale(0.95);
+  transform: translateY(-14px) scale(0.95);
   box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
 }
 
